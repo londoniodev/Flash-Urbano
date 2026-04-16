@@ -27,10 +27,15 @@ export default function LiveDashboard() {
     // TODO: Implementar lógica real con nuestro backend API
     const fetchInitialLogs = async () => {
       console.log('Fetching logs...');
+      setEntries([]);
+      setLastInsertedId(null);
     };
 
     const fetchTodayMetrics = async () => {
       console.log('Fetching metrics...');
+      setTodayIngress(0);
+      setTodayEgress(0);
+      setActiveOperators(0);
     };
 
     fetchInitialLogs();
