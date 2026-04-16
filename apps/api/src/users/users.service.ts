@@ -87,6 +87,18 @@ export class UsersService {
     return user;
   }
 
+  async registerPublic(dto: CreateUserDto) {
+    // Check if it's the first user ever
+    const existingUsers = await this.db.select({ id: users.id }).from(users).limit(1);
+    const isFirstUser = existingUsers.length === 0;
+
+    // Force role: ADMIN if first user, else B2B_CLIENT or specific logic
+    const roleToAssign = isFirstUser ? 'ADMIN' : 'CLIENT_ECOMMERCE';
+
+    const safeDto = { ...dto, role: roleToAssign as any, companyId: null, hubId: null };
+    return this.create(safeDto);
+  }
+
   async update(id: string, dto: UpdateUserDto) {
     await this.findOne(id);
     const [updated] = await this.db
