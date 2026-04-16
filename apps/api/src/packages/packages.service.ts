@@ -1,72 +1,63 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { DRIZZLE } from '../database/database.module';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { eq, and, desc } from 'drizzle-orm';
 import { packages, packageMovements } from '../database/schema';
-import { eq, desc } from 'drizzle-orm';
-import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import type * as schema from '../database/schema';
+import { CreatePackageDto, UpdatePackageDto } from './dto/package.dto';
 
 @Injectable()
 export class PackagesService {
-  constructor(
-    @Inject(DRIZZLE)
-    private readonly db: PostgresJsDatabase<typeof schema>,
-  ) {}
+  constructor(@Inject('DATABASE') private db: any) {}
 
-  /** Obtener todos los paquetes de una empresa */
-  async findByCompany(companyId: string) {
-    return this.db
-      .select()
-      .from(packages)
-      .where(eq(packages.companyId, companyId))
-      .orderBy(desc(packages.createdAt));
+  async findAll(filters?: { companyId?: string; hubId?: string; status?: string }) {
+    let query = this.db.select().from(packages);
+
+    const conditions = [];
+    if (filters?.companyId) conditions.push(eq(packages.companyId, filters.companyId));
+    if (filters?.hubId) conditions.push(eq(packages.hubId, filters.hubId));
+    if (filters?.status) conditions.push(eq(packages.status, filters.status as any));
+
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+
+    return query.orderBy(desc(packages.createdAt));
   }
 
-  /** Obtener un paquete por su ID */
   async findOne(id: string) {
-    const result = await this.db
-      .select()
-      .from(packages)
-      .where(eq(packages.id, id))
-      .limit(1);
-    return result[0] ?? null;
+    const [pkg] = await this.db.select().from(packages).where(eq(packages.id, id)).limit(1);
+    if (!pkg) throw new NotFoundException('Paquete no encontrado');
+    return pkg;
   }
 
-  /** Crear un nuevo paquete (Ingreso de mercancía) */
-  async create(data: {
-    companyId: string;
-    hubId: string;
-    description: string;
-    weight?: number;
-    operatorId: string;
-  }) {
-    const [newPackage] = await this.db
-      .insert(packages)
-      .values({
-        companyId: data.companyId,
-        hubId: data.hubId,
-        description: data.description,
-        weight: data.weight,
-        status: 'RECIBIDO',
-      })
-      .returning();
+  async findByQr(qrCode: string) {
+    const [pkg] = await this.db.select().from(packages).where(eq(packages.qrCode, qrCode)).limit(1);
+    if (!pkg) throw new NotFoundException('Paquete no encontrado por QR');
+    return pkg;
+  }
 
-    // Registrar movimiento inicial de INGRESO en el Kardex
+  async create(dto: CreatePackageDto, operatorId: string) {
+    // Crear el paquete
+    const [pkg] = await this.db.insert(packages).values(dto).returning();
+
+    // Registrar movimiento de INGRESO automáticamente
     await this.db.insert(packageMovements).values({
-      packageId: newPackage.id,
+      packageId: pkg.id,
       movementType: 'INGRESO',
-      toHubId: data.hubId,
-      operatorId: data.operatorId,
+      toHubId: dto.hubId,
+      operatorId,
+      notes: 'Ingreso inicial al sistema',
     });
 
-    return newPackage;
+    return pkg;
   }
 
-  /** Obtener historial de movimientos de un paquete */
-  async getMovements(packageId: string) {
-    return this.db
-      .select()
-      .from(packageMovements)
-      .where(eq(packageMovements.packageId, packageId))
-      .orderBy(desc(packageMovements.createdAt));
+  async update(id: string, dto: UpdatePackageDto) {
+    await this.findOne(id);
+    const [updated] = await this.db
+      .update(packages)
+      .set({ ...dto, updatedAt: new Date() })
+      .where(eq(packages.id, id))
+      .returning();
+
+    return updated;
   }
 }
