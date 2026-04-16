@@ -64,15 +64,15 @@ export default function InstallAppModal({ isOpen, onClose }: InstallAppModalProp
           </div>
 
           <div className="flex flex-col w-full gap-2 text-center">
-            <Button 
-              asChild 
-              className="w-full h-12 text-base font-bold bg-zinc-100 text-zinc-900 hover:bg-zinc-300"
+            <a 
+              href={downloadUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-full h-12 flex items-center justify-center text-base font-bold bg-zinc-100 text-zinc-900 hover:bg-zinc-300 rounded-lg transition-colors"
             >
-              <a href={downloadUrl} target="_blank" rel="noopener noreferrer">
-                <Download size={18} className="mr-2" />
-                Descargar APK Directa
-              </a>
-            </Button>
+              <Download size={18} className="mr-2" />
+              Descargar APK Directa
+            </a>
             <p className="text-[10px] text-zinc-500 font-medium">Compatible exclusivamente con Android 8.0+</p>
           </div>
         </div>
