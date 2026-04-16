@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import LiveDashboard from './pages/LiveDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -11,8 +12,9 @@ function App() {
         {/* Ruta base: Landing Page */}
         <Route path="/" element={<LandingPage />} />
         
-        {/* Página de Login Pública */}
+        {/* Páginas Públicas */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         
         {/* Dashboard Protegido */}
         <Route 

@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.4.0",
-    "@flash-urbano/shared": "workspace:*",
+    "@flash-urbano/shared": "file:../../packages/shared",
     "@fontsource-variable/geist": "^5.2.8",
     "@tailwindcss/vite": "^4.2.2",
     "class-variance-authority": "^0.7.1",

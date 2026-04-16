@@ -1,10 +1,14 @@
 import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthProvider';
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  // TODO: Implementar autenticación real con nuestro backend
-  const hasToken = true;
+  const { token, isLoading } = useAuth();
 
-  if (!hasToken) {
+  if (isLoading) {
+    return <div className="h-screen w-screen flex items-center justify-center">Cargando...</div>;
+  }
+
+  if (!token) {
     return <Navigate to="/login" replace />;
   }
 

@@ -7,11 +7,13 @@ import { Input } from '../components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '../components/ui/card';
 import { Label } from '../components/ui/label';
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate();
   const { login } = useAuth();
   
   const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
   });
@@ -25,14 +27,15 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await api.post('/auth/login', formData);
+      // Registrar y auto-login si es exitoso
+      const res = await api.post('/auth/register', formData);
       const data = res.data;
       if (data && data.access_token) {
         login(data.access_token, data.user);
         navigate('/dashboard');
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Credenciales inválidas. Verifica tu correo y contraseña.');
+      setError(err.response?.data?.message || 'Error al intentar registrar usuario. Inténtalo más tarde.');
     } finally {
       setLoading(false);
     }
@@ -40,9 +43,10 @@ export default function Login() {
 
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-zinc-950 p-4">
+      {/* Círculos Glassmorphism de fondo para darle estética */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[0%] left-[20%] w-[30%] h-[40%] rounded-full bg-primary/20 blur-[130px]" />
-        <div className="absolute bottom-[10%] right-[10%] w-[40%] h-[30%] rounded-full bg-primary/10 blur-[100px]" />
+        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-primary/20 blur-[120px]" />
+        <div className="absolute bottom-[0%] right-[0%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[100px]" />
       </div>
 
       <Card className="w-full max-w-md relative z-10 bg-black/40 backdrop-blur-xl border-zinc-800 text-zinc-100">
@@ -52,11 +56,36 @@ export default function Login() {
             URBANO
           </CardTitle>
           <CardDescription className="text-center text-zinc-400">
-            Ingresa a tu panel de despacho y control B2B
+            Regístrate y configura tu cuenta de negocios (El primer registro será ADMIN automático)
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName" className="text-zinc-300">Nombre</Label>
+                <Input 
+                  id="firstName" 
+                  required
+                  placeholder="Ej. Álvaro"
+                  className="bg-zinc-900/50 border-zinc-700 text-white focus-visible:ring-primary"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName" className="text-zinc-300">Apellidos</Label>
+                <Input 
+                  id="lastName" 
+                  required
+                  placeholder="Pérez"
+                  className="bg-zinc-900/50 border-zinc-700 text-white focus-visible:ring-primary"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email" className="text-zinc-300">Correo Electrónico</Label>
               <Input 
@@ -83,16 +112,16 @@ export default function Login() {
 
             {error && <div className="text-red-500 text-sm py-2 px-3 bg-red-500/10 rounded-md border border-red-500/20">{error}</div>}
 
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold h-11" disabled={loading}>
-              {loading ? 'Iniciando sesión...' : 'Entrar al Panel'}
+            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold" disabled={loading}>
+              {loading ? 'Creando cuenta...' : 'Registrar Cuenta'}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex flex-col gap-2 border-t border-zinc-800 pt-4">
           <div className="text-center text-sm text-zinc-400">
-            ¿No tienes cuenta administrativa?{' '}
-            <Button variant="link" className="text-primary p-0 h-auto font-semibold" onClick={() => navigate('/register')}>
-              Crea tu perfil inicial
+            ¿Ya tienes una cuenta?{' '}
+            <Button variant="link" className="text-primary p-0 h-auto font-semibold" onClick={() => navigate('/login')}>
+              Inicia sesión aquí
             </Button>
           </div>
         </CardFooter>
