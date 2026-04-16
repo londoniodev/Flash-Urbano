@@ -1,0 +1,16 @@
+node_modules
+apps/*/node_modules
+packages/*/node_modules
+dist
+apps/*/dist
+packages/*/dist
+.git
+.gitignore
+.env
+.DS_Store
+*.md
+coverage
+apps/*/coverage
+.vscode
+.gemini
+tmp
