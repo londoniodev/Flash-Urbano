@@ -30,7 +30,7 @@ COPY packages/shared/package.json ./packages/shared/
 COPY apps/api/package.json ./apps/api/
 
 # Instalar dependencias en limpio
-RUN bun install --production
+RUN bun install --no-frozen-lockfile --production
 
 # Mover solo el codigo final
 COPY packages/shared ./packages/shared
