@@ -9,7 +9,7 @@ COPY apps/api/package.json ./apps/api/
 COPY packages/shared/package.json ./packages/shared/
 
 # Instalar dependencias
-RUN bun install --frozen-lockfile
+RUN bun install
 
 # Copiar el código fuente necesario
 COPY packages/shared/ ./packages/shared/
