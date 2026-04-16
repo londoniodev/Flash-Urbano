@@ -24,15 +24,17 @@ FROM oven/bun:1-slim
 
 WORKDIR /app
 
-# Preservar estructura monorepo para que Node Modules resuelva bien los enlaces
-COPY --from=builder /app/package.json /app/bun.lock ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/packages/shared ./packages/shared
+# Preservar estructura de workspaces para dependencias
+COPY package.json bun.lock ./
+COPY packages/shared/package.json ./packages/shared/
+COPY apps/api/package.json ./apps/api/
 
-# Carpeta de la API
-COPY --from=builder /app/apps/api/package.json ./apps/api/
+# Instalar dependencias en limpio
+RUN bun install --production
+
+# Mover solo el codigo final
+COPY packages/shared ./packages/shared
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/apps/api/drizzle.config.ts ./apps/api/
 COPY --from=builder /app/apps/api/drizzle ./apps/api/drizzle
 COPY --from=builder /app/apps/api/entrypoint.sh ./apps/api/
 
@@ -41,5 +43,5 @@ RUN chmod +x ./entrypoint.sh
 
 EXPOSE 3001
 
-# Migraciones automáticas + arranque del servidor
+# Migraciones programáticas + arranque del servidor
 ENTRYPOINT ["./entrypoint.sh"]
