@@ -1,6 +1,5 @@
 import { QRCodeCanvas } from 'qrcode.react';
 import { Smartphone, Download, X } from 'lucide-react';
-import { Button } from './ui/button';
 
 interface InstallAppModalProps {
   isOpen: boolean;
