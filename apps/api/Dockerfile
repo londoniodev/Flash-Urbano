@@ -24,17 +24,19 @@ FROM oven/bun:1-slim
 
 WORKDIR /app
 
-# Copiar lo necesario de la etapa de build
-COPY --from=builder /app/apps/api/dist ./dist
-COPY --from=builder /app/apps/api/package.json ./
-COPY --from=builder /app/apps/api/drizzle.config.ts ./
+# Preservar estructura monorepo para que Node Modules resuelva bien los enlaces
+COPY --from=builder /app/package.json /app/bun.lock ./
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages/shared ./packages/shared
 
-# Copiar carpeta de migraciones (generadas por drizzle-kit generate)
-COPY --from=builder /app/apps/api/drizzle ./drizzle
+# Carpeta de la API
+COPY --from=builder /app/apps/api/package.json ./apps/api/
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+COPY --from=builder /app/apps/api/drizzle.config.ts ./apps/api/
+COPY --from=builder /app/apps/api/drizzle ./apps/api/drizzle
+COPY --from=builder /app/apps/api/entrypoint.sh ./apps/api/
 
-# Copiar entrypoint que ejecuta migraciones antes de arrancar
-COPY --from=builder /app/apps/api/entrypoint.sh ./entrypoint.sh
+WORKDIR /app/apps/api
 RUN chmod +x ./entrypoint.sh
 
 EXPOSE 3001
