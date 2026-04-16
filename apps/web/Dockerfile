@@ -20,9 +20,9 @@ FROM nginx:alpine
 
 COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
 
-# SPA routing: redirigir todo a index.html
-RUN echo 'server { listen 80; root /usr/share/nginx/html; index index.html; location / { try_files $uri $uri/ /index.html; } }' > /etc/nginx/conf.d/default.conf
+# SPA routing: redirigir todo a index.html (Usando puerto 3000 interno)
+RUN echo 'server { listen 3000; root /usr/share/nginx/html; index index.html; location / { try_files $uri $uri/ /index.html; } }' > /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
+EXPOSE 3000
 
 CMD ["nginx", "-g", "daemon off;"]
