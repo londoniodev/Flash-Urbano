@@ -24,16 +24,14 @@ FROM oven/bun:1-slim
 
 WORKDIR /app
 
-# Preservar estructura de workspaces para dependencias
-COPY package.json bun.lock ./
-COPY packages/shared/package.json ./packages/shared/
-COPY apps/api/package.json ./apps/api/
+# Copiar TODO el node_modules generado (incluyendo enlaces monorepo)
+COPY --from=builder /app/package.json /app/bun.lock ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages/shared ./packages/shared
+COPY --from=builder /app/apps/api/package.json ./apps/api/
+COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
 
-# Instalar dependencias en limpio
-RUN bun install --no-frozen-lockfile --production
-
-# Mover solo el codigo final
-COPY packages/shared ./packages/shared
+# Mover solo el codigo compilado
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/drizzle ./apps/api/drizzle
 COPY --from=builder /app/apps/api/entrypoint.sh ./apps/api/
