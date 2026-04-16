@@ -4,13 +4,13 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
 
-export const DRIZZLE = Symbol('DRIZZLE');
+export const DATABASE = 'DATABASE';
 
 @Global()
 @Module({
   providers: [
     {
-      provide: DRIZZLE,
+      provide: DATABASE,
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         const connectionString = config.getOrThrow<string>('DATABASE_URL');
@@ -19,6 +19,6 @@ export const DRIZZLE = Symbol('DRIZZLE');
       },
     },
   ],
-  exports: [DRIZZLE],
+  exports: [DATABASE],
 })
 export class DatabaseModule {}
