@@ -95,7 +95,7 @@ export class UsersService {
     // Force role: ADMIN if first user, else B2B_CLIENT or specific logic
     const roleToAssign = isFirstUser ? 'ADMIN' : 'CLIENT_ECOMMERCE';
 
-    const safeDto = { ...dto, role: roleToAssign as any, companyId: null, hubId: null };
+    const safeDto = { ...dto, role: roleToAssign as any, companyId: undefined, hubId: undefined };
     return this.create(safeDto);
   }
 

@@ -7,7 +7,6 @@ import { Button } from '../components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Badge } from '../components/ui/badge';
-import './LiveDashboard.css';
 
 // Interfaz para la tabla alineada con el modelo real en Postgres API
 export interface KardexEntry {
