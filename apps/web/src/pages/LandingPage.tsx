@@ -10,7 +10,14 @@ import './LandingPage.css';
 
 export default function LandingPage() {
   return (
-    <div className="landing-layout">
+    <div className="landing-layout relative">
+      {/* FONDO ANIMADO Y PATRON DRY */}
+      <div className="fixed inset-0 z-[0] bg-grid-pattern opacity-30 mix-blend-overlay pointer-events-none"></div>
+      <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
+        <div className="blob-shape blob-1"></div>
+        <div className="blob-shape blob-2"></div>
+      </div>
+
       {/* HEADER NAV FLOTANTE */}
       <nav className="landing-nav">
         <div className="nav-container">

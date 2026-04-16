@@ -19,7 +19,8 @@ async function bootstrap() {
 
   // CORS
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+    origin: true, // Esto en NestJS refleja el origen de la petición automáticamente, evitando errores de Strict Matching
+    credentials: true,
   });
 
   const port = process.env.PORT || 3001;
