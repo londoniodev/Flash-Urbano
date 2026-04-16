@@ -1,0 +1,70 @@
+{
+  "expo": {
+    "name": "Flash Urbano",
+    "slug": "flash-urbano",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "scheme": "flash-urbano",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0A0A"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.londoniodev.flashurbano",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Flash Urbano necesita acceso a la cámara para escanear códigos QR de paquetes."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A0A0A"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.londoniodev.flashurbano",
+      "permissions": [
+        "android.permission.CAMERA"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 26
+          }
+        }
+      ],
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "Flash Urbano necesita acceso a la cámara para escanear códigos QR de paquetes.",
+          "enableCodeScanner": true
+        }
+      ]
+    ],
+    "updates": {
+      "url": "https://u.expo.dev/e2b32a33-6db9-4a9f-855d-84aac2538aaa",
+      "enabled": true,
+      "checkOnLaunch": "ALWAYS",
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e2b32a33-6db9-4a9f-855d-84aac2538aaa"
+      }
+    }
+  }
+}

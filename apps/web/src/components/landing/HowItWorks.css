@@ -1,0 +1,143 @@
+.steps-row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 4rem;
+  position: relative;
+}
+
+.step-item {
+  flex: 1;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---- Number ring + arrow ---- */
+.step-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  position: relative;
+  justify-content: center;
+}
+
+.step-number-ring {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(239, 117, 29, 0.08);
+  box-shadow: 0 0 20px rgba(239, 117, 29, 0.15);
+  position: relative;
+  z-index: 2;
+}
+
+.step-num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.step-arrow {
+  position: absolute;
+  right: -2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  z-index: 1;
+  width: calc(2rem + 20px);
+}
+
+.arrow-line {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), rgba(239, 117, 29, 0.2));
+}
+
+.arrow-head {
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid rgba(239, 117, 29, 0.4);
+}
+
+/* ---- Card body ---- */
+.step-body {
+  padding: 2.25rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-md);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-body:hover {
+  border-color: rgba(239, 117, 29, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6), 0 0 25px rgba(239, 117, 29, 0.08);
+}
+
+.step-icon-wrap {
+  width: 56px;
+  height: 56px;
+  background: var(--accent-light);
+  border: 1px solid rgba(239, 117, 29, 0.2);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.step-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+}
+
+.step-desc {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.step-time-badge {
+  margin-top: 0.5rem;
+  padding: 0.35rem 1rem;
+  background: rgba(239, 117, 29, 0.08);
+  border: 1px solid rgba(239, 117, 29, 0.2);
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.03em;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 992px) {
+  .steps-row {
+    flex-direction: column;
+    align-items: center;
+  }
+  .step-item {
+    max-width: 420px;
+    width: 100%;
+  }
+  .step-arrow {
+    display: none;
+  }
+}

@@ -1,0 +1,97 @@
+.pricing-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.5);
+  margin-bottom: 3rem;
+}
+
+.pricing-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  min-width: 900px;
+}
+
+.pricing-table th {
+  padding: 1.75rem 1rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  vertical-align: bottom;
+  line-height: 1.5;
+  border-bottom: 1px solid rgba(239, 117, 29, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-right: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.pricing-table th:last-child {
+  border-right: none;
+}
+
+.pricing-table td {
+  padding: 1.35rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-right: 1px solid rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.pricing-table td.label-col {
+  color: white;
+  font-weight: 700;
+  background: rgba(255,255,255,0.01);
+}
+
+.pricing-table td:last-child {
+  border-right: none;
+}
+
+.pricing-table tr:last-child td {
+  border-bottom: none;
+}
+
+.pricing-table tr:hover td {
+  background: rgba(239, 117, 29, 0.04);
+  color: white;
+}
+
+/* Highlight row */
+.pricing-table tr.row-highlight td {
+  background: rgba(239, 117, 29, 0.06);
+  color: white;
+  font-weight: 600;
+}
+
+.pricing-table tr.row-highlight td.label-col {
+  color: var(--accent);
+}
+
+.pricing-table tr.row-highlight:hover td {
+  background: rgba(239, 117, 29, 0.1);
+}
+
+.pricing-footer-badge {
+  background: var(--gradient-accent);
+  color: white;
+  padding: 1rem 3rem;
+  border-radius: 100px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  text-align: center;
+  max-width: max-content;
+  margin: 0 auto;
+  box-shadow: var(--shadow-glow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.pricing-footer-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -10px rgba(239, 117, 29, 0.4);
+}

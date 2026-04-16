@@ -1,0 +1,197 @@
+/* =========================================
+   LIVE DASHBOARD LAYOUT
+   ========================================= */
+.dashboard-layout {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dashboard-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.dot.online {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--success);
+}
+
+.install-button-nav, .logout-button-nav {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.install-button-nav {
+  background-color: var(--accent);
+  color: white;
+  border: none;
+}
+
+.install-button-nav:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-glow);
+}
+
+.logout-button-nav {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.logout-button-nav:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+/* Metrics Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metric-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(239, 117, 29, 0.15);
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-subtle);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+  border-color: rgba(239, 117, 29, 0.4);
+}
+
+.metric-label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.metric-value {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.text-ingress { color: var(--success); }
+.text-egress { color: var(--text-primary); } /* Keep egress neutral to avoid overload */
+
+/* =========================================
+   DATATABLE KARDEX
+   ========================================= */
+.table-container {
+  background: var(--bg-surface);
+  border: 1px solid rgba(239, 117, 29, 0.15);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  box-shadow: var(--shadow-subtle);
+}
+
+.kardex-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.kardex-table th {
+  padding: 1rem;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.kardex-table td {
+  padding: 1rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.kardex-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Utilitarios de Texto / UI */
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge.ingreso {
+  background-color: var(--success-bg);
+  color: var(--success);
+}
+.badge.salida {
+  background-color: transparent;
+  color: var(--accent); /* Salida = Primary Orange */
+  border: 1px solid var(--accent);
+}
+
+/* =========================================
+   ANIMACIONES UTILITARIAS
+   ========================================= */
+@keyframes flashGreen {
+  0% { background-color: var(--success-bg); }
+  100% { background-color: transparent; }
+}
+
+.row-flash {
+  animation: flashGreen 0.7s ease-out;
+}

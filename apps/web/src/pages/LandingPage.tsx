@@ -1,0 +1,63 @@
+import { Link } from 'react-router-dom';
+import HeroSection from '../components/landing/HeroSection';
+import ValueProposition from '../components/landing/ValueProposition';
+import WhatIsFlash from '../components/landing/WhatIsFlash';
+import HowItWorks from '../components/landing/HowItWorks';
+import ComparisonTable from '../components/landing/ComparisonTable';
+import Portfolio from '../components/landing/Portfolio';
+import PricingTable from '../components/landing/PricingTable';
+import './LandingPage.css';
+
+export default function LandingPage() {
+  return (
+    <div className="landing-layout">
+      {/* HEADER NAV FLOTANTE */}
+      <nav className="landing-nav">
+        <div className="nav-container">
+          <div className="nav-logo">
+            <img src="/logo.avif" alt="Flash Urbano" className="nav-logo-img" />
+            <span>Flash Urbano</span>
+          </div>
+          <div className="nav-actions">
+            <Link to="/login" className="btn-portal">
+              Portal B2B
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* SECCIONES */}
+      <main>
+        <HeroSection />
+        <WhatIsFlash />
+        <ValueProposition />
+        <ComparisonTable />
+        <HowItWorks />
+        <Portfolio />
+        <PricingTable />
+      </main>
+
+      {/* FOOTER */}
+      <footer className="landing-footer">
+        <div className="footer-container">
+          <div className="footer-col">
+            <img src="/logo.avif" alt="Flash Urbano" className="footer-logo" />
+            <h3 className="footer-title">Flash Urbano</h3>
+            <p className="footer-text">Entregas en 2 horas o menos.</p>
+            <p className="footer-text">Revolucionando la logística en Colombia.</p>
+          </div>
+          <div className="footer-col">
+            <h3 className="footer-title">Contacto</h3>
+            <p className="footer-text">Dirección Logística: +57 318 7828932</p>
+            <p className="footer-text">Soporte B2B y E-Commerce</p>
+          </div>
+          <div className="footer-col">
+            <h3 className="footer-title">Cobertura</h3>
+            <p className="footer-text">Cali • Medellín • Bogotá • Manizales</p>
+            <p className="footer-text">Y expandiendo a más ciudades.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

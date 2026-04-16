@@ -1,0 +1,39 @@
+# ─── Dependencias ─────────────────────────
+node_modules/
+
+# ─── Build output ─────────────────────────
+dist/
+.next/
+
+# ─── Variables de entorno ─────────────────
+.env
+.env.local
+.env.production
+
+# ─── IDE ──────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─── OS ───────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Expo / Móvil ─────────────────────────
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# ─── Drizzle (migraciones meta) ──────────
+drizzle/meta/
+
+# ─── Logs ─────────────────────────────────
+*.log
+npm-debug.log*
+
+# ─── Misc ─────────────────────────────────
+*.tsbuildinfo

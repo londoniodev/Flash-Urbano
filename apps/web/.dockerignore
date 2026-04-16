@@ -1,0 +1,40 @@
+# ─── Excluir apps que NO son la Web ───────
+apps/movil/
+apps/api/
+
+# ─── Dependencias (se reinstalan en Docker)
+node_modules/
+apps/web/node_modules/
+packages/shared/node_modules/
+
+# ─── Build outputs ────────────────────────
+dist/
+apps/web/dist/
+
+# ─── Git y configuración ─────────────────
+.git/
+.gitignore
+
+# ─── Variables de entorno locales ─────────
+.env
+.env.local
+apps/web/.env
+
+# ─── IDE y OS ─────────────────────────────
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ─── Expo / Móvil ─────────────────────────
+.expo/
+*.apk
+*.aab
+
+# ─── Documentación / Planes ──────────────
+*.md
+implementation_plan.md
+
+# ─── Logs ─────────────────────────────────
+*.log

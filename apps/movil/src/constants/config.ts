@@ -1,0 +1,10 @@
+export const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
+export const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
+
+export const SYNC_BATCH_SIZE = 50;
+export const SYNC_RETRY_MAX = 5;
+export const SYNC_BACKOFF_BASE_MS = 1000;
+
+export const SCANNER_DEBOUNCE_MS = 1500;
+
+export const DB_NAME = 'flashurbano.db';

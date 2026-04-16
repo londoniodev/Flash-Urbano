@@ -1,0 +1,15 @@
+{
+  "name": "flash-urbano",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "cd apps/api && bun run start:dev",
+    "dev:web": "cd apps/web && bun run dev",
+    "build:api": "cd apps/api && bun run build",
+    "build:web": "cd apps/web && bun run build"
+  }
+}

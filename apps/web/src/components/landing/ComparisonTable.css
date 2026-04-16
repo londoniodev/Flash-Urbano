@@ -1,0 +1,122 @@
+.comparison-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.comp-title-traditional {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.comp-title-flash {
+  font-size: 3rem;
+  font-weight: 900;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  letter-spacing: -0.02em;
+}
+
+.vs-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 1.5rem;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 1rem 0;
+}
+
+.comparison-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.comp-column {
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.comp-column.traditional {
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  filter: grayscale(100%) opacity(0.8);
+  transform: scale(0.95);
+}
+
+.comp-column.flash {
+  background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+  border: 1px solid rgba(239, 117, 29, 0.3);
+  box-shadow: 0 0 40px rgba(239, 117, 29, 0.15), inset 0 0 20px rgba(239, 117, 29, 0.05);
+  backdrop-filter: blur(16px);
+  transform: scale(1.05);
+  z-index: 2;
+}
+
+.comp-col-header {
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: white;
+}
+
+.flash .comp-col-header {
+  color: var(--accent);
+}
+
+.comp-cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.traditional .comp-cell {
+  color: #71717a;
+}
+
+.flash .comp-cell {
+  color: white;
+  font-weight: 500;
+}
+
+.comp-icon {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.traditional .comp-icon {
+  color: #52525b;
+}
+
+.flash .comp-icon {
+  color: var(--accent);
+  filter: drop-shadow(0 0 8px rgba(239, 117, 29, 0.4));
+}
+
+@media (max-width: 992px) {
+  .comparison-wrapper {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  
+  .comp-column {
+    transform: none !important;
+  }
+}
