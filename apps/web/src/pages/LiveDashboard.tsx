@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
 import { Activity, ArrowUpRight, ArrowDownRight, Smartphone } from 'lucide-react';
 import InstallAppModal from '../components/InstallAppModal';
 import './LiveDashboard.css';
 
-// Interfaz para la tabla alineada con el modelo real en Supabase
+// Interfaz para la tabla alineada con el modelo real en Postgres API
 export interface KardexEntry {
   id: string;
   code: string;
-  type: 'INGRESO' | 'SALIDA';
+  type: 'INGRESO' | 'SALIDA' | 'TRASLADO';
   operator_id: string;
   client_id?: string | null;
   created_at: string;
@@ -25,65 +24,19 @@ export default function LiveDashboard() {
   const [activeOperators, setActiveOperators] = useState<number>(0);
 
   useEffect(() => {
-    // 1. Cargar el historial inicial (ej: los últimos 50)
+    // TODO: Implementar lógica real con nuestro backend API
     const fetchInitialLogs = async () => {
-      const { data } = await supabase
-        .from('kardex_entries')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
-        
-      if (data) setEntries(data);
+      console.log('Fetching logs...');
     };
 
-    // 2. Cargar las métricas calculadas del día desde Supabase
     const fetchTodayMetrics = async () => {
-      const startOfDay = new Date();
-      startOfDay.setHours(0, 0, 0, 0);
-
-      const { data } = await supabase
-        .from('kardex_entries')
-        .select('type, operator_id')
-        .gte('created_at', startOfDay.toISOString());
-
-      if (data) {
-        const ingress = data.filter(e => e.type === 'INGRESO').length;
-        const egress = data.filter(e => e.type === 'SALIDA').length;
-        const uniqueOperators = new Set(data.map(e => e.operator_id)).size;
-
-        setTodayIngress(ingress);
-        setTodayEgress(egress);
-        setActiveOperators(uniqueOperators);
-      }
+      console.log('Fetching metrics...');
     };
 
     fetchInitialLogs();
     fetchTodayMetrics();
 
-    // 3. Suscripción estricta al canal de PostgreSQL
-    const channel = supabase.channel('kardex_realtime')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'kardex_entries' },
-        (payload) => {
-          const newEntry = payload.new as KardexEntry;
-          
-          // Inserción inmutable arriba de la lista
-          setEntries((prev) => [newEntry, ...prev].slice(0, 50));
-          
-          // Actualizar métricas dinámicamente con las entradas más recientes del día
-          fetchTodayMetrics();
-          
-          // Trigger visual del destello de éxito
-          setLastInsertedId(newEntry.id);
-          setTimeout(() => setLastInsertedId(null), 300);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    // TODO: Reemplazar Supabase real-time por websockets o polling de la API
   }, []);
 
   return (
@@ -107,7 +60,10 @@ export default function LiveDashboard() {
             Instalar App
           </button>
           <button 
-            onClick={() => supabase.auth.signOut()}
+            onClick={() => {
+              // TODO: Implementar logout real
+              console.log('Logout');
+            }}
             className="logout-button-nav"
           >
             Cerrar Sesión

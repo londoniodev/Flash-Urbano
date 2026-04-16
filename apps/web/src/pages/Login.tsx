@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import { Package } from 'lucide-react';
 import './Login.css';
 
@@ -17,17 +16,11 @@ export default function Login() {
     setLoading(true);
     setErrorMsg(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setErrorMsg(error.message);
+    // TODO: Implementar login real con nuestro backend
+    setTimeout(() => {
       setLoading(false);
-    } else {
       navigate('/dashboard', { replace: true });
-    }
+    }, 1000);
   };
 
   return (
