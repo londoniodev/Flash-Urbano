@@ -2,7 +2,7 @@
 
 .landing-layout {
   min-height: 100vh;
-  background-color: var(--bg-primary);
+  background: transparent;
   color: var(--text-primary);
   overflow-x: hidden;
 }
@@ -81,7 +81,8 @@
 
 .landing-section.bg-alt {
   max-width: none;
-  background: var(--bg-surface);
+  background: rgba(255, 255, 255, 0.02); /* Sutil contraste sin tapar el fondo animado */
+  backdrop-filter: blur(5px);
 }
 
 .section-content {
@@ -185,6 +186,15 @@
     font-size: 1.05rem;
   }
 }
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.05); /* Incrementado ligeramente */
+  backdrop-filter: blur(20px); /* Más blur para efecto premium */
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12); /* Borde más definido para glasmorfismo */
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+}
+
 .bg-grid-pattern {
   background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
                     linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
@@ -213,9 +223,27 @@
   right: -10%;
   animation-delay: -5s;
 }
+
+@media (max-width: 768px) {
+  .blob-1 {
+    width: 300px;
+    height: 300px;
+    filter: blur(80px);
+  }
+  .blob-2 {
+    width: 250px;
+    height: 250px;
+    filter: blur(70px);
+  }
+  .bg-grid-pattern {
+    background-size: 20px 20px;
+    opacity: 0.15;
+  }
+}
+
 @keyframes float-blob {
   0% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -50px) scale(1.1); }
-  66% { transform: translate(-20px, 30px) scale(0.9); }
+  33% { transform: translate(100px, -150px) scale(1.2); }
+  66% { transform: translate(-80px, 100px) scale(0.8); }
   100% { transform: translate(0, 0) scale(1); }
 }

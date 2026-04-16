@@ -8,7 +8,7 @@
   overflow: hidden;
   padding: 5rem 2rem 2rem;
   box-sizing: border-box;
-  background: var(--bg-primary);
+  background: transparent;
 }
 
 /* ---- Background effects ---- */
