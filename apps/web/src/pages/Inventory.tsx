@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { PackageSearch, Search } from 'lucide-react';
 import { api } from '../lib/axios';
-import { useAuth } from '../context/AuthProvider';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
+import { Card, CardContent } from '../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 
 interface InventoryItem {
@@ -20,7 +19,7 @@ interface InventoryItem {
 export default function Inventory() {
   const [stock, setStock] = useState<InventoryItem[]>([]);
   const [search, setSearch] = useState('');
-  const { user } = useAuth();
+
 
   useEffect(() => {
     const fetchStock = async () => {
