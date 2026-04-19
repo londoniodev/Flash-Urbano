@@ -49,16 +49,20 @@ export default function HeroSection() {
           </FadeIn>
         </div>
 
-        {/* Right column: Character */}
+        {/* Right column: Video */}
         <FadeIn delay={300} direction="right" className="hero-character-column">
-          <div className="hero-character-wrapper">
-            <div className="character-glow"></div>
-            <div className="character-ring"></div>
-            <img 
-              src="/hero-character.png" 
-              alt="Flash Urbano - Héroe de las entregas rápidas" 
-              className="hero-character-img"
-            />
+          <div className="hero-video-container">
+            <div className="video-overlay-mask"></div>
+            <video 
+              autoPlay 
+              loop 
+              muted 
+              playsInline 
+              className="hero-video"
+            >
+              <source src="/hero-video.mp4" type="video/mp4" />
+              Tu navegador no soporta videos.
+            </video>
           </div>
         </FadeIn>
       </div>
