@@ -3,7 +3,11 @@ import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import LiveDashboard from './pages/LiveDashboard';
+import Inventory from './pages/Inventory';
+import Products from './pages/Products';
+import Operations from './pages/Operations';
 import ProtectedRoute from './components/ProtectedRoute';
+import DashboardLayout from './components/DashboardLayout';
 
 function App() {
   return (
@@ -16,12 +20,47 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         
-        {/* Dashboard Protegido */}
+        {/* Páginas Protegidas con Layout de Navegación */}
         <Route 
           path="/dashboard" 
           element={
             <ProtectedRoute>
-              <LiveDashboard />
+              <DashboardLayout>
+                <LiveDashboard />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/inventory" 
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Inventory />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/products" 
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Products />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/operations" 
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Operations />
+              </DashboardLayout>
             </ProtectedRoute>
           } 
         />

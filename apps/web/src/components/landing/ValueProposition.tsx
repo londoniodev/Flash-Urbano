@@ -1,4 +1,4 @@
-import { Zap, ShieldCheck, TrendingUp, Clock, PackageCheck, Camera } from 'lucide-react';
+import { Zap, Clock, PackageCheck, Camera } from 'lucide-react';
 import { FadeIn } from './FadeIn';
 import './ValueProposition.css';
 
@@ -10,12 +10,12 @@ export default function ValueProposition() {
       description: "Tus clientes reciben el mismo día. La velocidad se convierte en tu mayor argumento de cierre de ventas."
     },
     {
-      icon: <ShieldCheck size={24} className="text-accent" />,
+      icon: <Zap size={24} className="text-accent" />,
       title: "Promesa Cumplida",
       description: "Seguimiento en tiempo real y pruebas fotográficas. Construye confianza con entregas garantizadas al 100%."
     },
     {
-      icon: <TrendingUp size={24} className="text-accent" />,
+      icon: <Zap size={24} className="text-accent" />,
       title: "Escalabilidad",
       description: "Ya sea 10 o 1000 envíos al día, nuestra malla logística responde a los picos de demanda sin fricción."
     }
@@ -87,7 +87,7 @@ export default function ValueProposition() {
                 <div className="timeline-step">
                   <div className="timeline-dot"></div>
                   <div className="timeline-info">
-                    <ShieldCheck size={14} />
+                    <Zap size={14} />
                     <span>Entregado — ??</span>
                   </div>
                 </div>

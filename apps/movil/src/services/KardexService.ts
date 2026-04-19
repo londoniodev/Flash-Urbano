@@ -2,13 +2,23 @@ import { v4 as uuidv4 } from 'uuid';
 import { getDatabase } from '../db/connection';
 import { KardexEntry, MovementType } from '../types';
 
-export function recordMovement(qrCode: string, movementType: MovementType, operatorId: string): KardexEntry {
+export function recordMovement(
+  productSku: string, 
+  movementType: MovementType, 
+  quantity: number,
+  operatorId: string,
+  fromHubId?: string,
+  toHubId?: string
+): KardexEntry {
   const db = getDatabase();
   const entry: KardexEntry = {
     movement_id: uuidv4(),
-    qr_code: qrCode,
+    product_sku: productSku,
     movement_type: movementType,
+    quantity,
     operator_id: operatorId,
+    from_hub_id: fromHubId,
+    to_hub_id: toHubId,
     device_timestamp: Date.now(),
     synced: 0,
     sync_attempts: 0,
@@ -16,13 +26,16 @@ export function recordMovement(qrCode: string, movementType: MovementType, opera
   };
 
   db.runSync(
-    `INSERT INTO kardex_entries (movement_id, qr_code, operator_id, movement_type, device_timestamp, synced, sync_attempts, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO kardex_entries (movement_id, product_sku, quantity, operator_id, movement_type, from_hub_id, to_hub_id, device_timestamp, synced, sync_attempts, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       entry.movement_id,
-      entry.qr_code,
+      entry.product_sku,
+      entry.quantity,
       entry.operator_id,
       entry.movement_type,
+      entry.from_hub_id || null,
+      entry.to_hub_id || null,
       entry.device_timestamp,
       entry.synced,
       entry.sync_attempts,

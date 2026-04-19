@@ -5,7 +5,6 @@ import WhatIsFlash from '../components/landing/WhatIsFlash';
 import HowItWorks from '../components/landing/HowItWorks';
 import ComparisonTable from '../components/landing/ComparisonTable';
 import Portfolio from '../components/landing/Portfolio';
-import PricingTable from '../components/landing/PricingTable';
 import './LandingPage.css';
 
 export default function LandingPage() {
@@ -22,13 +21,13 @@ export default function LandingPage() {
       <nav className="landing-nav">
         <div className="nav-container">
           <div className="nav-logo">
-            <img src="/logo.avif" alt="Flash Urbano" className="nav-logo-img" />
             <span>Flash Urbano</span>
           </div>
-          <div className="nav-actions">
+          <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <Link to="/login" className="btn-portal">
               Portal B2B
             </Link>
+            <img src="/logo.avif" alt="Sello Flash Urbano" className="nav-logo-img" style={{ height: '40px', borderRadius: '50%' }} />
           </div>
         </div>
       </nav>
@@ -41,7 +40,6 @@ export default function LandingPage() {
         <ComparisonTable />
         <HowItWorks />
         <Portfolio />
-        <PricingTable />
       </main>
 
       {/* FOOTER */}
@@ -55,13 +53,12 @@ export default function LandingPage() {
           </div>
           <div className="footer-col">
             <h3 className="footer-title">Contacto</h3>
-            <p className="footer-text">Dirección Logística: +57 318 7828932</p>
+            <p className="footer-text">Celular: 3187828932</p>
             <p className="footer-text">Soporte B2B y E-Commerce</p>
           </div>
           <div className="footer-col">
             <h3 className="footer-title">Cobertura</h3>
-            <p className="footer-text">Cali • Medellín • Bogotá • Manizales</p>
-            <p className="footer-text">Y expandiendo a más ciudades.</p>
+            <p className="footer-text">Cobertura en crecimiento.</p>
           </div>
         </div>
       </footer>

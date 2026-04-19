@@ -1,10 +1,11 @@
 import { getDatabase } from './connection';
-import { CREATE_KARDEX_TABLE, CREATE_KARDEX_INDEX, CREATE_KARDEX_QR_INDEX } from './schema';
+import { DROP_KARDEX_TABLE, CREATE_KARDEX_TABLE, CREATE_KARDEX_INDEX, CREATE_KARDEX_SKU_INDEX } from './schema';
 
 export function runMigrations(): void {
   const db = getDatabase();
-  db.execSync('DROP TABLE IF EXISTS kardex_entries;');
+  db.execSync(DROP_KARDEX_TABLE);
   db.execSync(CREATE_KARDEX_TABLE);
   db.execSync(CREATE_KARDEX_INDEX);
-  db.execSync(CREATE_KARDEX_QR_INDEX);
+  db.execSync(CREATE_KARDEX_SKU_INDEX);
 }
+

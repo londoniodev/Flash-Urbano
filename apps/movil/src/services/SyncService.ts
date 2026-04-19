@@ -1,7 +1,7 @@
 import NetInfo, { NetInfoState, NetInfoSubscription } from '@react-native-community/netinfo';
-import { supabase } from './SupabaseClient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getPendingEntries, markAsSynced, incrementSyncAttempts } from './KardexService';
-import { SYNC_BATCH_SIZE, SYNC_RETRY_MAX, SYNC_BACKOFF_BASE_MS } from '../constants/config';
+import { SYNC_BATCH_SIZE, SYNC_RETRY_MAX, API_BASE_URL } from '../constants/config';
 import { SyncResult, KardexEntry } from '../types';
 
 type SyncListener = (result: SyncResult) => void;
@@ -64,54 +64,68 @@ class SyncService {
     return totals;
   }
 
+  private async getAuthToken(): Promise<string | null> {
+    try {
+      return await AsyncStorage.getItem('auth_token');
+    } catch {
+      return null;
+    }
+  }
+
   private async sendBatch(entries: KardexEntry[]): Promise<SyncResult> {
     const result: SyncResult = { synced: 0, failed: 0, skipped: 0 };
     const successIds: string[] = [];
-    const failedIds: string[] = [];
 
-    const payload = entries
-      .filter((e) => e.sync_attempts < SYNC_RETRY_MAX)
-      .map((e) => ({
-        movement_id: e.movement_id,
-        operator_id: e.operator_id,
-        qr_code: e.qr_code,
-        movement_type: e.movement_type,
-        device_timestamp: e.device_timestamp,
-        created_at: e.created_at,
-      }));
-
+    // Skip entries that exceeded retry limit
     const skippedEntries = entries.filter((e) => e.sync_attempts >= SYNC_RETRY_MAX);
     result.skipped = skippedEntries.length;
-
     if (skippedEntries.length > 0) {
       markAsSynced(skippedEntries.map((e) => e.movement_id));
     }
 
-    if (payload.length === 0) return result;
+    const retryable = entries.filter((e) => e.sync_attempts < SYNC_RETRY_MAX);
+    if (retryable.length === 0) return result;
 
-    try {
-      const { error } = await supabase
-        .from('kardex_entries')
-        .upsert(payload, { onConflict: 'movement_id', ignoreDuplicates: true });
+    const token = await this.getAuthToken();
 
-      if (error) {
-        failedIds.push(...entries.map((e) => e.movement_id));
-        result.failed = failedIds.length;
-        incrementSyncAttempts(failedIds);
-        return result;
+    // Send each entry individually to our NestJS /inventory/move endpoint
+    for (const entry of retryable) {
+      try {
+        const res = await fetch(`${API_BASE_URL}/inventory/move`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            // The backend expects a productId (UUID). 
+            // Since we store the SKU, the backend will need a lookup.
+            // For now we pass the SKU in a field and the backend resolves it.
+            productSku: entry.product_sku,
+            movementType: entry.movement_type,
+            quantity: entry.quantity,
+            fromHubId: entry.from_hub_id || undefined,
+            toHubId: entry.to_hub_id || undefined,
+            notes: `Sincronizado desde móvil (${entry.movement_id})`,
+          }),
+        });
+
+        if (res.ok) {
+          successIds.push(entry.movement_id);
+          result.synced += 1;
+        } else {
+          incrementSyncAttempts([entry.movement_id]);
+          result.failed += 1;
+        }
+      } catch {
+        incrementSyncAttempts([entry.movement_id]);
+        result.failed += 1;
+        await this.backoff(entry.sync_attempts);
       }
+    }
 
-      successIds.push(...payload.map((e) => e.movement_id));
+    if (successIds.length > 0) {
       markAsSynced(successIds);
-      result.synced = successIds.length;
-    } catch {
-      const retryableIds = entries
-        .filter((e) => e.sync_attempts < SYNC_RETRY_MAX)
-        .map((e) => e.movement_id);
-      incrementSyncAttempts(retryableIds);
-      result.failed = retryableIds.length;
-
-      await this.backoff(entries[0]?.sync_attempts ?? 0);
     }
 
     return result;

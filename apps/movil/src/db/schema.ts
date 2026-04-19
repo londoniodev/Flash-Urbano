@@ -1,9 +1,16 @@
+export const DROP_KARDEX_TABLE = `
+  DROP TABLE IF EXISTS kardex_entries;
+`;
+
 export const CREATE_KARDEX_TABLE = `
   CREATE TABLE IF NOT EXISTS kardex_entries (
     movement_id TEXT PRIMARY KEY NOT NULL,
-    qr_code TEXT NOT NULL,
+    product_sku TEXT NOT NULL,
+    quantity INTEGER NOT NULL,
     operator_id TEXT NOT NULL,
-    movement_type TEXT NOT NULL CHECK (movement_type IN ('INGRESO', 'SALIDA')),
+    from_hub_id TEXT,
+    to_hub_id TEXT,
+    movement_type TEXT NOT NULL CHECK (movement_type IN ('INGRESO', 'SALIDA', 'AJUSTE', 'TRASLADO')),
     device_timestamp INTEGER NOT NULL,
     synced INTEGER NOT NULL DEFAULT 0 CHECK (synced IN (0, 1)),
     sync_attempts INTEGER NOT NULL DEFAULT 0,
@@ -15,6 +22,6 @@ export const CREATE_KARDEX_INDEX = `
   CREATE INDEX IF NOT EXISTS idx_kardex_synced ON kardex_entries (synced);
 `;
 
-export const CREATE_KARDEX_QR_INDEX = `
-  CREATE INDEX IF NOT EXISTS idx_kardex_qr ON kardex_entries (qr_code);
+export const CREATE_KARDEX_SKU_INDEX = `
+  CREATE INDEX IF NOT EXISTS idx_kardex_sku ON kardex_entries (product_sku);
 `;

@@ -7,8 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import { CompaniesModule } from './companies/companies.module';
 import { HubsModule } from './hubs/hubs.module';
 import { UsersModule } from './users/users.module';
-import { PackagesModule } from './packages/packages.module';
-import { MovementsModule } from './movements/movements.module';
+import { ProductsModule } from './products/products.module';
+import { InventoryModule } from './inventory/inventory.module';
 import { HealthController } from './health.controller';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
@@ -21,8 +21,8 @@ import { RolesGuard } from './auth/guards/roles.guard';
     CompaniesModule,
     HubsModule,
     UsersModule,
-    PackagesModule,
-    MovementsModule,
+    ProductsModule,
+    InventoryModule,
   ],
   controllers: [HealthController],
   providers: [

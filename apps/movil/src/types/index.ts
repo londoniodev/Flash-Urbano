@@ -1,13 +1,18 @@
 export enum MovementType {
   INGRESO = 'INGRESO',
   SALIDA = 'SALIDA',
+  AJUSTE = 'AJUSTE',
+  TRASLADO = 'TRASLADO',
 }
 
 export interface KardexEntry {
   movement_id: string;
-  qr_code: string;
+  product_sku: string;
   movement_type: MovementType;
+  quantity: number;
   operator_id: string;
+  from_hub_id?: string;
+  to_hub_id?: string;
   device_timestamp: number;
   synced: 0 | 1;
   sync_attempts: number;

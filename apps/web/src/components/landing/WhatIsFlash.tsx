@@ -1,4 +1,4 @@
-import { Zap, Target, Box } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import { FadeIn } from './FadeIn';
 import './WhatIsFlash.css';
 
@@ -11,13 +11,13 @@ export default function WhatIsFlash() {
       text: 'Cobertura especializada que garantiza tiempos antes impensables en logística urbana e intermunicipal.'
     },
     {
-      icon: <Target size={28} className="text-accent"/>,
+      icon: <Zap size={28} className="text-accent"/>,
       number: '02',
       title: 'Expertos en logística para e-commerce.',
       text: 'Soluciones a la medida de tu tienda en línea para llevar las compras a las manos de tus clientes de inmediato.'
     },
     {
-      icon: <Box size={28} className="text-accent"/>,
+      icon: <Zap size={28} className="text-accent"/>,
       number: '03',
       title: 'Modelo de inventario distribuido inteligente.',
       text: 'Acercamos tu inventario a la zona geográfica de demanda para reducir el tiempo de última milla.'

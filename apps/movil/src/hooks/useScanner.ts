@@ -1,11 +1,9 @@
 import { useRef, useCallback } from 'react';
 import * as Haptics from 'expo-haptics';
-import { recordMovement } from '../services/KardexService';
-import { MovementType } from '../types';
 import { SCANNER_DEBOUNCE_MS } from '../constants/config';
 
 interface UseScannerReturn {
-  handleScan: (qrCode: string, movementType: MovementType, operatorId: string) => boolean;
+  handleScan: (qrCode: string) => boolean;
   sessionCount: React.MutableRefObject<number>;
   lastScannedCode: React.MutableRefObject<string | null>;
 }
@@ -15,7 +13,7 @@ export function useScanner(): UseScannerReturn {
   const lastScanTime = useRef<number>(0);
   const sessionCount = useRef<number>(0);
 
-  const handleScan = useCallback((qrCode: string, movementType: MovementType, operatorId: string): boolean => {
+  const handleScan = useCallback((qrCode: string): boolean => {
     const now = Date.now();
 
     if (qrCode === lastScannedCode.current && now - lastScanTime.current < SCANNER_DEBOUNCE_MS) {
@@ -24,10 +22,7 @@ export function useScanner(): UseScannerReturn {
 
     lastScannedCode.current = qrCode;
     lastScanTime.current = now;
-    sessionCount.current += 1;
-
-    recordMovement(qrCode, movementType, operatorId);
-
+    
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
     return true;

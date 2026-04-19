@@ -1,23 +1,23 @@
-import { MapPin, Truck, CheckCircle } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import { FadeIn } from './FadeIn';
 import './HowItWorks.css';
 
 export default function HowItWorks() {
   const steps = [
     {
-      icon: <MapPin size={28} className="text-accent" />,
+      icon: <Zap size={28} className="text-accent" />,
       title: "Solicitud y Recogida",
       description: "Generas la guía en la plataforma y recolectamos en menos de 45 minutos.",
       time: "< 45 min"
     },
     {
-      icon: <Truck size={28} className="text-accent" />,
+      icon: <Zap size={28} className="text-accent" />,
       title: "Clasificación y Ruta",
       description: "El paquete ingresa a nuestro Hub urbano cruzado y sale a ruta de inmediato.",
       time: "Inmediato"
     },
     {
-      icon: <CheckCircle size={28} className="text-accent" />,
+      icon: <Zap size={28} className="text-accent" />,
       title: "Entrega Exitosa",
       description: "Tu cliente recibe en menos de 2 horas con notificación SMS y foto de prueba.",
       time: "< 2 hrs"

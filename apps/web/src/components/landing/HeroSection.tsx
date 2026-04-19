@@ -66,17 +66,10 @@ export default function HeroSection() {
       {/* WhatsApp locations bar - inside hero */}
       <FadeIn delay={700} direction="up" className="hero-locations-wrap">
         <div className="hero-locations glass-panel" id="contacto">
-          {[
-            { city: 'CALI', phone: '3122965558' },
-            { city: 'MEDELLÍN', phone: '3012717160' },
-            { city: 'MANIZALES', phone: '3147117787' },
-            { city: 'BOGOTÁ', phone: '3115860019' },
-          ].map((loc) => (
-            <a key={loc.city} href={`https://wa.me/57${loc.phone}`} target="_blank" rel="noreferrer" className="location-pill">
-              <WhatsAppIcon size={16} />
-              <span>{loc.city} <strong className="font-mono">+57 {loc.phone}</strong></span>
-            </a>
-          ))}
+          <a href="https://wa.me/573187828932" target="_blank" rel="noreferrer" className="location-pill" style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}>
+            <WhatsAppIcon size={20} />
+            <span>CONTACTO <strong className="font-mono">3187828932</strong></span>
+          </a>
         </div>
       </FadeIn>
     </section>

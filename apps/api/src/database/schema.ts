@@ -2,14 +2,7 @@ import { pgTable, uuid, varchar, text, timestamp, boolean, integer, pgEnum } fro
 
 // ─── Enums ───────────────────────────────────────────────
 export const userRoleEnum = pgEnum('user_role', ['ADMIN', 'OPERATOR', 'CLIENT']);
-export const packageStatusEnum = pgEnum('package_status', [
-  'RECIBIDO',
-  'EN_BODEGA',
-  'EN_TRANSITO',
-  'DESPACHADO',
-  'ENTREGADO',
-]);
-export const movementTypeEnum = pgEnum('movement_type', ['INGRESO', 'TRASLADO', 'SALIDA']);
+export const movementTypeEnum = pgEnum('movement_type', ['INGRESO', 'SALIDA', 'AJUSTE', 'TRASLADO']);
 
 // ─── Tabla: Empresas (Clientes E-commerce B2B) ──────────
 export const companies = pgTable('companies', {
@@ -46,26 +39,35 @@ export const users = pgTable('users', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-// ─── Tabla: Paquetes ─────────────────────────────────────
-export const packages = pgTable('packages', {
+// ─── Tabla: Productos (SKUs del E-commerce) ──────────────
+export const products = pgTable('products', {
   id: uuid('id').defaultRandom().primaryKey(),
   companyId: uuid('company_id').notNull().references(() => companies.id),
-  hubId: uuid('hub_id').notNull().references(() => hubs.id),       // Sede actual
-  qrCode: uuid('qr_code').notNull().unique().defaultRandom(),      // UUID para el QR impreso
-  description: text('description').notNull(),
-  status: packageStatusEnum('status').notNull().default('RECIBIDO'),
-  weight: integer('weight'),                                        // en gramos (opcional)
+  sku: varchar('sku', { length: 100 }).notNull(),                  // Código SKU único del cliente
+  name: varchar('name', { length: 255 }).notNull(),
+  barcode: varchar('barcode', { length: 255 }),                    // Código de barras EAN/UPC opcional
+  description: text('description'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-// ─── Tabla: Movimientos de Paquetes (Kardex) ─────────────
-export const packageMovements = pgTable('package_movements', {
+// ─── Tabla: Stock de Inventario por Sede ─────────────────
+export const inventoryStock = pgTable('inventory_stock', {
   id: uuid('id').defaultRandom().primaryKey(),
-  packageId: uuid('package_id').notNull().references(() => packages.id),
+  productId: uuid('product_id').notNull().references(() => products.id),
+  hubId: uuid('hub_id').notNull().references(() => hubs.id),
+  quantity: integer('quantity').notNull().default(0),              // Cantidad física actual
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// ─── Tabla: Movimientos de Inventario (Kardex) ───────────
+export const inventoryMovements = pgTable('inventory_movements', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  productId: uuid('product_id').notNull().references(() => products.id),
   movementType: movementTypeEnum('movement_type').notNull(),
-  fromHubId: uuid('from_hub_id').references(() => hubs.id),  // null si es INGRESO
-  toHubId: uuid('to_hub_id').notNull().references(() => hubs.id),
+  quantity: integer('quantity').notNull(),                         // Cantidad que se movió (+/-)
+  fromHubId: uuid('from_hub_id').references(() => hubs.id),        // null si es INGRESO nuevo
+  toHubId: uuid('to_hub_id').references(() => hubs.id),            // null si es SALIDA/Baja
   operatorId: uuid('operator_id').notNull().references(() => users.id),
   notes: text('notes'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

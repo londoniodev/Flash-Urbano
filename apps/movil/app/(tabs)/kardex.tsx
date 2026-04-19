@@ -36,7 +36,8 @@ export default function KardexScreen() {
   const typeColor = (type: string) => {
     if (type === MovementType.INGRESO) return colors.primary;
     if (type === MovementType.SALIDA) return colors.danger;
-    return colors.warning;
+    if (type === MovementType.TRASLADO) return colors.warning;
+    return '#8b8b8b'; // AJUSTE
   };
 
   const renderItem = useCallback(
@@ -46,19 +47,24 @@ export default function KardexScreen() {
           <Text style={[styles.type, { color: typeColor(item.movement_type) }]}>
             {item.movement_type}
           </Text>
-          <View
-            style={[
-              styles.syncDot,
-              { backgroundColor: item.synced ? colors.primary : colors.warning },
-            ]}
-          />
+          <View style={styles.itemHeaderRight}>
+            <Text style={[styles.quantity, { color: item.movement_type === 'SALIDA' ? colors.danger : colors.primary }]}>
+              {item.movement_type === 'SALIDA' ? '-' : '+'}{item.quantity}
+            </Text>
+            <View
+              style={[
+                styles.syncDot,
+                { backgroundColor: item.synced ? colors.primary : colors.warning },
+              ]}
+            />
+          </View>
         </View>
         <Text
-          style={[styles.qr, { color: colors.text }]}
+          style={[styles.sku, { color: colors.text }]}
           numberOfLines={1}
           ellipsizeMode="middle"
         >
-          {item.qr_code}
+          SKU: {item.product_sku}
         </Text>
         <Text style={[styles.time, { color: colors.textMuted }]}>
           {new Date(item.device_timestamp).toLocaleString()}
@@ -132,18 +138,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: SPACING.xs,
   },
+  itemHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+  },
   type: {
     fontSize: FONT_SIZE.sm,
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
+  quantity: {
+    fontSize: FONT_SIZE.md,
+    fontWeight: '800',
+    fontFamily: 'monospace',
+  },
   syncDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
   },
-  qr: {
+  sku: {
     fontSize: FONT_SIZE.sm,
     fontFamily: 'monospace',
     marginBottom: SPACING.xs,

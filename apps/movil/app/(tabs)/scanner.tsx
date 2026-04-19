@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { View, Text, StyleSheet, Modal, TextInput } from 'react-native';
 import {
   Camera,
   useCameraDevice,
@@ -13,13 +13,12 @@ import { useAuth } from '../../src/context/AuthContext';
 import { MovementType } from '../../src/types';
 import { Button, Alert, Badge, Card } from '../../src/components/Alvarosky';
 import { COLORS, FONT_SIZE, SPACING, RADIUS } from '../../src/constants/theme';
-import { v4 as uuidv4 } from 'uuid';
 import { recordMovement } from '../../src/services/KardexService';
 
 export default function ScannerScreen() {
   const device = useCameraDevice('back');
   const { hasPermission, requestPermission } = useCameraPermission();
-  const { handleScan, sessionCount, lastScannedCode } = useScanner();
+  const { handleScan, sessionCount } = useScanner();
   const { pendingCount, refreshPending } = useSync();
   const network = useNetworkStatus();
   const { user } = useAuth();
@@ -29,36 +28,57 @@ export default function ScannerScreen() {
   const [displayCount, setDisplayCount] = useState(0);
   const [isActive, setIsActive] = useState(true);
 
+  // Modal State para Cantidad
+  const [showQuantityModal, setShowQuantityModal] = useState(false);
+  const [pendingSku, setPendingSku] = useState<string | null>(null);
+  const [quantityInput, setQuantityInput] = useState<string>('1');
+
   const colors = COLORS.dark;
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13', 'ean-8', 'code-128', 'code-39'],
     onCodeScanned: (codes) => {
+      if (!isActive) return;
       const code = codes[0];
       if (!code?.value || !user?.id) return;
 
-      const accepted = handleScan(code.value, movementType, user.id);
+      const accepted = handleScan(code.value);
       if (accepted) {
-        setDisplayCode(code.value);
-        setDisplayCount(sessionCount.current);
-        refreshPending();
+        setIsActive(false); // Pausar cámara
+        setPendingSku(code.value);
+        setQuantityInput('1');
+        setShowQuantityModal(true);
       }
     },
   });
 
-  const runStressTest = useCallback(() => {
-    if (!user?.id) return;
-    
-    console.time('StressTest:100-Inserts');
-    for (let i = 0; i < 100; i++) {
-        // Ignoramos handleScan para evitar el debounce y el haptic
-        // Invocamos directamente el KardexService simulando la velocidad brutal
-        recordMovement(`STRESS-MOCK-${uuidv4()}`, movementType, user.id);
+  const handleSaveMovement = () => {
+    if (!pendingSku || !user?.id) return;
+    const qty = parseInt(quantityInput, 10);
+    if (isNaN(qty) || qty <= 0) {
+      // Si la cantidad es inválida, no hacer nada o mostrar error
+      return;
     }
-    console.timeEnd('StressTest:100-Inserts');
+
+    // El from/to hub debería sacarse de contexto, por ahora es null
+    recordMovement(pendingSku, movementType, qty, user.id, undefined, undefined);
     
+    sessionCount.current += 1;
+    setDisplayCode(pendingSku);
+    setDisplayCount(sessionCount.current);
     refreshPending();
-  }, [user?.id, movementType, refreshPending]);
+
+    // Resetear y volver a activar cámara
+    setShowQuantityModal(false);
+    setPendingSku(null);
+    setTimeout(() => setIsActive(true), 500); // Pequeño delay para no doble escanear
+  };
+
+  const handleCancelMovement = () => {
+    setShowQuantityModal(false);
+    setPendingSku(null);
+    setTimeout(() => setIsActive(true), 500);
+  };
 
   useEffect(() => {
     if (!hasPermission) {
@@ -89,7 +109,7 @@ export default function ScannerScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerRow}>
-          <Text style={[styles.title, { color: colors.text }]}>Flash Urbano</Text>
+          <Text style={[styles.title, { color: colors.text }]}>WMS Scanner</Text>
           <View style={styles.indicators}>
             <View
               style={[
@@ -151,123 +171,69 @@ export default function ScannerScreen() {
           </Card>
         ) : (
           <Text style={[styles.hint, { color: colors.textMuted }]}>
-            Apunta la cámara a un código QR
+            Apunta la cámara al código de barras del SKU
           </Text>
         )}
-        <Button 
-          title="🔥 MOCK STRESS (100x)" 
-          onPress={runStressTest} 
-          variant="secondary"
-          style={{ marginTop: SPACING.md, borderColor: colors.danger, borderWidth: 1 }}
-        />
       </View>
+
+      {/* Modal para Cantidad */}
+      <Modal visible={showQuantityModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Ingresar Cantidad</Text>
+            <Text style={styles.modalSku}>SKU: {pendingSku}</Text>
+            <Text style={styles.modalType}>Operación: {movementType}</Text>
+            
+            <TextInput
+              style={styles.input}
+              value={quantityInput}
+              onChangeText={setQuantityInput}
+              keyboardType="numeric"
+              autoFocus
+              selectTextOnFocus
+            />
+            
+            <View style={styles.modalButtons}>
+              <Button title="Cancelar" variant="secondary" onPress={handleCancelMovement} style={styles.modalBtn} />
+              <Button title="Guardar" variant="primary" onPress={handleSaveMovement} style={styles.modalBtn} />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.dark.background,
-  },
-  centered: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: SPACING.lg,
-  },
-  message: {
-    fontSize: FONT_SIZE.lg,
-    marginBottom: SPACING.md,
-    textAlign: 'center',
-  },
-  header: {
-    paddingTop: SPACING.xxl,
-    paddingHorizontal: SPACING.md,
-    paddingBottom: SPACING.sm,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.sm,
-  },
-  title: {
-    fontSize: FONT_SIZE.xl,
-    fontWeight: '800',
-    letterSpacing: -0.5,
-  },
-  indicators: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.sm,
-  },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-  },
-  typeSelector: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
-  },
-  typeButton: {
-    flex: 1,
-    minHeight: 44,
-    paddingVertical: SPACING.sm,
-  },
-  cameraContainer: {
-    flex: 1,
-    overflow: 'hidden',
-    marginHorizontal: SPACING.md,
-    borderRadius: RADIUS.lg,
-  },
-  scanOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scanFrame: {
-    width: 250,
-    height: 250,
-    borderWidth: 2,
-    borderColor: COLORS.dark.primary,
-    borderRadius: RADIUS.md,
-    backgroundColor: 'transparent',
-  },
-  footer: {
-    padding: SPACING.md,
-    minHeight: 120,
-    justifyContent: 'center',
-  },
-  resultCard: {
-    padding: SPACING.md,
-  },
-  resultLabel: {
-    fontSize: FONT_SIZE.xs,
-    marginBottom: SPACING.xs,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  resultCode: {
-    fontSize: FONT_SIZE.md,
-    fontWeight: '600',
-    fontFamily: 'monospace',
-    marginBottom: SPACING.sm,
-  },
-  resultMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  resultType: {
-    fontSize: FONT_SIZE.sm,
-    fontWeight: '600',
-  },
-  sessionCounter: {
-    fontSize: FONT_SIZE.sm,
-  },
-  hint: {
-    textAlign: 'center',
-    fontSize: FONT_SIZE.md,
-  },
+  container: { flex: 1, backgroundColor: COLORS.dark.background },
+  centered: { justifyContent: 'center', alignItems: 'center', padding: SPACING.lg },
+  message: { fontSize: FONT_SIZE.lg, marginBottom: SPACING.md, textAlign: 'center' },
+  header: { paddingTop: SPACING.xxl, paddingHorizontal: SPACING.md, paddingBottom: SPACING.sm },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.sm },
+  title: { fontSize: FONT_SIZE.xl, fontWeight: '800', letterSpacing: -0.5 },
+  indicators: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
+  dot: { width: 10, height: 10, borderRadius: 5 },
+  typeSelector: { flexDirection: 'row', gap: SPACING.sm },
+  typeButton: { flex: 1, minHeight: 44, paddingVertical: SPACING.sm },
+  cameraContainer: { flex: 1, overflow: 'hidden', marginHorizontal: SPACING.md, borderRadius: RADIUS.lg },
+  scanOverlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' },
+  scanFrame: { width: 250, height: 100, borderWidth: 2, borderColor: COLORS.dark.primary, borderRadius: RADIUS.md, backgroundColor: 'transparent' },
+  footer: { padding: SPACING.md, minHeight: 120, justifyContent: 'center' },
+  resultCard: { padding: SPACING.md },
+  resultLabel: { fontSize: FONT_SIZE.xs, marginBottom: SPACING.xs, textTransform: 'uppercase', letterSpacing: 1 },
+  resultCode: { fontSize: FONT_SIZE.md, fontWeight: '600', fontFamily: 'monospace', marginBottom: SPACING.sm },
+  resultMeta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  resultType: { fontSize: FONT_SIZE.sm, fontWeight: '600' },
+  sessionCounter: { fontSize: FONT_SIZE.sm },
+  hint: { textAlign: 'center', fontSize: FONT_SIZE.md },
+  
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center', padding: SPACING.lg },
+  modalContent: { backgroundColor: COLORS.dark.surface, padding: SPACING.lg, borderRadius: RADIUS.lg, width: '100%', alignItems: 'center' },
+  modalTitle: { fontSize: FONT_SIZE.lg, fontWeight: 'bold', color: COLORS.dark.text, marginBottom: SPACING.xs },
+  modalSku: { fontSize: FONT_SIZE.md, fontFamily: 'monospace', color: COLORS.dark.primary, marginBottom: SPACING.xs },
+  modalType: { fontSize: FONT_SIZE.sm, color: COLORS.dark.textMuted, marginBottom: SPACING.md },
+  input: { width: '100%', height: 60, backgroundColor: COLORS.dark.background, color: COLORS.dark.text, fontSize: 32, textAlign: 'center', borderRadius: RADIUS.md, borderWidth: 1, borderColor: COLORS.dark.border, marginBottom: SPACING.lg },
+  modalButtons: { flexDirection: 'row', gap: SPACING.md, width: '100%' },
+  modalBtn: { flex: 1 },
 });

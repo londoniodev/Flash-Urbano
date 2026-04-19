@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: flash_urbano_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: flash_urbano
+    ports:
+      - "5432:5432"
+    volumes:
+      - flash_urbano_pgdata:/var/lib/postgresql/data
+
+volumes:
+  flash_urbano_pgdata:

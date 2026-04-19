@@ -1,0 +1,249 @@
+import { useEffect, useState } from 'react';
+import { PackagePlus, Trash2, Edit } from 'lucide-react';
+import { api } from '../lib/axios';
+import { Button } from '../components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
+import { Badge } from '../components/ui/badge';
+
+interface Product {
+  id: string;
+  sku: string;
+  name: string;
+  barcode?: string;
+  description?: string;
+  companyId: string;
+  createdAt: string;
+}
+
+export default function Products() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Form state
+  const [sku, setSku] = useState('');
+  const [name, setName] = useState('');
+  const [barcode, setBarcode] = useState('');
+  const [description, setDescription] = useState('');
+  const [companyId, setCompanyId] = useState('');
+  const [companies, setCompanies] = useState<{ id: string; name: string }[]>([]);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const fetchProducts = async () => {
+    try {
+      const { data } = await api.get('/products');
+      setProducts(data);
+    } catch (e) {
+      console.error('Error fetching products', e);
+    }
+  };
+
+  const fetchCompanies = async () => {
+    try {
+      const { data } = await api.get('/companies');
+      setCompanies(data);
+      if (data.length > 0 && !companyId) {
+        setCompanyId(data[0].id);
+      }
+    } catch (e) {
+      console.error('Error fetching companies', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+    fetchCompanies();
+  }, []);
+
+  const resetForm = () => {
+    setSku('');
+    setName('');
+    setBarcode('');
+    setDescription('');
+    setEditingId(null);
+    setError('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      if (editingId) {
+        await api.patch(`/products/${editingId}`, { name, barcode, description });
+      } else {
+        await api.post('/products', { sku, name, barcode, description, companyId });
+      }
+      await fetchProducts();
+      resetForm();
+      setShowForm(false);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Error al guardar producto');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (product: Product) => {
+    setEditingId(product.id);
+    setSku(product.sku);
+    setName(product.name);
+    setBarcode(product.barcode || '');
+    setDescription(product.description || '');
+    setCompanyId(product.companyId);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('¿Estás seguro de eliminar este producto?')) return;
+    try {
+      await api.delete(`/products/${id}`);
+      await fetchProducts();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al eliminar');
+    }
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen w-full bg-zinc-950 p-6 text-zinc-100">
+
+      <header className="flex items-center justify-between pb-6 mb-6 border-b border-zinc-800">
+        <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-zinc-100">
+          <PackagePlus size={24} className="text-primary" />
+          Catálogo de Productos (SKUs)
+        </h1>
+        <Button
+          onClick={() => { resetForm(); setShowForm(!showForm); }}
+          className="gap-2"
+        >
+          <PackagePlus size={16} />
+          {showForm ? 'Cerrar Formulario' : 'Nuevo Producto'}
+        </Button>
+      </header>
+
+      {/* FORMULARIO */}
+      {showForm && (
+        <Card className="bg-zinc-900 border-zinc-800 mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg">{editingId ? 'Editar Producto' : 'Crear Nuevo Producto'}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-zinc-400">SKU *</label>
+                <input
+                  className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none disabled:opacity-50"
+                  value={sku}
+                  onChange={(e) => setSku(e.target.value)}
+                  placeholder="Ej: CAMI-001-AZL"
+                  required
+                  disabled={!!editingId}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-zinc-400">Nombre *</label>
+                <input
+                  className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Ej: Camiseta Azul Talla L"
+                  required
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-zinc-400">Código de Barras</label>
+                <input
+                  className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  value={barcode}
+                  onChange={(e) => setBarcode(e.target.value)}
+                  placeholder="EAN-13, UPC, etc."
+                />
+              </div>
+              {!editingId && (
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm text-zinc-400">Empresa *</label>
+                  <select
+                    className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                    value={companyId}
+                    onChange={(e) => setCompanyId(e.target.value)}
+                    required
+                  >
+                    {companies.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div className="flex flex-col gap-1 md:col-span-2">
+                <label className="text-sm text-zinc-400">Descripción</label>
+                <textarea
+                  className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-none"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={2}
+                  placeholder="Descripción opcional del producto..."
+                />
+              </div>
+              {error && <p className="text-red-400 text-sm md:col-span-2">{error}</p>}
+              <div className="md:col-span-2 flex gap-3">
+                <Button type="submit" disabled={loading}>
+                  {loading ? 'Guardando...' : editingId ? 'Actualizar' : 'Crear Producto'}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => { resetForm(); setShowForm(false); }}
+                  className="border-zinc-700 text-zinc-400 hover:bg-zinc-800">
+                  Cancelar
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* TABLA */}
+      <div className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-xl overflow-y-auto">
+        <Table>
+          <TableHeader className="bg-zinc-950 sticky top-0 z-10 border-b border-zinc-800">
+            <TableRow className="hover:bg-transparent border-zinc-800">
+              <TableHead className="text-zinc-500">SKU</TableHead>
+              <TableHead className="text-zinc-500">NOMBRE</TableHead>
+              <TableHead className="text-zinc-500">CÓDIGO BARRAS</TableHead>
+              <TableHead className="text-zinc-500">EMPRESA</TableHead>
+              <TableHead className="text-zinc-500 text-right">ACCIONES</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {products.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-32 text-center text-zinc-500">
+                  No hay productos registrados. Crea tu primer SKU.
+                </TableCell>
+              </TableRow>
+            ) : products.map((p) => (
+              <TableRow key={p.id} className="border-zinc-800/50 hover:bg-zinc-800/50 transition-colors">
+                <TableCell className="font-mono text-sm font-medium text-primary">{p.sku}</TableCell>
+                <TableCell className="text-sm text-zinc-200">{p.name}</TableCell>
+                <TableCell className="font-mono text-xs text-zinc-400">{p.barcode || '—'}</TableCell>
+                <TableCell className="text-xs text-zinc-500">{p.companyId.slice(0, 8)}...</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(p)}
+                      className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 h-8 w-8 p-0">
+                      <Edit size={14} />
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleDelete(p.id)}
+                      className="border-red-900/50 text-red-400 hover:bg-red-950 h-8 w-8 p-0">
+                      <Trash2 size={14} />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
