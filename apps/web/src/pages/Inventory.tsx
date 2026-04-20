@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { PackageSearch, Search, Download } from 'lucide-react';
 import { api } from '../lib/axios';
+import { useAuth } from '../context/AuthProvider';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
@@ -16,6 +17,7 @@ interface InventoryItem {
   product: {
     id: string;
     sku: string;
+    name: string;
     companyId: string;
     companyName: string;
   };

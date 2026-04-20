@@ -16,6 +16,7 @@ interface PassportData {
     barcode?: string;
     description?: string;
     companyId: string;
+    companyName: string;
   };
   totalUnits: number;
   stockBySede: {
