@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PackagePlus, Trash2, Edit, QrCode, Eye } from 'lucide-react';
+import { PackagePlus, Trash2, Edit, QrCode, Eye, Download } from 'lucide-react';
+import { exportToExcel } from '../utils/exportExcel';
 import { api } from '../lib/axios';
 import { useAuth } from '../context/AuthProvider';
 import { Button } from '../components/ui/button';
@@ -25,6 +26,8 @@ export default function Products() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isOperator = user?.role === 'ADMIN' || user?.role === 'OPERATOR';
+  const isClient = user?.role === 'CLIENT';
+  const canManage = isOperator || isClient;
   
   const [products, setProducts] = useState<Product[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -54,6 +57,7 @@ export default function Products() {
   };
 
   const fetchCompanies = async () => {
+    if (!isOperator) return; // Clientes no listan otras empresas
     try {
       const { data } = await api.get('/companies');
       setCompanies(data);
@@ -82,6 +86,10 @@ export default function Products() {
     setDescription('');
     setEditingId(null);
     setError('');
+    // Si es cliente, asegurar que el companyId siempre sea el suyo
+    if (isClient && user?.companyId) {
+      setCompanyId(user.companyId);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,23 +136,48 @@ export default function Products() {
     }
   };
 
+  const handleDownloadTemplate = () => {
+    const template = [
+      {
+        SKU: 'EJEMPLO-001',
+        NOMBRE: 'Producto de Ejemplo',
+        CATEGORIA: 'Electrónica',
+        MARCA: 'MarcaX',
+        BARCODE: '1234567890123',
+        DESCRIPCION: 'Breve descripción del producto',
+        IMAGE_URL: 'https://link-a-imagen.com/foto.jpg'
+      }
+    ];
+    exportToExcel(template, 'plantilla_carga_productos', 'Productos');
+  };
+
   return (
     <div className="flex flex-col min-h-screen w-full bg-zinc-950 p-6 text-zinc-100">
 
       <header className="flex items-center justify-between pb-6 mb-6 border-b border-zinc-800">
         <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-zinc-100">
           <PackagePlus size={24} className="text-primary" />
-          {user?.role === 'CLIENT' ? 'Mis Productos' : 'Catálogo de Productos (SKUs)'}
+          {isClient ? 'Mis Productos' : 'Catálogo de Productos (SKUs)'}
         </h1>
-        {isOperator && (
+        <div className="flex gap-3">
           <Button
-            onClick={() => { resetForm(); setShowForm(!showForm); }}
-            className="gap-2"
+            variant="outline"
+            onClick={handleDownloadTemplate}
+            className="gap-2 border-zinc-700 text-zinc-400 hover:bg-zinc-800"
           >
-            <PackagePlus size={16} />
-            {showForm ? 'Cerrar Formulario' : 'Nuevo Producto'}
+            <Download size={16} />
+            Plantilla Excel
           </Button>
-        )}
+          {canManage && (
+            <Button
+              onClick={() => { resetForm(); setShowForm(!showForm); }}
+              className="gap-2"
+            >
+              <PackagePlus size={16} />
+              {showForm ? 'Cerrar Formulario' : 'Nuevo Producto'}
+            </Button>
+          )}
+        </div>
       </header>
 
       {/* FORMULARIO */}
@@ -212,7 +245,7 @@ export default function Products() {
                   placeholder="https://..."
                 />
               </div>
-              {!editingId && (
+              {isOperator && !editingId && (
                 <div className="flex flex-col gap-1">
                   <label className="text-sm text-zinc-400">Empresa *</label>
                   <select
@@ -287,7 +320,7 @@ export default function Products() {
                       className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 h-8 w-8 p-0" title="Imprimir QR">
                       <QrCode size={14} />
                     </Button>
-                    {isOperator && (
+                    {canManage && (
                       <>
                         <Button variant="outline" size="sm" onClick={() => handleEdit(p)}
                           className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 h-8 w-8 p-0" title="Editar">

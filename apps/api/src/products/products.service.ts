@@ -106,8 +106,8 @@ export class ProductsService {
     return product;
   }
 
-  async update(id: string, dto: UpdateProductDto) {
-    await this.findOne(id);
+  async update(id: string, dto: UpdateProductDto, companyId?: string) {
+    await this.findOne(id, companyId);
     const [updated] = await this.db
       .update(products)
       .set({ ...dto, updatedAt: new Date() })
@@ -117,8 +117,8 @@ export class ProductsService {
     return updated;
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
+  async remove(id: string, companyId?: string) {
+    await this.findOne(id, companyId);
     await this.db.delete(products).where(eq(products.id, id));
     return { success: true };
   }

@@ -36,21 +36,26 @@ export class ProductsController {
   }
 
   @Post()
-  @Roles('ADMIN', 'OPERATOR')
-  create(@Body() dto: CreateProductDto) {
+  @Roles('ADMIN', 'OPERATOR', 'CLIENT')
+  create(@Body() dto: CreateProductDto, @Request() req: any) {
+    // For CLIENT, ensure they use their own companyId
+    if (req.user.role === 'CLIENT') {
+      dto.companyId = req.user.companyId;
+    }
     return this.productsService.create(dto);
   }
 
   @Patch(':id')
-  @Roles('ADMIN', 'OPERATOR')
+  @Roles('ADMIN', 'OPERATOR', 'CLIENT')
   update(@Param('id') id: string, @Body() dto: UpdateProductDto, @Request() req: any) {
-    // Note: Even though only ADMIN/OPERATOR can update, we might want to check ownership if they were allowed
-    return this.productsService.update(id, dto);
+    const companyId = req.user.role === 'CLIENT' ? req.user.companyId : undefined;
+    return this.productsService.update(id, dto, companyId);
   }
 
   @Delete(':id')
-  @Roles('ADMIN', 'OPERATOR')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(id);
+  @Roles('ADMIN', 'OPERATOR', 'CLIENT')
+  remove(@Param('id') id: string, @Request() req: any) {
+    const companyId = req.user.role === 'CLIENT' ? req.user.companyId : undefined;
+    return this.productsService.remove(id, companyId);
   }
 }
