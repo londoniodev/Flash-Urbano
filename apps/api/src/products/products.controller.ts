@@ -20,6 +20,11 @@ export class ProductsController {
     return this.productsService.findOne(id);
   }
 
+  @Get(':id/passport')
+  getPassport(@Param('id') id: string) {
+    return this.productsService.getPassport(id);
+  }
+
   @Get('sku/:companyId/:sku')
   findBySku(@Param('companyId') companyId: string, @Param('sku') sku: string) {
     return this.productsService.findBySku(companyId, sku);

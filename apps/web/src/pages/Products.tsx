@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react';
-import { PackagePlus, Trash2, Edit } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { PackagePlus, Trash2, Edit, QrCode, Eye } from 'lucide-react';
 import { api } from '../lib/axios';
 import { Button } from '../components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
-
+import ProductPassportModal from '../components/ProductPassportModal';
 
 interface Product {
   id: string;
   sku: string;
   name: string;
+  category?: string;
+  brand?: string;
+  imageUrl?: string;
   barcode?: string;
   description?: string;
   companyId: string;
@@ -17,13 +21,18 @@ interface Product {
 }
 
 export default function Products() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [passportProductId, setPassportProductId] = useState<string | null>(null);
 
   // Form state
   const [sku, setSku] = useState('');
   const [name, setName] = useState('');
+  const [category, setCategory] = useState('');
+  const [brand, setBrand] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [barcode, setBarcode] = useState('');
   const [description, setDescription] = useState('');
   const [companyId, setCompanyId] = useState('');
@@ -60,6 +69,9 @@ export default function Products() {
   const resetForm = () => {
     setSku('');
     setName('');
+    setCategory('');
+    setBrand('');
+    setImageUrl('');
     setBarcode('');
     setDescription('');
     setEditingId(null);
@@ -73,9 +85,9 @@ export default function Products() {
 
     try {
       if (editingId) {
-        await api.patch(`/products/${editingId}`, { name, barcode, description });
+        await api.patch(`/products/${editingId}`, { name, category, brand, imageUrl, barcode, description });
       } else {
-        await api.post('/products', { sku, name, barcode, description, companyId });
+        await api.post('/products', { sku, name, category, brand, imageUrl, barcode, description, companyId });
       }
       await fetchProducts();
       resetForm();
@@ -91,6 +103,9 @@ export default function Products() {
     setEditingId(product.id);
     setSku(product.sku);
     setName(product.name);
+    setCategory(product.category || '');
+    setBrand(product.brand || '');
+    setImageUrl(product.imageUrl || '');
     setBarcode(product.barcode || '');
     setDescription(product.description || '');
     setCompanyId(product.companyId);
@@ -154,12 +169,39 @@ export default function Products() {
                 />
               </div>
               <div className="flex flex-col gap-1">
+                <label className="text-sm text-zinc-400">Categoría</label>
+                <input
+                  className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  placeholder="Ej: Camisetas, Zapatos"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-zinc-400">Marca</label>
+                <input
+                  className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  value={brand}
+                  onChange={(e) => setBrand(e.target.value)}
+                  placeholder="Ej: Nike, Adidas"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
                 <label className="text-sm text-zinc-400">Código de Barras</label>
                 <input
                   className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                   value={barcode}
                   onChange={(e) => setBarcode(e.target.value)}
                   placeholder="EAN-13, UPC, etc."
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-zinc-400">URL Imagen</label>
+                <input
+                  className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="https://..."
                 />
               </div>
               {!editingId && (
@@ -209,8 +251,8 @@ export default function Products() {
             <TableRow className="hover:bg-transparent border-zinc-800">
               <TableHead className="text-zinc-500">SKU</TableHead>
               <TableHead className="text-zinc-500">NOMBRE</TableHead>
-              <TableHead className="text-zinc-500">CÓDIGO BARRAS</TableHead>
-              <TableHead className="text-zinc-500">EMPRESA</TableHead>
+              <TableHead className="text-zinc-500">CATEGORÍA</TableHead>
+              <TableHead className="text-zinc-500">MARCA</TableHead>
               <TableHead className="text-zinc-500 text-right">ACCIONES</TableHead>
             </TableRow>
           </TableHeader>
@@ -222,19 +264,27 @@ export default function Products() {
                 </TableCell>
               </TableRow>
             ) : products.map((p) => (
-              <TableRow key={p.id} className="border-zinc-800/50 hover:bg-zinc-800/50 transition-colors">
+              <TableRow key={p.id} className="border-zinc-800/50 hover:bg-zinc-800/50 transition-colors cursor-pointer" onClick={() => setPassportProductId(p.id)}>
                 <TableCell className="font-mono text-sm font-medium text-primary">{p.sku}</TableCell>
                 <TableCell className="text-sm text-zinc-200">{p.name}</TableCell>
-                <TableCell className="font-mono text-xs text-zinc-400">{p.barcode || '—'}</TableCell>
-                <TableCell className="text-xs text-zinc-500">{p.companyId.slice(0, 8)}...</TableCell>
+                <TableCell className="text-xs text-zinc-400">{p.category || '—'}</TableCell>
+                <TableCell className="text-xs text-zinc-400">{p.brand || '—'}</TableCell>
                 <TableCell className="text-right">
-                  <div className="flex gap-2 justify-end">
+                  <div className="flex gap-2 justify-end" onClick={(e) => e.stopPropagation()}>
+                    <Button variant="outline" size="sm" onClick={() => setPassportProductId(p.id)}
+                      className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 h-8 w-8 p-0" title="Ver Hoja de Vida">
+                      <Eye size={14} />
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => navigate(`/qr?id=${p.id}`)}
+                      className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 h-8 w-8 p-0" title="Imprimir QR">
+                      <QrCode size={14} />
+                    </Button>
                     <Button variant="outline" size="sm" onClick={() => handleEdit(p)}
-                      className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 h-8 w-8 p-0">
+                      className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 h-8 w-8 p-0" title="Editar">
                       <Edit size={14} />
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => handleDelete(p.id)}
-                      className="border-red-900/50 text-red-400 hover:bg-red-950 h-8 w-8 p-0">
+                      className="border-red-900/50 text-red-400 hover:bg-red-950 h-8 w-8 p-0" title="Eliminar">
                       <Trash2 size={14} />
                     </Button>
                   </div>
@@ -244,6 +294,8 @@ export default function Products() {
           </TableBody>
         </Table>
       </div>
+
+      <ProductPassportModal productId={passportProductId} onClose={() => setPassportProductId(null)} />
     </div>
   );
 }

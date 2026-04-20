@@ -45,6 +45,9 @@ export const products = pgTable('products', {
   companyId: uuid('company_id').notNull().references(() => companies.id),
   sku: varchar('sku', { length: 100 }).notNull(),                  // Código SKU único del cliente
   name: varchar('name', { length: 255 }).notNull(),
+  category: varchar('category', { length: 100 }),                  // Ej: "Camisetas", "Zapatos"
+  brand: varchar('brand', { length: 100 }),                        // Ej: "Nike", "Adidas"
+  imageUrl: text('image_url'),                                     // URL foto del producto
   barcode: varchar('barcode', { length: 255 }),                    // Código de barras EAN/UPC opcional
   description: text('description'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

@@ -6,6 +6,7 @@ interface User {
   firstName?: string;
   lastName?: string;
   role: string;
+  companyId?: string;
 }
 
 interface AuthContextType {
@@ -18,19 +19,39 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function decodeJwt(token: string): any | null {
+  try {
+    const payload = token.split('.')[1];
+    return JSON.parse(atob(payload));
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem('access_token'));
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Si hay token al iniciar, podríamos validar o fetch perfil
     if (token) {
-      // Por ahora para MVP confiamos en el token local y requeriríamos endpoint de perfil
-      // Pero para acelerar, des-serializamos algo del JWT local (opcional)
-      // Simularemos carga inicial breve
+      // Decode user info from JWT if we don't already have it
+      if (!user) {
+        const payload = decodeJwt(token);
+        if (payload) {
+          setUser({
+            id: payload.sub,
+            email: payload.email,
+            firstName: payload.firstName,
+            lastName: payload.lastName,
+            role: payload.role,
+            companyId: payload.companyId,
+          });
+        }
+      }
       setIsLoading(false);
     } else {
+      setUser(null);
       setIsLoading(false);
     }
 

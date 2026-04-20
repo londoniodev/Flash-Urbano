@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react';
-import { PackageSearch, Search } from 'lucide-react';
+import { PackageSearch, Search, Download } from 'lucide-react';
 import { api } from '../lib/axios';
-import { Card, CardContent } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
+import { exportToExcel } from '../utils/exportExcel';
+import ProductPassportModal from '../components/ProductPassportModal';
 
 interface InventoryItem {
   id: string;
   quantity: number;
   hubId: string;
+  hubName: string;
+  hubCity: string;
   product: {
     id: string;
     sku: string;
@@ -19,7 +24,7 @@ interface InventoryItem {
 export default function Inventory() {
   const [stock, setStock] = useState<InventoryItem[]>([]);
   const [search, setSearch] = useState('');
-
+  const [passportProductId, setPassportProductId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchStock = async () => {
@@ -35,8 +40,20 @@ export default function Inventory() {
 
   const filteredStock = stock.filter(item => 
     item.product.sku.toLowerCase().includes(search.toLowerCase()) || 
-    item.product.name.toLowerCase().includes(search.toLowerCase())
+    item.product.name.toLowerCase().includes(search.toLowerCase()) ||
+    item.hubName?.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleExport = () => {
+    const rows = filteredStock.map(item => ({
+      SKU: item.product.sku,
+      Producto: item.product.name,
+      Sede: item.hubName,
+      Ciudad: item.hubCity,
+      Cantidad: item.quantity,
+    }));
+    exportToExcel(rows, 'inventario_flash_urbano', 'Inventario');
+  };
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-zinc-950 p-6 text-zinc-100">
@@ -46,6 +63,9 @@ export default function Inventory() {
           <PackageSearch size={24} className="text-primary" />
           Mi Inventario WMS
         </h1>
+        <Button variant="outline" onClick={handleExport} className="gap-2 border-zinc-700 text-zinc-400 hover:bg-zinc-800">
+          <Download size={16} /> Exportar Excel
+        </Button>
       </header>
 
       <Card className="bg-zinc-900 border-zinc-800 mb-6">
@@ -54,7 +74,7 @@ export default function Inventory() {
             <Search className="absolute left-3 top-3 h-4 w-4 text-zinc-400" />
             <input 
               className="w-full bg-zinc-950 border border-zinc-800 rounded-md py-2 pl-10 pr-4 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-              placeholder="Buscar por SKU o Nombre de Producto..." 
+              placeholder="Buscar por SKU, Nombre de Producto o Sede..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -62,34 +82,38 @@ export default function Inventory() {
         </CardContent>
       </Card>
 
-      <div className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-xl rounded-t-xl overflow-y-auto">
+      <div className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-xl overflow-y-auto">
         <Table>
           <TableHeader className="bg-zinc-950 sticky top-0 z-10 border-b border-zinc-800">
             <TableRow className="hover:bg-transparent border-zinc-800">
               <TableHead className="text-zinc-500">PRODUCTO (SKU)</TableHead>
               <TableHead className="text-zinc-500">NOMBRE</TableHead>
-              <TableHead className="text-zinc-500">SEDE / HUB</TableHead>
+              <TableHead className="text-zinc-500">SEDE</TableHead>
+              <TableHead className="text-zinc-500">CIUDAD</TableHead>
               <TableHead className="text-zinc-500 text-right">CANTIDAD DISPONIBLE</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredStock.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="h-32 text-center text-zinc-500">
+                <TableCell colSpan={5} className="h-32 text-center text-zinc-500">
                   No se encontraron productos en stock.
                 </TableCell>
               </TableRow>
             ) : filteredStock.map((item) => (
-              <TableRow key={item.id} className="border-zinc-800/50 hover:bg-zinc-800/50 transition-colors">
-                <TableCell className="font-mono text-sm font-medium text-zinc-200">
+              <TableRow key={item.id} className="border-zinc-800/50 hover:bg-zinc-800/50 transition-colors cursor-pointer"
+                onClick={() => setPassportProductId(item.product.id)}>
+                <TableCell className="font-mono text-sm font-medium text-primary">
                   {item.product.sku}
                 </TableCell>
                 <TableCell className="text-sm text-zinc-300">
                   {item.product.name}
                 </TableCell>
-                <TableCell className="text-sm text-zinc-400">
-                  {/* Idealmente aquí se haría un join con la tabla Hubs para mostrar el nombre */}
-                  {item.hubId}
+                <TableCell className="text-sm text-zinc-300">
+                  {item.hubName}
+                </TableCell>
+                <TableCell className="text-xs text-zinc-500">
+                  {item.hubCity}
                 </TableCell>
                 <TableCell className="font-mono text-sm font-bold text-primary text-right">
                   {item.quantity.toLocaleString()}
@@ -99,6 +123,8 @@ export default function Inventory() {
           </TableBody>
         </Table>
       </div>
+
+      <ProductPassportModal productId={passportProductId} onClose={() => setPassportProductId(null)} />
     </div>
   );
 }

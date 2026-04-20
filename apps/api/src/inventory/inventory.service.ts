@@ -1,6 +1,6 @@
 import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { eq, and, desc, sql } from 'drizzle-orm';
-import { inventoryStock, inventoryMovements, products } from '../database/schema';
+import { inventoryStock, inventoryMovements, products, hubs } from '../database/schema';
 import { InventoryMovementDto } from './dto/inventory.dto';
 
 @Injectable()
@@ -12,6 +12,8 @@ export class InventoryService {
       id: inventoryStock.id,
       quantity: inventoryStock.quantity,
       hubId: inventoryStock.hubId,
+      hubName: hubs.name,
+      hubCity: hubs.city,
       product: {
         id: products.id,
         sku: products.sku,
@@ -20,7 +22,8 @@ export class InventoryService {
       }
     })
     .from(inventoryStock)
-    .innerJoin(products, eq(inventoryStock.productId, products.id));
+    .innerJoin(products, eq(inventoryStock.productId, products.id))
+    .innerJoin(hubs, eq(inventoryStock.hubId, hubs.id));
 
     const conditions = [];
     if (filters?.companyId) conditions.push(eq(products.companyId, filters.companyId));

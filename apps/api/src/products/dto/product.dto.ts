@@ -12,6 +12,18 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsString()
+  category?: string;
+
+  @IsOptional()
+  @IsString()
+  brand?: string;
+
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
+
+  @IsOptional()
+  @IsString()
   barcode?: string;
 
   @IsOptional()
@@ -23,6 +35,18 @@ export class UpdateProductDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @IsOptional()
+  @IsString()
+  brand?: string;
+
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
 
   @IsOptional()
   @IsString()

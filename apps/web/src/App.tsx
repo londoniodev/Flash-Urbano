@@ -6,6 +6,7 @@ import LiveDashboard from './pages/LiveDashboard';
 import Inventory from './pages/Inventory';
 import Products from './pages/Products';
 import Operations from './pages/Operations';
+import ProductQR from './pages/ProductQR';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/DashboardLayout';
 
@@ -61,6 +62,15 @@ function App() {
               <DashboardLayout>
                 <Operations />
               </DashboardLayout>
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/qr" 
+          element={
+            <ProtectedRoute>
+              <ProductQR />
             </ProtectedRoute>
           } 
         />

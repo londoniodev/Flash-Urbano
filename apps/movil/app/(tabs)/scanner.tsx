@@ -14,6 +14,8 @@ import { MovementType } from '../../src/types';
 import { Button, Alert, Badge, Card } from '../../src/components/Alvarosky';
 import { COLORS, FONT_SIZE, SPACING, RADIUS } from '../../src/constants/theme';
 import { recordMovement } from '../../src/services/KardexService';
+import { API_BASE_URL } from '../../src/constants/config';
+import ProductPassport from '../../src/components/ProductPassport';
 
 export default function ScannerScreen() {
   const device = useCameraDevice('back');
@@ -28,12 +30,43 @@ export default function ScannerScreen() {
   const [displayCount, setDisplayCount] = useState(0);
   const [isActive, setIsActive] = useState(true);
 
-  // Modal State para Cantidad
-  const [showQuantityModal, setShowQuantityModal] = useState(false);
+  // Estado para Passport (Hoja de Vida)
+  const [showPassport, setShowPassport] = useState(false);
+  const [passportData, setPassportData] = useState<any>(null);
+  const [passportLoading, setPassportLoading] = useState(false);
   const [pendingSku, setPendingSku] = useState<string | null>(null);
+
+  // Estado para Modal de Cantidad
+  const [showQuantityModal, setShowQuantityModal] = useState(false);
   const [quantityInput, setQuantityInput] = useState<string>('1');
 
   const colors = COLORS.dark;
+
+  const fetchPassport = async (sku: string) => {
+    setPassportLoading(true);
+    try {
+      // Primero buscamos el producto por SKU, luego pedimos su passport
+      const token = user?.id; // TODO: get actual auth token
+      const findRes = await fetch(`${API_BASE_URL}/products/sku/_/${sku}`);
+      if (!findRes.ok) {
+        // Producto no registrado aún — mostrar SKU sin datos
+        setPassportData(null);
+        return;
+      }
+      const product = await findRes.json();
+      const passRes = await fetch(`${API_BASE_URL}/products/${product.id}/passport`);
+      if (passRes.ok) {
+        setPassportData(await passRes.json());
+      } else {
+        setPassportData(null);
+      }
+    } catch (e) {
+      console.error('Error fetching passport', e);
+      setPassportData(null);
+    } finally {
+      setPassportLoading(false);
+    }
+  };
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13', 'ean-8', 'code-128', 'code-39'],
@@ -44,39 +77,50 @@ export default function ScannerScreen() {
 
       const accepted = handleScan(code.value);
       if (accepted) {
-        setIsActive(false); // Pausar cámara
+        setIsActive(false);
         setPendingSku(code.value);
-        setQuantityInput('1');
-        setShowQuantityModal(true);
+        setShowPassport(true);
+        fetchPassport(code.value);
       }
     },
   });
 
+  const handleRegisterMovement = () => {
+    // Desde el passport, abrir modal de cantidad
+    setShowPassport(false);
+    setQuantityInput('1');
+    setShowQuantityModal(true);
+  };
+
   const handleSaveMovement = () => {
     if (!pendingSku || !user?.id) return;
     const qty = parseInt(quantityInput, 10);
-    if (isNaN(qty) || qty <= 0) {
-      // Si la cantidad es inválida, no hacer nada o mostrar error
-      return;
-    }
+    if (isNaN(qty) || qty <= 0) return;
 
-    // El from/to hub debería sacarse de contexto, por ahora es null
     recordMovement(pendingSku, movementType, qty, user.id, undefined, undefined);
-    
+
     sessionCount.current += 1;
     setDisplayCode(pendingSku);
     setDisplayCount(sessionCount.current);
     refreshPending();
 
-    // Resetear y volver a activar cámara
     setShowQuantityModal(false);
     setPendingSku(null);
-    setTimeout(() => setIsActive(true), 500); // Pequeño delay para no doble escanear
+    setPassportData(null);
+    setTimeout(() => setIsActive(true), 500);
   };
 
-  const handleCancelMovement = () => {
+  const handleClosePassport = () => {
+    setShowPassport(false);
+    setPendingSku(null);
+    setPassportData(null);
+    setTimeout(() => setIsActive(true), 500);
+  };
+
+  const handleCancelQuantity = () => {
     setShowQuantityModal(false);
     setPendingSku(null);
+    setPassportData(null);
     setTimeout(() => setIsActive(true), 500);
   };
 
@@ -141,7 +185,6 @@ export default function ScannerScreen() {
           isActive={isActive}
           codeScanner={codeScanner}
         />
-
         <View style={styles.scanOverlay}>
           <View style={styles.scanFrame} />
         </View>
@@ -153,37 +196,40 @@ export default function ScannerScreen() {
             <Text style={[styles.resultLabel, { color: colors.textMuted }]}>
               Último escaneo
             </Text>
-            <Text
-              style={[styles.resultCode, { color: colors.primary }]}
-              numberOfLines={1}
-              ellipsizeMode="middle"
-            >
+            <Text style={[styles.resultCode, { color: colors.primary }]} numberOfLines={1} ellipsizeMode="middle">
               {displayCode}
             </Text>
             <View style={styles.resultMeta}>
-              <Text style={[styles.resultType, { color: colors.text }]}>
-                {movementType}
-              </Text>
-              <Text style={[styles.sessionCounter, { color: colors.textMuted }]}>
-                Sesión: {displayCount}
-              </Text>
+              <Text style={[styles.resultType, { color: colors.text }]}>{movementType}</Text>
+              <Text style={[styles.sessionCounter, { color: colors.textMuted }]}>Sesión: {displayCount}</Text>
             </View>
           </Card>
         ) : (
           <Text style={[styles.hint, { color: colors.textMuted }]}>
-            Apunta la cámara al código de barras del SKU
+            Apunta la cámara al código QR del producto
           </Text>
         )}
       </View>
 
-      {/* Modal para Cantidad */}
+      {/* Modal Passport (Hoja de Vida) */}
+      <Modal visible={showPassport} transparent animationType="slide">
+        <View style={styles.passportOverlay}>
+          <ProductPassport
+            data={passportData}
+            loading={passportLoading}
+            onRegisterMovement={handleRegisterMovement}
+            onClose={handleClosePassport}
+          />
+        </View>
+      </Modal>
+
+      {/* Modal Cantidad */}
       <Modal visible={showQuantityModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Ingresar Cantidad</Text>
             <Text style={styles.modalSku}>SKU: {pendingSku}</Text>
             <Text style={styles.modalType}>Operación: {movementType}</Text>
-            
             <TextInput
               style={styles.input}
               value={quantityInput}
@@ -192,15 +238,13 @@ export default function ScannerScreen() {
               autoFocus
               selectTextOnFocus
             />
-            
             <View style={styles.modalButtons}>
-              <Button title="Cancelar" variant="secondary" onPress={handleCancelMovement} style={styles.modalBtn} />
+              <Button title="Cancelar" variant="secondary" onPress={handleCancelQuantity} style={styles.modalBtn} />
               <Button title="Guardar" variant="primary" onPress={handleSaveMovement} style={styles.modalBtn} />
             </View>
           </View>
         </View>
       </Modal>
-
     </View>
   );
 }
@@ -227,7 +271,7 @@ const styles = StyleSheet.create({
   resultType: { fontSize: FONT_SIZE.sm, fontWeight: '600' },
   sessionCounter: { fontSize: FONT_SIZE.sm },
   hint: { textAlign: 'center', fontSize: FONT_SIZE.md },
-  
+  passportOverlay: { flex: 1, backgroundColor: COLORS.dark.background, paddingTop: SPACING.xxl },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center', padding: SPACING.lg },
   modalContent: { backgroundColor: COLORS.dark.surface, padding: SPACING.lg, borderRadius: RADIUS.lg, width: '100%', alignItems: 'center' },
   modalTitle: { fontSize: FONT_SIZE.lg, fontWeight: 'bold', color: COLORS.dark.text, marginBottom: SPACING.xs },
