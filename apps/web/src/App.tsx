@@ -7,7 +7,6 @@ import Inventory from './pages/Inventory';
 import Products from './pages/Products';
 import Operations from './pages/Operations';
 import Hubs from './pages/Hubs';
-import ProductQR from './pages/ProductQR';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/DashboardLayout';
 
@@ -78,14 +77,6 @@ function App() {
           } 
         />
 
-        <Route 
-          path="/qr" 
-          element={
-            <ProtectedRoute>
-              <ProductQR />
-            </ProtectedRoute>
-          } 
-        />
 
         {/* Catch-all: redirigir al landing */}
         <Route path="*" element={<Navigate to="/" replace />} />

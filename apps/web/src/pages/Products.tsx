@@ -9,6 +9,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import ProductPassportModal from '../components/ProductPassportModal';
+import ProductQRModal from '../components/ProductQRModal';
 
 interface Product {
   id: string;
@@ -41,6 +42,7 @@ export default function Products() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [passportProductId, setPassportProductId] = useState<string | null>(null);
+  const [qrProductId, setQrProductId] = useState<string | null>(null);
 
   // Form state
   const [sku, setSku] = useState('');
@@ -439,10 +441,10 @@ export default function Products() {
                       className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 h-8 w-8 p-0" title="Ver Hoja de Vida">
                       <Eye size={14} />
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => navigate(`/qr?id=${p.id}`)}
-                      className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 h-8 w-8 p-0" title="Imprimir QR">
-                      <QrCode size={14} />
-                    </Button>
+                      <Button variant="outline" size="sm" onClick={() => setQrProductId(p.id)}
+                        className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 h-8 w-8 p-0" title="Imprimir QR">
+                        <QrCode size={14} />
+                      </Button>
                     {canManage && (
                       <>
                         <Button variant="outline" size="sm" onClick={() => handleEdit(p)}
@@ -464,6 +466,7 @@ export default function Products() {
       </div>
 
       <ProductPassportModal productId={passportProductId} onClose={() => setPassportProductId(null)} />
+      <ProductQRModal productId={qrProductId} onClose={() => setQrProductId(null)} />
     </div>
   );
 }
