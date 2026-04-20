@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowRightLeft, Plus } from 'lucide-react';
 import { api } from '../lib/axios';
+import { useAuth } from '../context/AuthProvider';
 import { Button } from '../components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -19,6 +20,7 @@ interface Hub {
 type MovementType = 'INGRESO' | 'SALIDA' | 'AJUSTE' | 'TRASLADO';
 
 export default function Operations() {
+  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [hubs, setHubs] = useState<Hub[]>([]);
 
@@ -54,9 +56,12 @@ export default function Operations() {
     try {
       const { data } = await api.get('/hubs');
       setHubs(data);
+      
       if (data.length > 0) {
-        if (!fromHubId) setFromHubId(data[0].id);
-        if (!toHubId) setToHubId(data[0].id);
+        // Preferencias de hub: asignado al usuario > primero de la lista
+        const defaultHubId = user?.hubId || data[0].id;
+        if (!fromHubId) setFromHubId(defaultHubId);
+        if (!toHubId) setToHubId(defaultHubId);
       }
     } catch (e) { console.error(e); }
   };

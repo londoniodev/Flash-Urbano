@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, Request } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, Request, UseGuards } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
+import { Roles } from '../auth/decorators';
+import { RolesGuard } from '../auth/guards';
 
 @Controller('products')
+@UseGuards(RolesGuard)
 export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
@@ -16,13 +19,15 @@ export class ProductsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(id);
+  findOne(@Param('id') id: string, @Request() req: any) {
+    const companyId = req.user.role === 'CLIENT' ? req.user.companyId : undefined;
+    return this.productsService.findOne(id, companyId);
   }
 
   @Get(':id/passport')
-  getPassport(@Param('id') id: string) {
-    return this.productsService.getPassport(id);
+  getPassport(@Param('id') id: string, @Request() req: any) {
+    const companyId = req.user.role === 'CLIENT' ? req.user.companyId : undefined;
+    return this.productsService.getPassport(id, companyId);
   }
 
   @Get('sku/:companyId/:sku')
@@ -31,16 +36,20 @@ export class ProductsController {
   }
 
   @Post()
+  @Roles('ADMIN', 'OPERATOR')
   create(@Body() dto: CreateProductDto) {
     return this.productsService.create(dto);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
+  @Roles('ADMIN', 'OPERATOR')
+  update(@Param('id') id: string, @Body() dto: UpdateProductDto, @Request() req: any) {
+    // Note: Even though only ADMIN/OPERATOR can update, we might want to check ownership if they were allowed
     return this.productsService.update(id, dto);
   }
 
   @Delete(':id')
+  @Roles('ADMIN', 'OPERATOR')
   remove(@Param('id') id: string) {
     return this.productsService.remove(id);
   }

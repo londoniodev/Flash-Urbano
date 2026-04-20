@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { eq, and, desc } from 'drizzle-orm';
 import { products, inventoryStock, inventoryMovements, hubs, users } from '../database/schema';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
@@ -17,9 +17,14 @@ export class ProductsService {
     return query.orderBy(desc(products.createdAt));
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, companyId?: string) {
     const [product] = await this.db.select().from(products).where(eq(products.id, id)).limit(1);
     if (!product) throw new NotFoundException('Producto no encontrado');
+    
+    if (companyId && product.companyId !== companyId) {
+      throw new ForbiddenException('No tienes permiso para acceder a este producto');
+    }
+    
     return product;
   }
 
@@ -35,8 +40,8 @@ export class ProductsService {
   /**
    * "Hoja de Vida" del producto: datos + stock por sede + historial de movimientos
    */
-  async getPassport(id: string) {
-    const product = await this.findOne(id);
+  async getPassport(id: string, companyId?: string) {
+    const product = await this.findOne(id, companyId);
 
     // Stock desglosado por sede
     const stock = await this.db.select({

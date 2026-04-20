@@ -7,6 +7,7 @@ interface User {
   lastName?: string;
   role: string;
   companyId?: string;
+  hubId?: string;
 }
 
 interface AuthContextType {
@@ -46,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             lastName: payload.lastName,
             role: payload.role,
             companyId: payload.companyId,
+            hubId: payload.hubId,
           });
         }
       }

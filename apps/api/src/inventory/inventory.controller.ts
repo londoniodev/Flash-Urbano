@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Param, Query, Request, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Request, UseGuards } from '@nestjs/common';
 import { InventoryService } from './inventory.service';
 import { InventoryMovementDto } from './dto/inventory.dto';
+import { Roles } from '../auth/decorators';
+import { RolesGuard } from '../auth/guards';
 
 @Controller('inventory')
+@UseGuards(RolesGuard)
 export class InventoryController {
   constructor(private inventoryService: InventoryService) {}
 
@@ -27,10 +30,8 @@ export class InventoryController {
   }
 
   @Post('move')
+  @Roles('ADMIN', 'OPERATOR')
   registerMovement(@Body() dto: InventoryMovementDto, @Request() req: any) {
-    if (req.user.role === 'CLIENT') {
-      throw new BadRequestException('Los clientes no pueden registrar movimientos directos');
-    }
     return this.inventoryService.registerMovement(dto, req.user.id);
   }
 }

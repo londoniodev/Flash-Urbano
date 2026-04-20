@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PackagePlus, Trash2, Edit, QrCode, Eye } from 'lucide-react';
 import { api } from '../lib/axios';
+import { useAuth } from '../context/AuthProvider';
 import { Button } from '../components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
@@ -22,6 +23,9 @@ interface Product {
 
 export default function Products() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isOperator = user?.role === 'ADMIN' || user?.role === 'OPERATOR';
+  
   const [products, setProducts] = useState<Product[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -63,8 +67,10 @@ export default function Products() {
 
   useEffect(() => {
     fetchProducts();
-    fetchCompanies();
-  }, []);
+    if (isOperator) {
+      fetchCompanies();
+    }
+  }, [isOperator]);
 
   const resetForm = () => {
     setSku('');
@@ -128,15 +134,17 @@ export default function Products() {
       <header className="flex items-center justify-between pb-6 mb-6 border-b border-zinc-800">
         <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-zinc-100">
           <PackagePlus size={24} className="text-primary" />
-          Catálogo de Productos (SKUs)
+          {user?.role === 'CLIENT' ? 'Mis Productos' : 'Catálogo de Productos (SKUs)'}
         </h1>
-        <Button
-          onClick={() => { resetForm(); setShowForm(!showForm); }}
-          className="gap-2"
-        >
-          <PackagePlus size={16} />
-          {showForm ? 'Cerrar Formulario' : 'Nuevo Producto'}
-        </Button>
+        {isOperator && (
+          <Button
+            onClick={() => { resetForm(); setShowForm(!showForm); }}
+            className="gap-2"
+          >
+            <PackagePlus size={16} />
+            {showForm ? 'Cerrar Formulario' : 'Nuevo Producto'}
+          </Button>
+        )}
       </header>
 
       {/* FORMULARIO */}
@@ -279,14 +287,18 @@ export default function Products() {
                       className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 h-8 w-8 p-0" title="Imprimir QR">
                       <QrCode size={14} />
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(p)}
-                      className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 h-8 w-8 p-0" title="Editar">
-                      <Edit size={14} />
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleDelete(p.id)}
-                      className="border-red-900/50 text-red-400 hover:bg-red-950 h-8 w-8 p-0" title="Eliminar">
-                      <Trash2 size={14} />
-                    </Button>
+                    {isOperator && (
+                      <>
+                        <Button variant="outline" size="sm" onClick={() => handleEdit(p)}
+                          className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 h-8 w-8 p-0" title="Editar">
+                          <Edit size={14} />
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleDelete(p.id)}
+                          className="border-red-900/50 text-red-400 hover:bg-red-950 h-8 w-8 p-0" title="Eliminar">
+                          <Trash2 size={14} />
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
