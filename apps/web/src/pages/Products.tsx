@@ -20,7 +20,14 @@ interface Product {
   barcode?: string;
   description?: string;
   companyId: string;
+  companyName: string;
   createdAt: string;
+}
+
+interface Hub {
+  id: string;
+  name: string;
+  city: string;
 }
 
 export default function Products() {
@@ -47,6 +54,9 @@ export default function Products() {
   const [companies, setCompanies] = useState<{ id: string; name: string }[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [hubs, setHubs] = useState<Hub[]>([]);
+  const [hubId, setHubId] = useState('');
+  const [initialStock, setInitialStock] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchProducts = async () => {
@@ -71,8 +81,19 @@ export default function Products() {
     }
   };
 
+  const fetchHubs = async () => {
+    try {
+      const { data } = await api.get('/hubs');
+      setHubs(data);
+      if (data.length > 0) setHubId(data[0].id);
+    } catch (e) {
+      console.error('Error fetching hubs', e);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
+    fetchHubs();
     if (isOperator) {
       fetchCompanies();
     }
@@ -88,6 +109,7 @@ export default function Products() {
     setDescription('');
     setEditingId(null);
     setError('');
+    setInitialStock(0);
     // Si es cliente, asegurar que el companyId siempre sea el suyo
     if (isClient && user?.companyId) {
       setCompanyId(user.companyId);
@@ -103,7 +125,7 @@ export default function Products() {
       if (editingId) {
         await api.patch(`/products/${editingId}`, { name, category, brand, imageUrl, barcode, description });
       } else {
-        await api.post('/products', { sku, name, category, brand, imageUrl, barcode, description, companyId });
+        await api.post('/products', { sku, name, category, brand, imageUrl, barcode, description, companyId, initialStock, hubId });
       }
       await fetchProducts();
       resetForm();
@@ -147,7 +169,9 @@ export default function Products() {
         MARCA: 'MarcaX',
         BARCODE: '1234567890123',
         DESCRIPCION: 'Breve descripción del producto',
-        IMAGE_URL: 'https://link-a-imagen.com/foto.jpg'
+        IMAGE_URL: 'https://link-a-imagen.com/foto.jpg',
+        HUB_ID: hubs[0]?.id || 'uuid-de-sede',
+        STOCK_INICIAL: 10
       }
     ];
     exportToExcel(template, 'plantilla_carga_productos', 'Productos');
@@ -175,6 +199,8 @@ export default function Products() {
         barcode: row.BARCODE?.toString(),
         description: row.DESCRIPCION?.toString(),
         imageUrl: row.IMAGE_URL?.toString(),
+        hubId: row.HUB_ID?.toString() || hubId,
+        initialStock: Number(row.STOCK_INICIAL) || 0,
         companyId: companyId // Se asignará correctamente en el backend para clientes
       })).filter(p => p.sku && p.name);
 
@@ -318,6 +344,35 @@ export default function Products() {
                   </select>
                 </div>
               )}
+
+              {isOperator && !editingId && (
+                <>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm text-zinc-400">Sede para Stock Inicial *</label>
+                    <select
+                      className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                      value={hubId}
+                      onChange={(e) => setHubId(e.target.value)}
+                      required
+                    >
+                      {hubs.map((h) => (
+                        <option key={h.id} value={h.id}>{h.name} ({h.city})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm text-zinc-400">Cantidad Inicial *</label>
+                    <input
+                      type="number"
+                      className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                      value={initialStock}
+                      onChange={(e) => setInitialStock(Number(e.target.value))}
+                      min="0"
+                      required
+                    />
+                  </div>
+                </>
+              )}
               <div className="flex flex-col gap-1 md:col-span-2">
                 <label className="text-sm text-zinc-400">Descripción</label>
                 <textarea
@@ -349,6 +404,7 @@ export default function Products() {
           <TableHeader className="bg-zinc-950 sticky top-0 z-10 border-b border-zinc-800">
             <TableRow className="hover:bg-transparent border-zinc-800">
               <TableHead className="text-zinc-500">SKU</TableHead>
+              {isOperator && <TableHead className="text-zinc-500">CLIENTE</TableHead>}
               <TableHead className="text-zinc-500">NOMBRE</TableHead>
               <TableHead className="text-zinc-500">CATEGORÍA</TableHead>
               <TableHead className="text-zinc-500">MARCA</TableHead>
@@ -364,8 +420,17 @@ export default function Products() {
               </TableRow>
             ) : products.map((p) => (
               <TableRow key={p.id} className="border-zinc-800/50 hover:bg-zinc-800/50 transition-colors cursor-pointer" onClick={() => setPassportProductId(p.id)}>
-                <TableCell className="font-mono text-sm font-medium text-primary">{p.sku}</TableCell>
-                <TableCell className="text-sm text-zinc-200">{p.name}</TableCell>
+                <TableCell className="font-mono text-sm font-medium text-primary">
+                  {p.sku}
+                </TableCell>
+                {isOperator && (
+                  <TableCell className="text-sm font-bold text-zinc-100">
+                    {p.companyName}
+                  </TableCell>
+                )}
+                <TableCell className="text-sm text-zinc-300">
+                  {p.name}
+                </TableCell>
                 <TableCell className="text-xs text-zinc-400">{p.category || '—'}</TableCell>
                 <TableCell className="text-xs text-zinc-400">{p.brand || '—'}</TableCell>
                 <TableCell className="text-right">

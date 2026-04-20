@@ -42,7 +42,7 @@ export class ProductsController {
     if (req.user.role === 'CLIENT') {
       dto.companyId = req.user.companyId;
     }
-    return this.productsService.create(dto);
+    return this.productsService.create(dto, req.user.id);
   }
 
   @Post('bulk')
@@ -51,7 +51,7 @@ export class ProductsController {
     if (req.user.role === 'CLIENT') {
       dtos = dtos.map(dto => ({ ...dto, companyId: req.user.companyId }));
     }
-    return this.productsService.createBulk(dtos);
+    return this.productsService.createBulk(dtos, req.user.id);
   }
 
   @Patch(':id')

@@ -29,6 +29,13 @@ export class CreateProductDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsUUID()
+  hubId?: string;
+
+  @IsOptional()
+  initialStock?: number;
 }
 
 export class UpdateProductDto {

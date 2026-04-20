@@ -8,17 +8,48 @@ export class ProductsService {
   constructor(@Inject('DATABASE') private db: any) {}
 
   async findAll(filters?: { companyId?: string }) {
-    let query = this.db.select().from(products);
+    const query = this.db.select({
+      id: products.id,
+      sku: products.sku,
+      name: products.name,
+      category: products.category,
+      brand: products.brand,
+      imageUrl: products.imageUrl,
+      barcode: products.barcode,
+      description: products.description,
+      companyId: products.companyId,
+      companyName: companies.name,
+      createdAt: products.createdAt,
+    })
+    .from(products)
+    .innerJoin(companies, eq(products.companyId, companies.id));
 
     if (filters?.companyId) {
-      query = query.where(eq(products.companyId, filters.companyId));
+      query.where(eq(products.companyId, filters.companyId));
     }
 
     return query.orderBy(desc(products.createdAt));
   }
 
   async findOne(id: string, companyId?: string) {
-    const [product] = await this.db.select().from(products).where(eq(products.id, id)).limit(1);
+    const [product] = await this.db.select({
+      id: products.id,
+      sku: products.sku,
+      name: products.name,
+      category: products.category,
+      brand: products.brand,
+      imageUrl: products.imageUrl,
+      barcode: products.barcode,
+      description: products.description,
+      companyId: products.companyId,
+      companyName: companies.name,
+      createdAt: products.createdAt,
+    })
+    .from(products)
+    .innerJoin(companies, eq(products.companyId, companies.id))
+    .where(eq(products.id, id))
+    .limit(1);
+
     if (!product) throw new NotFoundException('Producto no encontrado');
     
     if (companyId && product.companyId !== companyId) {
@@ -93,35 +124,78 @@ export class ProductsService {
     return product;
   }
 
-  async create(dto: CreateProductDto) {
-    const existing = await this.db.select().from(products).where(
-      and(eq(products.companyId, dto.companyId), eq(products.sku, dto.sku))
-    ).limit(1);
+  async create(dto: CreateProductDto, userId?: string) {
+    return await this.db.transaction(async (tx: any) => {
+      const existing = await tx.select().from(products).where(
+        and(eq(products.companyId, dto.companyId), eq(products.sku, dto.sku))
+      ).limit(1);
 
-    if (existing.length > 0) {
-      throw new BadRequestException('El SKU ya existe para esta compañía');
-    }
+      if (existing.length > 0) {
+        throw new BadRequestException('El SKU ya existe para esta compañía');
+      }
 
-    const [product] = await this.db.insert(products).values(dto).returning();
-    return product;
+      const { initialStock, hubId, ...productData } = dto;
+      const [product] = await tx.insert(products).values(productData).returning();
+
+      // Si hay stock inicial, registrarlo
+      if (initialStock && initialStock > 0 && hubId && userId) {
+        // 1. Crear registro de stock
+        await tx.insert(inventoryStock).values({
+          productId: product.id,
+          hubId: hubId,
+          quantity: initialStock,
+          updatedAt: new Date(),
+        });
+
+        // 2. Registrar movimiento (Kardex)
+        await tx.insert(inventoryMovements).values({
+          productId: product.id,
+          movementType: 'INGRESO',
+          quantity: initialStock,
+          toHubId: hubId,
+          operatorId: userId,
+          notes: 'Stock inicial establecido al crear producto',
+          createdAt: new Date(),
+        });
+      }
+
+      return product;
+    });
   }
 
-  async createBulk(dtos: CreateProductDto[]) {
+  async createBulk(dtos: CreateProductDto[], userId?: string) {
     return await this.db.transaction(async (tx: any) => {
       const createdProducts = [];
       for (const dto of dtos) {
-        // Verificar si el SKU ya existe para esta compañía
         const existing = await tx.select().from(products).where(
           and(eq(products.companyId, dto.companyId), eq(products.sku, dto.sku))
         ).limit(1);
 
         if (existing.length > 0) {
-          // Si ya existe, lo saltamos o podríamos actualizarlo (upsert)
-          // Por ahora, lanzamos error para que el usuario sepa que hay duplicados
           throw new BadRequestException(`El SKU "${dto.sku}" ya existe para esta compañía`);
         }
 
-        const [product] = await tx.insert(products).values(dto).returning();
+        const { initialStock, hubId, ...productData } = dto;
+        const [product] = await tx.insert(products).values(productData).returning();
+
+        if (initialStock && initialStock > 0 && hubId && userId) {
+          await tx.insert(inventoryStock).values({
+            productId: product.id,
+            hubId: hubId,
+            quantity: initialStock,
+            updatedAt: new Date(),
+          });
+
+          await tx.insert(inventoryMovements).values({
+            productId: product.id,
+            movementType: 'INGRESO',
+            quantity: initialStock,
+            toHubId: hubId,
+            operatorId: userId,
+            notes: 'Stock inicial (Bulk)',
+            createdAt: new Date(),
+          });
+        }
         createdProducts.push(product);
       }
       return createdProducts;
