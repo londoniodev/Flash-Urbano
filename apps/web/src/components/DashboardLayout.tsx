@@ -1,5 +1,5 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Activity, PackageSearch, PackagePlus, ArrowRightLeft, LogOut } from 'lucide-react';
+import { Activity, PackageSearch, PackagePlus, ArrowRightLeft, LogOut, Zap } from 'lucide-react';
 import { useAuth } from '../context/AuthProvider';
 
 interface DashboardLayoutProps {
@@ -30,8 +30,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Sidebar */}
       <aside className="w-56 flex-shrink-0 bg-zinc-900 border-r border-zinc-800 flex flex-col">
         <div className="px-4 py-5 border-b border-zinc-800">
-          <h2 className="text-lg font-bold italic tracking-tight text-zinc-100">
-            ⚡ Flash Urbano
+          <h2 className="flex items-center gap-2 text-lg font-bold italic tracking-tight text-zinc-100">
+            <Zap size={20} className="text-primary fill-primary" />
+            Flash Urbano
           </h2>
           <p className="text-xs text-zinc-500 mt-0.5">WMS Control Panel</p>
         </div>

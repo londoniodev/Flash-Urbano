@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowRightLeft, Plus } from 'lucide-react';
+import { ArrowRightLeft, Plus, Package, PackageMinus, RefreshCw, Sliders } from 'lucide-react';
 import { api } from '../lib/axios';
 import { useAuth } from '../context/AuthProvider';
 import { Button } from '../components/ui/button';
@@ -100,7 +100,7 @@ export default function Operations() {
       }
 
       await api.post('/inventory/move', payload);
-      setSuccess(`✅ Movimiento de ${quantity} unidades registrado exitosamente`);
+      setSuccess(`Movimiento de ${quantity} unidades registrado exitosamente`);
       setQuantity(1);
       setNotes('');
       fetchRecent();
@@ -111,11 +111,11 @@ export default function Operations() {
     }
   };
 
-  const movementTypes: { value: MovementType; label: string; color: string }[] = [
-    { value: 'INGRESO', label: '📦 Ingreso', color: 'border-emerald-500 text-emerald-400' },
-    { value: 'SALIDA', label: '📤 Salida', color: 'border-red-500 text-red-400' },
-    { value: 'TRASLADO', label: '🔄 Traslado', color: 'border-blue-500 text-blue-400' },
-    { value: 'AJUSTE', label: '⚙️ Ajuste', color: 'border-zinc-500 text-zinc-400' },
+  const movementTypes: { value: MovementType; label: string; icon: any; color: string }[] = [
+    { value: 'INGRESO', label: 'Ingreso', icon: Package, color: 'border-emerald-500 text-emerald-400' },
+    { value: 'SALIDA', label: 'Salida', icon: PackageMinus, color: 'border-red-500 text-red-400' },
+    { value: 'TRASLADO', label: 'Traslado', icon: RefreshCw, color: 'border-blue-500 text-blue-400' },
+    { value: 'AJUSTE', label: 'Ajuste', icon: Sliders, color: 'border-zinc-500 text-zinc-400' },
   ];
 
   return (
@@ -146,12 +146,13 @@ export default function Operations() {
                       key={mt.value}
                       type="button"
                       onClick={() => setMovementType(mt.value)}
-                      className={`py-2.5 px-3 rounded-lg border text-sm font-medium transition-all ${
+                      className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border text-sm font-medium transition-all ${
                         movementType === mt.value
                           ? `${mt.color} bg-zinc-800`
                           : 'border-zinc-800 text-zinc-500 hover:border-zinc-700'
                       }`}
                     >
+                      <mt.icon size={16} />
                       {mt.label}
                     </button>
                   ))}

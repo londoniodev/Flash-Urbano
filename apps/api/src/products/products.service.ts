@@ -1,6 +1,6 @@
 import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { eq, and, desc } from 'drizzle-orm';
-import { products, inventoryStock, inventoryMovements, hubs, users } from '../database/schema';
+import { products, inventoryStock, inventoryMovements, hubs, users, companies } from '../database/schema';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
 
 @Injectable()

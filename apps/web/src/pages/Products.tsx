@@ -209,7 +209,7 @@ export default function Products() {
       }
 
       await api.post('/products/bulk', dtos);
-      alert(`✅ Se han cargado ${dtos.length} productos correctamente`);
+      alert(`Se han cargado ${dtos.length} productos correctamente`);
       fetchProducts();
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Error al procesar el archivo');
