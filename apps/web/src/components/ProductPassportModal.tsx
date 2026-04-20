@@ -70,7 +70,8 @@ export default function ProductPassportModal({ productId, onClose }: Props) {
     switch (type) {
       case 'INGRESO': return 'border-emerald-500 text-emerald-400';
       case 'SALIDA': return 'border-red-500 text-red-400';
-      case 'TRASLADO': return 'border-blue-500 text-blue-400';
+      case 'TRASLADO': return 'border-orange-500 text-orange-400';
+      case 'AJUSTE': return 'border-blue-500 text-blue-400';
       default: return 'border-zinc-500 text-zinc-400';
     }
   };
@@ -182,7 +183,8 @@ export default function ProductPassportModal({ productId, onClose }: Props) {
                         <div className="flex flex-col">
                            {m.movementType === 'INGRESO' && <span className="text-[10px] text-emerald-500/80">Entra a: {m.toHubName}</span>}
                            {m.movementType === 'SALIDA' && <span className="text-[10px] text-red-500/80">Sale de: {m.fromHubName}</span>}
-                           {m.movementType === 'TRASLADO' && <span className="text-[10px] text-blue-500/80">{m.fromHubName} → {m.toHubName}</span>}
+                           {m.movementType === 'TRASLADO' && <span className="text-[10px] text-orange-500/80">{m.fromHubName} → {m.toHubName}</span>}
+                           {m.movementType === 'AJUSTE' && <span className="text-[10px] text-blue-500/80">Bodega: {m.toHubName || m.fromHubName}</span>}
                            {m.notes && <span className="text-[10px] text-zinc-500 italic truncate max-w-[150px]">{m.notes}</span>}
                         </div>
                       </div>

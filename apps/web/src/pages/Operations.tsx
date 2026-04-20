@@ -128,8 +128,8 @@ export default function Operations() {
   const movementTypes: { value: MovementType; label: string; icon: any; color: string }[] = [
     { value: 'INGRESO', label: 'Ingreso', icon: Package, color: 'border-emerald-500 text-emerald-400' },
     { value: 'SALIDA', label: 'Salida', icon: PackageMinus, color: 'border-red-500 text-red-400' },
-    { value: 'TRASLADO', label: 'Traslado', icon: RefreshCw, color: 'border-blue-500 text-blue-400' },
-    { value: 'AJUSTE', label: 'Ajuste', icon: Sliders, color: 'border-zinc-500 text-zinc-400' },
+    { value: 'TRASLADO', label: 'Traslado', icon: RefreshCw, color: 'border-orange-500 text-orange-400' },
+    { value: 'AJUSTE', label: 'Ajuste', icon: Sliders, color: 'border-blue-500 text-blue-400' },
   ];
 
   return (
@@ -297,8 +297,8 @@ export default function Operations() {
                     <Badge variant="outline" className={
                       m.movementType === 'INGRESO' ? 'border-emerald-500 text-emerald-400' :
                       m.movementType === 'SALIDA' ? 'border-red-500 text-red-400' :
-                      m.movementType === 'TRASLADO' ? 'border-blue-500 text-blue-400' :
-                      'border-zinc-500 text-zinc-400'
+                      m.movementType === 'TRASLADO' ? 'border-orange-500 text-orange-400' :
+                      'border-blue-500 text-blue-400'
                     }>
                       {m.movementType}
                     </Badge>
@@ -312,8 +312,8 @@ export default function Operations() {
                     <div className="flex items-center gap-1.5 text-[10px] font-medium">
                       {m.movementType === 'INGRESO' && <span className="text-emerald-500">Bodega: {m.toHubName}</span>}
                       {m.movementType === 'SALIDA' && <span className="text-red-500">Bodega: {m.fromHubName}</span>}
-                      {m.movementType === 'TRASLADO' && <span className="text-blue-500">{m.fromHubName} → {m.toHubName}</span>}
-                      {m.movementType === 'AJUSTE' && <span className="text-zinc-500">Bodega: {m.toHubName || m.fromHubName}</span>}
+                      {m.movementType === 'TRASLADO' && <span className="text-orange-500">{m.fromHubName} → {m.toHubName}</span>}
+                      {m.movementType === 'AJUSTE' && <span className="text-blue-500">Bodega: {m.toHubName || m.fromHubName}</span>}
                     </div>
                   </div>
                 </div>

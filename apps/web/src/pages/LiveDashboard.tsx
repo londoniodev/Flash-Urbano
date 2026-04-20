@@ -171,7 +171,7 @@ export default function LiveDashboard() {
                         </div>
                       )}
                       {entry.movementType === 'TRASLADO' && (
-                        <div className="flex items-center gap-1.5 text-blue-400">
+                        <div className="flex items-center gap-1.5 text-orange-400">
                            <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-[10px] text-zinc-400">DESDE:</span>
                            {entry.fromHubName}
                            <span className="text-zinc-600">→</span>
@@ -179,7 +179,7 @@ export default function LiveDashboard() {
                         </div>
                       )}
                       {entry.movementType === 'AJUSTE' && (
-                        <div className="flex items-center gap-1.5 text-zinc-400">
+                        <div className="flex items-center gap-1.5 text-blue-400">
                            <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-[10px] text-zinc-400">EN:</span>
                            {entry.toHubName || entry.fromHubName}
                         </div>
@@ -187,11 +187,12 @@ export default function LiveDashboard() {
                    </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={entry.movementType === 'INGRESO' ? 'outline' : entry.movementType === 'SALIDA' ? 'default' : 'secondary'} 
+                  <Badge variant="outline" 
                     className={
                       entry.movementType === 'INGRESO' ? 'border-emerald-500 text-emerald-400 w-[85px] justify-center' :
-                      entry.movementType === 'SALIDA' ? 'bg-primary text-primary-foreground border-transparent w-[85px] justify-center' :
-                      'bg-zinc-700 text-zinc-300 border-transparent w-[85px] justify-center'
+                      entry.movementType === 'SALIDA' ? 'border-red-500 text-red-400 w-[85px] justify-center' :
+                      entry.movementType === 'TRASLADO' ? 'border-orange-500 text-orange-400 w-[85px] justify-center' :
+                      'border-blue-500 text-blue-400 w-[85px] justify-center'
                     }>
                     {entry.movementType}
                   </Badge>
