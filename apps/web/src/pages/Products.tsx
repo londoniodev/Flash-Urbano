@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PackagePlus, Trash2, Edit, QrCode, Eye, Download } from 'lucide-react';
+import { PackagePlus, Trash2, Edit, QrCode, Eye, Download, Upload } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { exportToExcel } from '../utils/exportExcel';
 import { api } from '../lib/axios';
 import { useAuth } from '../context/AuthProvider';
@@ -46,6 +47,7 @@ export default function Products() {
   const [companies, setCompanies] = useState<{ id: string; name: string }[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchProducts = async () => {
     try {
@@ -151,6 +153,46 @@ export default function Products() {
     exportToExcel(template, 'plantilla_carga_productos', 'Productos');
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet) as any[];
+
+      // Mapear campos del Excel a CreateProductDto
+      const dtos = jsonData.map(row => ({
+        sku: row.SKU?.toString(),
+        name: row.NOMBRE?.toString(),
+        category: row.CATEGORIA?.toString(),
+        brand: row.MARCA?.toString(),
+        barcode: row.BARCODE?.toString(),
+        description: row.DESCRIPCION?.toString(),
+        imageUrl: row.IMAGE_URL?.toString(),
+        companyId: companyId // Se asignará correctamente en el backend para clientes
+      })).filter(p => p.sku && p.name);
+
+      if (dtos.length === 0) {
+        throw new Error('No se encontraron productos válidos en el archivo');
+      }
+
+      await api.post('/products/bulk', dtos);
+      alert(`✅ Se han cargado ${dtos.length} productos correctamente`);
+      fetchProducts();
+    } catch (err: any) {
+      setError(err.response?.data?.message || err.message || 'Error al procesar el archivo');
+    } finally {
+      setLoading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen w-full bg-zinc-950 p-6 text-zinc-100">
 
@@ -160,13 +202,29 @@ export default function Products() {
           {isClient ? 'Mis Productos' : 'Catálogo de Productos (SKUs)'}
         </h1>
         <div className="flex gap-3">
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileUpload} 
+            accept=".xlsx, .xls, .csv" 
+            className="hidden" 
+          />
+          <Button
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={loading}
+            className="gap-2 border-zinc-700 text-zinc-400 hover:bg-zinc-800"
+          >
+            <Upload size={16} />
+            {loading ? 'Subiendo...' : 'Subir Excel'}
+          </Button>
           <Button
             variant="outline"
             onClick={handleDownloadTemplate}
             className="gap-2 border-zinc-700 text-zinc-400 hover:bg-zinc-800"
           >
             <Download size={16} />
-            Plantilla Excel
+            Plantilla
           </Button>
           {canManage && (
             <Button

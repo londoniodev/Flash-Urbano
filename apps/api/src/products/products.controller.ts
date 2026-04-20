@@ -45,6 +45,15 @@ export class ProductsController {
     return this.productsService.create(dto);
   }
 
+  @Post('bulk')
+  @Roles('ADMIN', 'OPERATOR', 'CLIENT')
+  async createBulk(@Body() dtos: CreateProductDto[], @Request() req: any) {
+    if (req.user.role === 'CLIENT') {
+      dtos = dtos.map(dto => ({ ...dto, companyId: req.user.companyId }));
+    }
+    return this.productsService.createBulk(dtos);
+  }
+
   @Patch(':id')
   @Roles('ADMIN', 'OPERATOR', 'CLIENT')
   update(@Param('id') id: string, @Body() dto: UpdateProductDto, @Request() req: any) {

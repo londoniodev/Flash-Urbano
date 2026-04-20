@@ -106,6 +106,28 @@ export class ProductsService {
     return product;
   }
 
+  async createBulk(dtos: CreateProductDto[]) {
+    return await this.db.transaction(async (tx: any) => {
+      const createdProducts = [];
+      for (const dto of dtos) {
+        // Verificar si el SKU ya existe para esta compañía
+        const existing = await tx.select().from(products).where(
+          and(eq(products.companyId, dto.companyId), eq(products.sku, dto.sku))
+        ).limit(1);
+
+        if (existing.length > 0) {
+          // Si ya existe, lo saltamos o podríamos actualizarlo (upsert)
+          // Por ahora, lanzamos error para que el usuario sepa que hay duplicados
+          throw new BadRequestException(`El SKU "${dto.sku}" ya existe para esta compañía`);
+        }
+
+        const [product] = await tx.insert(products).values(dto).returning();
+        createdProducts.push(product);
+      }
+      return createdProducts;
+    });
+  }
+
   async update(id: string, dto: UpdateProductDto, companyId?: string) {
     await this.findOne(id, companyId);
     const [updated] = await this.db
