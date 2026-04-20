@@ -46,7 +46,7 @@ export default function LiveDashboard() {
         setTodayIngress(ingresos);
         setTodayEgress(salidas);
         setActiveOperators(ops.size);
-      } catch (e) {
+      } catch (e: any) {
         console.error("Error fetching live dashboard", e);
       }
     };

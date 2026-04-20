@@ -158,10 +158,10 @@ export default function Operations() {
                   <select
                     className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                     value={selectedCompanyId}
-                    onChange={(e) => setSelectedCompanyId(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedCompanyId(e.target.value)}
                   >
                     <option value="all">Todos los clientes</option>
-                    {companies.map((c) => (
+                    {companies.map((c: any) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>
@@ -196,13 +196,13 @@ export default function Operations() {
                 <select
                   className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                   value={productId}
-                  onChange={(e) => setProductId(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setProductId(e.target.value)}
                   required
                 >
                   <option value="">Selecciona un producto...</option>
                   {products
-                    .filter(p => selectedCompanyId === 'all' || p.companyId === selectedCompanyId)
-                    .map((p) => (
+                    .filter((p: any) => selectedCompanyId === 'all' || p.companyId === selectedCompanyId)
+                    .map((p: any) => (
                       <option key={p.id} value={p.id}>
                         [{p.companyName}] {p.sku} — {p.name}
                       </option>
@@ -218,7 +218,7 @@ export default function Operations() {
                   min={1}
                   className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                   value={quantity}
-                  onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuantity(parseInt(e.target.value) || 1)}
                   required
                 />
               </div>
@@ -230,10 +230,10 @@ export default function Operations() {
                   <select
                     className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                     value={fromHubId}
-                    onChange={(e) => setFromHubId(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFromHubId(e.target.value)}
                     required
                   >
-                    {hubs.map((h) => (
+                    {hubs.map((h: any) => (
                       <option key={h.id} value={h.id}>{h.name}</option>
                     ))}
                   </select>
@@ -249,10 +249,10 @@ export default function Operations() {
                   <select
                     className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                     value={toHubId}
-                    onChange={(e) => setToHubId(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setToHubId(e.target.value)}
                     required
                   >
-                    {hubs.map((h) => (
+                    {hubs.map((h: any) => (
                       <option key={h.id} value={h.id}>{h.name}</option>
                     ))}
                   </select>
@@ -265,7 +265,7 @@ export default function Operations() {
                 <textarea
                   className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-none"
                   value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value)}
                   rows={2}
                   placeholder="Observaciones del movimiento..."
                 />

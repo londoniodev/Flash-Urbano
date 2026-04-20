@@ -25,7 +25,7 @@ export default function ProductQRModal({ productId, onClose }: Props) {
     if (!productId) return;
     setLoading(true);
     api.get(`/products/${productId}`)
-      .then((res) => setProduct(res.data))
+      .then((res: any) => setProduct(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [productId]);
@@ -38,7 +38,7 @@ export default function ProductQRModal({ productId, onClose }: Props) {
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 no-print" onClick={onClose}>
       <div 
         className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
       >
         {/* Print-only styles */}
         <style>{`

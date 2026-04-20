@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { PackagePlus, Trash2, Edit, QrCode, Eye, Download, Upload } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { exportToExcel } from '../utils/exportExcel';
@@ -32,7 +31,6 @@ interface Hub {
 }
 
 export default function Products() {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const isOperator = user?.role === 'ADMIN' || user?.role === 'OPERATOR';
   const isClient = user?.role === 'CLIENT';
@@ -279,7 +277,7 @@ export default function Products() {
                 <input
                   className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none disabled:opacity-50"
                   value={sku}
-                  onChange={(e) => setSku(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSku(e.target.value)}
                   placeholder="Ej: CAMI-001-AZL"
                   required
                   disabled={!!editingId}
@@ -290,7 +288,7 @@ export default function Products() {
                 <input
                   className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
                   placeholder="Ej: Camiseta Azul Talla L"
                   required
                 />
@@ -300,7 +298,7 @@ export default function Products() {
                 <input
                   className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCategory(e.target.value)}
                   placeholder="Ej: Camisetas, Zapatos"
                 />
               </div>
@@ -309,7 +307,7 @@ export default function Products() {
                 <input
                   className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                   value={brand}
-                  onChange={(e) => setBrand(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBrand(e.target.value)}
                   placeholder="Ej: Nike, Adidas"
                 />
               </div>
@@ -318,7 +316,7 @@ export default function Products() {
                 <input
                   className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                   value={barcode}
-                  onChange={(e) => setBarcode(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBarcode(e.target.value)}
                   placeholder="EAN-13, UPC, etc."
                 />
               </div>
@@ -327,7 +325,7 @@ export default function Products() {
                 <input
                   className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                   value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setImageUrl(e.target.value)}
                   placeholder="https://..."
                 />
               </div>
@@ -337,10 +335,10 @@ export default function Products() {
                   <select
                     className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                     value={companyId}
-                    onChange={(e) => setCompanyId(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCompanyId(e.target.value)}
                     required
                   >
-                    {companies.map((c) => (
+                    {companies.map((c: any) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>
@@ -354,10 +352,10 @@ export default function Products() {
                     <select
                       className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                       value={hubId}
-                      onChange={(e) => setHubId(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setHubId(e.target.value)}
                       required
                     >
-                      {hubs.map((h) => (
+                      {hubs.map((h: any) => (
                         <option key={h.id} value={h.id}>{h.name} ({h.city})</option>
                       ))}
                     </select>
@@ -368,7 +366,7 @@ export default function Products() {
                       type="number"
                       className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                       value={initialStock}
-                      onChange={(e) => setInitialStock(Number(e.target.value))}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInitialStock(Number(e.target.value))}
                       min="0"
                       required
                     />
@@ -380,7 +378,7 @@ export default function Products() {
                 <textarea
                   className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-none"
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
                   rows={2}
                   placeholder="Descripción opcional del producto..."
                 />
@@ -420,7 +418,7 @@ export default function Products() {
                   No hay productos registrados. Crea tu primer SKU.
                 </TableCell>
               </TableRow>
-            ) : products.map((p) => (
+            ) : products.map((p: any) => (
               <TableRow key={p.id} className="border-zinc-800/50 hover:bg-zinc-800/50 transition-colors cursor-pointer" onClick={() => setPassportProductId(p.id)}>
                 <TableCell className="font-mono text-sm font-medium text-primary">
                   {p.sku}
@@ -436,7 +434,7 @@ export default function Products() {
                 <TableCell className="text-xs text-zinc-400">{p.category || '—'}</TableCell>
                 <TableCell className="text-xs text-zinc-400">{p.brand || '—'}</TableCell>
                 <TableCell className="text-right">
-                  <div className="flex gap-2 justify-end" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex gap-2 justify-end" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                     <Button variant="outline" size="sm" onClick={() => setPassportProductId(p.id)}
                       className="border-zinc-700 text-zinc-400 hover:bg-zinc-800 h-8 w-8 p-0" title="Ver Hoja de Vida">
                       <Eye size={14} />

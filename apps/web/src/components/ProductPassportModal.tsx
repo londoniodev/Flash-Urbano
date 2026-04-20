@@ -50,8 +50,8 @@ export default function ProductPassportModal({ productId, onClose }: Props) {
     if (!productId) return;
     setLoading(true);
     api.get(`/products/${productId}/passport`)
-      .then((res) => setData(res.data))
-      .catch((e) => console.error('Error loading passport', e))
+      .then((res: { data: PassportData }) => setData(res.data))
+      .catch((e: any) => console.error('Error loading passport', e))
       .finally(() => setLoading(false));
   }, [productId]);
 
@@ -78,7 +78,7 @@ export default function ProductPassportModal({ productId, onClose }: Props) {
 
   const handleExport = () => {
     if (!data) return;
-    const rows = data.movements.map(m => ({
+    const rows = data.movements.map((m: any) => ({
       Tipo: m.movementType,
       Cantidad: m.quantity,
       Fecha: new Date(m.createdAt).toLocaleString(),
@@ -92,7 +92,7 @@ export default function ProductPassportModal({ productId, onClose }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
       <div
         className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
@@ -150,7 +150,7 @@ export default function ProductPassportModal({ productId, onClose }: Props) {
                 <p className="text-sm text-zinc-600">Sin stock registrado</p>
               ) : (
                 <div className="grid grid-cols-2 gap-2">
-                  {data.stockBySede.map((s) => (
+                  {data.stockBySede.map((s: any) => (
                     <div key={s.hubId} className="bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-zinc-200">{s.hubName}</p>
@@ -175,7 +175,7 @@ export default function ProductPassportModal({ productId, onClose }: Props) {
                 <p className="text-sm text-zinc-600 text-center py-4">Sin movimientos registrados</p>
               ) : (
                 <div className="space-y-1.5 max-h-[250px] overflow-y-auto pr-1">
-                  {data.movements.map((m) => (
+                  {data.movements.map((m: any) => (
                     <div key={m.id} className="flex items-center justify-between bg-zinc-950 border border-zinc-800/50 rounded-lg px-3 py-2">
                       <div className="flex items-center gap-2">
                         {movementIcon(m.movementType)}
