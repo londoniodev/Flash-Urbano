@@ -1,5 +1,5 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Activity, PackageSearch, PackagePlus, ArrowRightLeft, LogOut, Zap } from 'lucide-react';
+import { Activity, PackageSearch, PackagePlus, ArrowRightLeft, LogOut, Zap, MapPin } from 'lucide-react';
 import { useAuth } from '../context/AuthProvider';
 
 interface DashboardLayoutProps {
@@ -19,11 +19,19 @@ const operatorNav = [
   { path: '/products', label: 'Productos', icon: PackagePlus },
 ];
 
+const adminNav = [
+  { path: '/dashboard', label: 'Live Kardex', icon: Activity },
+  { path: '/operations', label: 'Operaciones', icon: ArrowRightLeft },
+  { path: '/inventory', label: 'Inventario', icon: PackageSearch },
+  { path: '/products', label: 'Productos', icon: PackagePlus },
+  { path: '/hubs', label: 'Sedes', icon: MapPin },
+];
+
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const location = useLocation();
   const { user, logout } = useAuth();
 
-  const navItems = user?.role === 'CLIENT' ? clientNav : operatorNav;
+  const navItems = user?.role === 'CLIENT' ? clientNav : (user?.role === 'ADMIN' ? adminNav : operatorNav);
 
   return (
     <div className="flex h-screen w-full bg-zinc-950">

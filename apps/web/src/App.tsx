@@ -6,6 +6,7 @@ import LiveDashboard from './pages/LiveDashboard';
 import Inventory from './pages/Inventory';
 import Products from './pages/Products';
 import Operations from './pages/Operations';
+import Hubs from './pages/Hubs';
 import ProductQR from './pages/ProductQR';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/DashboardLayout';
@@ -61,6 +62,17 @@ function App() {
             <ProtectedRoute allowedRoles={['ADMIN', 'OPERATOR']}>
               <DashboardLayout>
                 <Operations />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } 
+        />
+
+        <Route 
+          path="/hubs" 
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <DashboardLayout>
+                <Hubs />
               </DashboardLayout>
             </ProtectedRoute>
           } 
