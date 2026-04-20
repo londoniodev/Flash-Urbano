@@ -16,12 +16,14 @@ interface InventoryItem {
   product: {
     id: string;
     sku: string;
-    name: string;
     companyId: string;
+    companyName: string;
   };
 }
 
 export default function Inventory() {
+  const { user } = useAuth();
+  const isOperator = user?.role === 'ADMIN' || user?.role === 'OPERATOR';
   const [stock, setStock] = useState<InventoryItem[]>([]);
   const [search, setSearch] = useState('');
   const [passportProductId, setPassportProductId] = useState<string | null>(null);
@@ -47,6 +49,7 @@ export default function Inventory() {
   const handleExport = () => {
     const rows = filteredStock.map(item => ({
       SKU: item.product.sku,
+      Cliente: item.product.companyName,
       Producto: item.product.name,
       Sede: item.hubName,
       Ciudad: item.hubCity,
@@ -87,6 +90,7 @@ export default function Inventory() {
           <TableHeader className="bg-zinc-950 sticky top-0 z-10 border-b border-zinc-800">
             <TableRow className="hover:bg-transparent border-zinc-800">
               <TableHead className="text-zinc-500">PRODUCTO (SKU)</TableHead>
+              {isOperator && <TableHead className="text-zinc-500">CLIENTE</TableHead>}
               <TableHead className="text-zinc-500">NOMBRE</TableHead>
               <TableHead className="text-zinc-500">SEDE</TableHead>
               <TableHead className="text-zinc-500">CIUDAD</TableHead>
@@ -106,6 +110,11 @@ export default function Inventory() {
                 <TableCell className="font-mono text-sm font-medium text-primary">
                   {item.product.sku}
                 </TableCell>
+                {isOperator && (
+                  <TableCell className="text-sm font-bold text-zinc-100">
+                    {item.product.companyName}
+                  </TableCell>
+                )}
                 <TableCell className="text-sm text-zinc-300">
                   {item.product.name}
                 </TableCell>

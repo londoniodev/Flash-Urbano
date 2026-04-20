@@ -10,6 +10,8 @@ interface Product {
   id: string;
   sku: string;
   name: string;
+  companyId: string;
+  companyName: string;
 }
 
 interface Hub {
@@ -34,6 +36,8 @@ export default function Operations() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('all');
+  const [companies, setCompanies] = useState<{ id: string; name: string }[]>([]);
 
   // Recent movements
   const [recentMovements, setRecentMovements] = useState<any[]>([]);
@@ -42,7 +46,17 @@ export default function Operations() {
     fetchProducts();
     fetchHubs();
     fetchRecent();
+    if (user?.role === 'ADMIN' || user?.role === 'OPERATOR') {
+      fetchCompanies();
+    }
   }, []);
+
+  const fetchCompanies = async () => {
+    try {
+      const { data } = await api.get('/companies');
+      setCompanies(data);
+    } catch (e) { console.error(e); }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -137,6 +151,23 @@ export default function Operations() {
           <CardContent>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
+              {/* Filtro de Compañía (solo para operadores) */}
+              {(user?.role === 'ADMIN' || user?.role === 'OPERATOR') && (
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm text-zinc-400">Filtrar por Cliente</label>
+                  <select
+                    className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                    value={selectedCompanyId}
+                    onChange={(e) => setSelectedCompanyId(e.target.value)}
+                  >
+                    <option value="all">Todos los clientes</option>
+                    {companies.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               {/* Tipo de Movimiento */}
               <div className="flex flex-col gap-2">
                 <label className="text-sm text-zinc-400">Tipo de Movimiento</label>
@@ -168,9 +199,14 @@ export default function Operations() {
                   onChange={(e) => setProductId(e.target.value)}
                   required
                 >
-                  {products.map((p) => (
-                    <option key={p.id} value={p.id}>{p.sku} — {p.name}</option>
-                  ))}
+                  <option value="">Selecciona un producto...</option>
+                  {products
+                    .filter(p => selectedCompanyId === 'all' || p.companyId === selectedCompanyId)
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        [{p.companyName}] {p.sku} — {p.name}
+                      </option>
+                    ))}
                 </select>
               </div>
 
@@ -267,6 +303,9 @@ export default function Operations() {
                       {m.movementType}
                     </Badge>
                     <span className="font-mono text-sm text-primary">{m.product?.sku}</span>
+                    <span className="text-[10px] text-zinc-600 bg-zinc-800 px-1 rounded uppercase tracking-wider">
+                      {m.product?.companyName}
+                    </span>
                   </div>
                   <span className="text-xs text-zinc-500">{m.product?.name}</span>
                 </div>

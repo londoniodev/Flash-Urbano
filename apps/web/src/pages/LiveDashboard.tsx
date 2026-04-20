@@ -16,7 +16,7 @@ export interface KardexEntry {
   quantity: number;
   operatorId: string;
   createdAt: string;
-  product?: { sku: string; name: string };
+  product?: { sku: string; name: string; companyName?: string };
 }
 
 export default function LiveDashboard() {
@@ -125,6 +125,7 @@ export default function LiveDashboard() {
           <TableHeader className="bg-zinc-950 sticky top-0 z-10 border-b border-zinc-800">
             <TableRow className="hover:bg-transparent border-zinc-800">
               <TableHead className="text-zinc-500 w-[150px]">TIMESTAMP</TableHead>
+              <TableHead className="text-zinc-500">CLIENTE</TableHead>
               <TableHead className="text-zinc-500">PRODUCTO (SKU)</TableHead>
               <TableHead className="text-zinc-500">MOVIMIENTO</TableHead>
               <TableHead className="text-zinc-500 text-right">CANT.</TableHead>
@@ -142,6 +143,9 @@ export default function LiveDashboard() {
               <TableRow key={entry.id} className="border-zinc-800/50 hover:bg-zinc-800/50 transition-colors">
                 <TableCell className="font-mono text-xs text-zinc-400 whitespace-nowrap">
                   {new Date(entry.createdAt).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' })}
+                </TableCell>
+                <TableCell className="text-sm font-bold text-zinc-100">
+                  {entry.product?.companyName || '—'}
                 </TableCell>
                 <TableCell className="font-mono text-sm break-all font-medium text-zinc-200">
                   <div className="flex flex-col">

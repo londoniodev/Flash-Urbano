@@ -123,7 +123,10 @@ export default function ProductPassportModal({ productId, onClose }: Props) {
                     {data.product.barcode && <span className="text-xs text-zinc-600">({data.product.barcode})</span>}
                   </div>
                   <h3 className="text-xl font-bold text-zinc-100 truncate">{data.product.name}</h3>
-                  <div className="flex gap-3 mt-1">
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded uppercase">
+                      {data.product.companyName}
+                    </span>
                     {data.product.category && <span className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full">{data.product.category}</span>}
                     {data.product.brand && <span className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full">{data.product.brand}</span>}
                   </div>

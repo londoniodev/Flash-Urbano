@@ -1,6 +1,6 @@
 import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { eq, and, desc, sql } from 'drizzle-orm';
-import { inventoryStock, inventoryMovements, products, hubs } from '../database/schema';
+import { inventoryStock, inventoryMovements, products, hubs, companies } from '../database/schema';
 import { InventoryMovementDto } from './dto/inventory.dto';
 
 @Injectable()
@@ -18,12 +18,14 @@ export class InventoryService {
         id: products.id,
         sku: products.sku,
         name: products.name,
-        companyId: products.companyId
+        companyId: products.companyId,
+        companyName: companies.name,
       }
     })
     .from(inventoryStock)
     .innerJoin(products, eq(inventoryStock.productId, products.id))
-    .innerJoin(hubs, eq(inventoryStock.hubId, hubs.id));
+    .innerJoin(hubs, eq(inventoryStock.hubId, hubs.id))
+    .innerJoin(companies, eq(products.companyId, companies.id));
 
     const conditions = [];
     if (filters?.companyId) conditions.push(eq(products.companyId, filters.companyId));
@@ -47,11 +49,13 @@ export class InventoryService {
       product: {
         sku: products.sku,
         name: products.name,
-        companyId: products.companyId
+        companyId: products.companyId,
+        companyName: companies.name,
       }
     })
     .from(inventoryMovements)
-    .innerJoin(products, eq(inventoryMovements.productId, products.id));
+    .innerJoin(products, eq(inventoryMovements.productId, products.id))
+    .innerJoin(companies, eq(products.companyId, companies.id));
 
     const conditions = [];
     if (filters?.companyId) conditions.push(eq(products.companyId, filters.companyId));
