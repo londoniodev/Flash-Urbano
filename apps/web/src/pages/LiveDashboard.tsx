@@ -17,6 +17,8 @@ export interface KardexEntry {
   operatorId: string;
   createdAt: string;
   product?: { sku: string; name: string; companyName?: string };
+  fromHubName?: string;
+  toHubName?: string;
 }
 
 export default function LiveDashboard() {
@@ -127,6 +129,7 @@ export default function LiveDashboard() {
               <TableHead className="text-zinc-500 w-[150px]">TIMESTAMP</TableHead>
               <TableHead className="text-zinc-500">CLIENTE</TableHead>
               <TableHead className="text-zinc-500">PRODUCTO (SKU)</TableHead>
+              <TableHead className="text-zinc-500">SEDE / FLUJO</TableHead>
               <TableHead className="text-zinc-500">MOVIMIENTO</TableHead>
               <TableHead className="text-zinc-500 text-right">CANT.</TableHead>
               <TableHead className="text-zinc-500 text-right">OPERADOR</TableHead>
@@ -152,6 +155,36 @@ export default function LiveDashboard() {
                     <span>{entry.product?.sku || entry.productId}</span>
                     <span className="text-xs text-zinc-500">{entry.product?.name}</span>
                   </div>
+                </TableCell>
+                <TableCell>
+                   <div className="flex items-center gap-2 text-xs font-medium">
+                      {entry.movementType === 'INGRESO' && (
+                        <div className="flex items-center gap-1.5 text-emerald-400">
+                           <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-[10px] text-zinc-400">ENTRA A:</span>
+                           {entry.toHubName}
+                        </div>
+                      )}
+                      {entry.movementType === 'SALIDA' && (
+                        <div className="flex items-center gap-1.5 text-red-400">
+                           <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-[10px] text-zinc-400">SALE DE:</span>
+                           {entry.fromHubName}
+                        </div>
+                      )}
+                      {entry.movementType === 'TRASLADO' && (
+                        <div className="flex items-center gap-1.5 text-blue-400">
+                           <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-[10px] text-zinc-400">DESDE:</span>
+                           {entry.fromHubName}
+                           <span className="text-zinc-600">→</span>
+                           {entry.toHubName}
+                        </div>
+                      )}
+                      {entry.movementType === 'AJUSTE' && (
+                        <div className="flex items-center gap-1.5 text-zinc-400">
+                           <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-[10px] text-zinc-400">EN:</span>
+                           {entry.toHubName || entry.fromHubName}
+                        </div>
+                      )}
+                   </div>
                 </TableCell>
                 <TableCell>
                   <Badge variant={entry.movementType === 'INGRESO' ? 'outline' : entry.movementType === 'SALIDA' ? 'default' : 'secondary'} 

@@ -307,7 +307,15 @@ export default function Operations() {
                       {m.product?.companyName}
                     </span>
                   </div>
-                  <span className="text-xs text-zinc-500">{m.product?.name}</span>
+                  <div className="flex flex-col gap-1 mt-1">
+                    <span className="text-xs text-zinc-500">{m.product?.name}</span>
+                    <div className="flex items-center gap-1.5 text-[10px] font-medium">
+                      {m.movementType === 'INGRESO' && <span className="text-emerald-500">Bodega: {m.toHubName}</span>}
+                      {m.movementType === 'SALIDA' && <span className="text-red-500">Bodega: {m.fromHubName}</span>}
+                      {m.movementType === 'TRASLADO' && <span className="text-blue-500">{m.fromHubName} → {m.toHubName}</span>}
+                      {m.movementType === 'AJUSTE' && <span className="text-zinc-500">Bodega: {m.toHubName || m.fromHubName}</span>}
+                    </div>
+                  </div>
                 </div>
                 <div className="flex flex-col items-end">
                   <span className={`font-mono font-bold text-sm ${m.movementType === 'SALIDA' ? 'text-red-400' : 'text-emerald-400'}`}>

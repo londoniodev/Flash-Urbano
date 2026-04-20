@@ -39,6 +39,13 @@ export class InventoryService {
   }
 
   async getMovements(filters?: { companyId?: string; productId?: string }) {
+    const fromHub = sql`hubs_from`;
+    const toHub = sql`hubs_to`;
+
+    // Usando alias manuales para Drizzle ya que no estoy seguro de la versión exacta de alias() 
+    // pero podemos hacer los joins directamente referenciando la tabla hubs con alias
+    // En Drizzle 0.30+ se usa alias(hubs, 'name'). Aquí lo haré con la sintaxis estándar de select
+    
     let query = this.db.select({
       id: inventoryMovements.id,
       movementType: inventoryMovements.movementType,
@@ -46,6 +53,10 @@ export class InventoryService {
       createdAt: inventoryMovements.createdAt,
       operatorId: inventoryMovements.operatorId,
       notes: inventoryMovements.notes,
+      fromHubId: inventoryMovements.fromHubId,
+      toHubId: inventoryMovements.toHubId,
+      fromHubName: sql<string>`hubs_from.name`,
+      toHubName: sql<string>`hubs_to.name`,
       product: {
         sku: products.sku,
         name: products.name,
@@ -55,7 +66,9 @@ export class InventoryService {
     })
     .from(inventoryMovements)
     .innerJoin(products, eq(inventoryMovements.productId, products.id))
-    .innerJoin(companies, eq(products.companyId, companies.id));
+    .innerJoin(companies, eq(products.companyId, companies.id))
+    .leftJoin(sql`hubs as hubs_from`, eq(inventoryMovements.fromHubId, sql`hubs_from.id`))
+    .leftJoin(sql`hubs as hubs_to`, eq(inventoryMovements.toHubId, sql`hubs_to.id`));
 
     const conditions = [];
     if (filters?.companyId) conditions.push(eq(products.companyId, filters.companyId));

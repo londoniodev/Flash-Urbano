@@ -32,6 +32,8 @@ interface PassportData {
     notes?: string;
     createdAt: string;
     operatorId: string;
+    fromHubName?: string;
+    toHubName?: string;
   }[];
 }
 
@@ -177,7 +179,12 @@ export default function ProductPassportModal({ productId, onClose }: Props) {
                       <div className="flex items-center gap-2">
                         {movementIcon(m.movementType)}
                         <Badge variant="outline" className={`text-xs ${movementColor(m.movementType)}`}>{m.movementType}</Badge>
-                        {m.notes && <span className="text-xs text-zinc-600 truncate max-w-[150px]">{m.notes}</span>}
+                        <div className="flex flex-col">
+                           {m.movementType === 'INGRESO' && <span className="text-[10px] text-emerald-500/80">Entra a: {m.toHubName}</span>}
+                           {m.movementType === 'SALIDA' && <span className="text-[10px] text-red-500/80">Sale de: {m.fromHubName}</span>}
+                           {m.movementType === 'TRASLADO' && <span className="text-[10px] text-blue-500/80">{m.fromHubName} → {m.toHubName}</span>}
+                           {m.notes && <span className="text-[10px] text-zinc-500 italic truncate max-w-[150px]">{m.notes}</span>}
+                        </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className={`font-mono text-sm font-bold ${m.movementType === 'SALIDA' ? 'text-red-400' : 'text-emerald-400'}`}>

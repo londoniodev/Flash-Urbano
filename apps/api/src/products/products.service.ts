@@ -1,5 +1,5 @@
 import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, sql } from 'drizzle-orm';
 import { products, inventoryStock, inventoryMovements, hubs, users, companies } from '../database/schema';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
 
@@ -85,7 +85,7 @@ export class ProductsService {
     .innerJoin(hubs, eq(inventoryStock.hubId, hubs.id))
     .where(eq(inventoryStock.productId, id));
 
-    // Últimos 30 movimientos
+    // Últimos 30 movimientos con nombres de sedes
     const movements = await this.db.select({
       id: inventoryMovements.id,
       movementType: inventoryMovements.movementType,
@@ -95,8 +95,12 @@ export class ProductsService {
       operatorId: inventoryMovements.operatorId,
       fromHubId: inventoryMovements.fromHubId,
       toHubId: inventoryMovements.toHubId,
+      fromHubName: sql<string>`h_from.name`,
+      toHubName: sql<string>`h_to.name`,
     })
     .from(inventoryMovements)
+    .leftJoin(sql`hubs as h_from`, eq(inventoryMovements.fromHubId, sql`h_from.id`))
+    .leftJoin(sql`hubs as h_to`, eq(inventoryMovements.toHubId, sql`h_to.id`))
     .where(eq(inventoryMovements.productId, id))
     .orderBy(desc(inventoryMovements.createdAt))
     .limit(30);
