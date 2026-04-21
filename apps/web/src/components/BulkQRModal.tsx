@@ -1,9 +1,8 @@
 import { QRCodeCanvas } from 'qrcode.react';
 import { X, FileDown, Grid, Layout, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
 
 interface Product {
   id: string;
@@ -20,63 +19,74 @@ interface Props {
 
 export default function BulkQRModal({ products, companyName, onClose }: Props) {
   const [generating, setGenerating] = useState(false);
-  const printRef = useRef<HTMLDivElement>(null);
 
   const generatePDF = async () => {
-    if (!printRef.current) return;
     setGenerating(true);
     
     try {
+      // Configuramos el PDF en tamaño CARTA
       const pdf = new jsPDF('p', 'mm', 'letter');
-      const container = printRef.current;
-      const labels = container.children;
       
       const labelsPerPage = 20; 
-      const marginX = 8;
-      const marginY = 12;
-      const labelSize = 48; // mm
-      const gap = 2; // mm
+      const marginX = 10;
+      const marginY = 15;
+      const labelWidth = 48;
+      const labelHeight = 48;
+      const gap = 2;
 
-      for (let i = 0; i < labels.length; i++) {
+      for (let i = 0; i < products.length; i++) {
+        const product = products[i];
+        
+        // Nueva página si es necesario
         if (i > 0 && i % labelsPerPage === 0) {
           pdf.addPage();
         }
 
-        const labelElement = labels[i] as HTMLElement;
+        // Obtener el canvas del QR generado en el DOM
+        const canvas = document.getElementById(`qr-canvas-${product.id}`) as HTMLCanvasElement;
+        if (!canvas) continue;
         
-        // Renderizamos con html2canvas asegurando compatibilidad de colores
-        const canvas = await html2canvas(labelElement, { 
-          scale: 3,
-          useCORS: true,
-          backgroundColor: '#ffffff',
-          logging: false,
-          // Limpieza profunda de estilos oklch durante la clonación
-          onclone: (clonedDoc) => {
-            const el = clonedDoc.body.querySelector('[data-pdf-label="true"]') as HTMLElement;
-            if (el) {
-              el.style.color = '#000000';
-              el.style.backgroundColor = '#ffffff';
-              el.style.borderColor = '#eeeeee';
-            }
-          }
-        });
+        const qrData = canvas.toDataURL('image/png');
         
-        const imgData = canvas.toDataURL('image/png');
-        
+        // Calcular posición
         const pageIdx = i % labelsPerPage;
         const col = pageIdx % 4;
         const row = Math.floor(pageIdx / 4);
         
-        const x = marginX + (col * (labelSize + gap));
-        const y = marginY + (row * (labelSize + gap));
+        const x = marginX + (col * (labelWidth + gap));
+        const y = marginY + (row * (labelHeight + gap));
         
-        pdf.addImage(imgData, 'PNG', x, y, labelSize, labelSize);
+        // Dibujar borde de la etiqueta (opcional, ayuda al corte)
+        pdf.setDrawColor(230, 230, 230);
+        pdf.rect(x, y, labelWidth, labelHeight);
+        
+        // Dibujar el QR
+        // Lo centramos un poco arriba (label es 48x48, QR de 32x32)
+        const qrSize = 34;
+        const qrX = x + (labelWidth - qrSize) / 2;
+        const qrY = y + 2;
+        pdf.addImage(qrData, 'PNG', qrX, qrY, qrSize, qrSize);
+        
+        // Escribir Texto (Nombre y SKU)
+        pdf.setTextColor(0, 0, 0);
+        
+        // Nombre (Trunado si es muy largo)
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(8);
+        const splitName = pdf.splitTextToSize(product.name.toUpperCase(), labelWidth - 4);
+        pdf.text(splitName.slice(0, 2), x + labelWidth / 2, y + 38, { align: 'center' });
+        
+        // SKU
+        pdf.setFont('courier', 'bold');
+        pdf.setFontSize(7);
+        pdf.setTextColor(100, 100, 100);
+        pdf.text(product.sku, x + labelWidth / 2, y + 45, { align: 'center' });
       }
 
       pdf.save(`etiquetas_carta_${companyName.replace(/\s+/g, '_')}.pdf`);
     } catch (error) {
       console.error('Error generating PDF', error);
-      alert('Error técnico al generar PDF. Probando método de contingencia...');
+      alert('Error al generar PDF. Intenta de nuevo.');
     } finally {
       setGenerating(false);
     }
@@ -93,7 +103,7 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
           <div className="flex items-center gap-2">
             <Grid className="text-primary" size={20} />
             <div>
-              <h2 className="text-lg font-bold text-zinc-100">Generador de PDF Masivo</h2>
+              <h2 className="text-lg font-bold text-zinc-100">Generador de PDF Directo (Sin Errores)</h2>
               <p className="text-xs text-zinc-500">Cliente: <span className="text-zinc-300 font-medium">{companyName}</span> • {products.length} productos</p>
             </div>
           </div>
@@ -102,12 +112,19 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
           </button>
         </div>
 
-        {/* Preview Content */}
+        {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 bg-zinc-950">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {products.map((product) => (
-              <div key={product.id} className="bg-white p-2 rounded-lg flex flex-col items-center justify-center gap-1">
-                <QRCodeCanvas value={product.sku} size={60} level="M" />
+              <div key={product.id} className="bg-white p-2 rounded-lg flex flex-col items-center justify-center gap-1 shadow-md border border-white/10">
+                {/* Renderizamos el canvas con un ID único para capturarlo luego */}
+                <QRCodeCanvas 
+                  id={`qr-canvas-${product.id}`}
+                  value={product.sku} 
+                  size={80} 
+                  level="M" 
+                  includeMargin={false}
+                />
                 <div className="text-center overflow-hidden w-full">
                   <p className="text-[9px] font-black text-black truncate uppercase">{product.name}</p>
                   <p className="text-[8px] font-mono font-bold text-zinc-600">{product.sku}</p>
@@ -117,41 +134,11 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
           </div>
         </div>
 
-        {/* Hidden Container for PDF Rendering - TOTALMENTE AISLADO DE CLASES TAILWIND/OKLCH */}
-        <div style={{ position: 'absolute', left: '-9999px', top: 0, backgroundColor: '#ffffff' }} ref={printRef}>
-          {products.map((product) => (
-            <div key={product.id} data-pdf-label="true" style={{ 
-              width: '200px', 
-              height: '200px', 
-              backgroundColor: '#ffffff', 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              padding: '10px',
-              color: '#000000',
-              border: '1px solid #eeeeee',
-              margin: '0',
-              boxSizing: 'border-box'
-            }}>
-               <QRCodeCanvas value={product.sku} size={140} level="M" />
-               <div style={{ textAlign: 'center', marginTop: '8px', color: '#000000' }}>
-                 <p style={{ fontSize: '12px', fontWeight: '900', color: '#000000', margin: 0, textTransform: 'uppercase', fontFamily: 'Arial, sans-serif' }}>
-                   {product.name}
-                 </p>
-                 <p style={{ fontSize: '10px', fontFamily: 'monospace', fontWeight: '700', color: '#444444', margin: '2px 0 0 0' }}>
-                   {product.sku}
-                 </p>
-               </div>
-            </div>
-          ))}
-        </div>
-
         {/* Footer */}
         <div className="flex-none px-6 py-4 border-t border-zinc-800 bg-zinc-900/50 flex items-center justify-between">
           <div className="flex items-center gap-3 text-zinc-400">
             <Layout size={18} />
-            <span className="text-sm">Tamaño Carta • 20 etiquetas por página</span>
+            <span className="text-sm">Método de Dibujo Directo • Tamaño Carta</span>
           </div>
           <div className="flex gap-3">
             <Button variant="outline" onClick={onClose} className="border-zinc-700 text-zinc-300 hover:bg-zinc-800" disabled={generating}>
