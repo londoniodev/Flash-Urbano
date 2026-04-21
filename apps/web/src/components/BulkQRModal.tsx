@@ -19,25 +19,28 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
   const handlePrint = () => window.print();
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 no-print" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 no-print print:static print:h-auto print:overflow-visible" onClick={onClose}>
       <div 
-        className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col print:bg-white print:border-none print:shadow-none print:max-h-none print:overflow-visible"
         onClick={(e) => e.stopPropagation()}
       >
         <style>{`
           @media print {
+            /* Hide everything except our container */
             body * { visibility: hidden !important; }
             .print-bulk-container, .print-bulk-container * { visibility: visible !important; }
+            
+            /* Root-level adjustments for multi-page */
+            html, body { height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; }
+            
             .print-bulk-container {
-              position: absolute !important;
-              left: 0 !important;
-              top: 0 !important;
-              width: 100% !important;
+              position: relative !important;
               display: grid !important;
               grid-template-columns: repeat(auto-fill, 50mm) !important;
               gap: 2mm !important;
               padding: 5mm !important;
               background: white !important;
+              width: 100% !important;
             }
             .bulk-label {
               width: 50mm !important;
