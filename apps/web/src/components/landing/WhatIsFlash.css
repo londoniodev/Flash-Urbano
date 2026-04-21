@@ -1,8 +1,9 @@
 .what-is-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-  margin-top: 3rem;
+  gap: 2rem;
+  margin-top: 4rem;
+  perspective: 2000px;
 }
 
 .feature-card {
@@ -11,24 +12,52 @@
 }
 
 .feature-card-inner {
-  padding: 3rem 2.5rem;
+  padding: 3.5rem 2.5rem;
   height: 100%;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(239, 117, 29, 0.08); /* Permanently orange tint */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(239, 117, 29, 0.3); /* Permanently orange border */
+  border-radius: 32px; /* Rounded corners */
+  transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
+  transform-style: preserve-3d;
+  animation: breathing 6s infinite ease-in-out;
 }
 
-.feature-card:last-child .feature-card-inner {
-  border-right: none;
+.feature-card:nth-child(1) .feature-card-inner { animation-delay: 0s; }
+.feature-card:nth-child(2) .feature-card-inner { animation-delay: 2s; }
+.feature-card:nth-child(3) .feature-card-inner { animation-delay: 4s; }
+
+@keyframes breathing {
+  0%, 100% { 
+    background: rgba(239, 117, 29, 0.08);
+    border-color: rgba(239, 117, 29, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transform: scale(1) translateY(0);
+  }
+  50% { 
+    background: rgba(239, 117, 29, 0.15);
+    border-color: rgba(239, 117, 29, 0.6);
+    box-shadow: 0 20px 50px rgba(239, 117, 29, 0.2);
+    transform: scale(1.05) translateY(-10px);
+  }
 }
+
+.feature-card:nth-child(1) .feature-card-inner { transform: rotateY(10deg); }
+.feature-card:nth-child(3) .feature-card-inner { transform: rotateY(-10deg); }
 
 .feature-card-inner:hover {
-  background: rgba(239, 117, 29, 0.08);
-  backdrop-filter: blur(10px);
-  border-color: rgba(239, 117, 29, 0.3);
-  box-shadow: 0 10px 40px rgba(239, 117, 29, 0.1);
+  background: rgba(239, 117, 29, 0.12);
+  backdrop-filter: blur(20px);
+  border-color: rgba(239, 117, 29, 0.5);
+  box-shadow: 
+    0 30px 60px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(239, 117, 29, 0.2);
+  transform: rotateY(0deg) rotateX(0deg) scale(1.05) translateY(-10px);
+  z-index: 10;
 }
 
 .feature-number {

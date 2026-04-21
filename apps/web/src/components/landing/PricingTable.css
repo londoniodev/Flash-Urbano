@@ -1,7 +1,7 @@
 .pricing-table-container {
   width: 100%;
   overflow-x: auto;
-  border-radius: var(--radius-md);
+  border-radius: 32px;
   background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);

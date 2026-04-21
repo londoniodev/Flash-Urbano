@@ -28,9 +28,9 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-  background-size: 60px 60px;
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 80px 80px;
   z-index: 0;
   pointer-events: none;
   mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black, transparent);
@@ -114,22 +114,39 @@
 }
 
 .hero-btn {
-  font-size: clamp(0.85rem, 1.2vw, 1.05rem);
-  padding: 1rem 2rem;
-  border-radius: var(--radius-full);
+  font-size: clamp(0.9rem, 1.2vw, 1.15rem);
+  padding: 1.25rem 2.5rem;
+  border-radius: 100px;
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  background: var(--gradient-accent);
-  box-shadow: var(--shadow-intense);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  font-weight: 700;
+  gap: 1rem;
+  background: linear-gradient(135deg, #ef751d 0%, #ff8c3a 100%);
+  color: white;
+  text-decoration: none;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  box-shadow: 
+    0 20px 40px rgba(239, 117, 29, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   white-space: nowrap;
 }
 
 .hero-btn:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 0 40px rgba(239, 117, 29, 0.6);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 
+    0 30px 60px rgba(239, 117, 29, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #ff8c3a 0%, #ef751d 100%);
+}
+
+.hero-btn svg {
+  transition: transform 0.3s ease;
+}
+
+.hero-btn:hover svg {
+  transform: translateX(5px);
 }
 
 /* ---- Character column ---- */
@@ -183,9 +200,17 @@
   width: 100%;
   max-width: 600px;
   aspect-ratio: 16 / 9;
-  border-radius: 20px;
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  box-shadow: 
+    0 20px 40px rgba(0,0,0,0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  transform: rotateY(-15deg) rotateX(5deg);
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.hero-video-container:hover {
+  transform: rotateY(0deg) rotateX(0deg) scale(1.05);
 }
 
 .hero-video {

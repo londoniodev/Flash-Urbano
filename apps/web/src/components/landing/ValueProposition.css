@@ -4,6 +4,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
   align-items: center;
+  perspective: 2000px;
 }
 
 .value-prop-subtitle {
@@ -25,15 +26,19 @@
   display: flex;
   gap: 1.25rem;
   align-items: flex-start;
-  padding: 1.25rem 1.5rem;
-  border-radius: var(--radius-md);
-  border: 1px solid transparent;
-  transition: all 0.3s ease;
+  padding: 1.5rem 2rem;
+  border-radius: 24px;
+  background: rgba(239, 117, 29, 0.06); /* Permanent orange tint */
+  border: 1px solid rgba(239, 117, 29, 0.2); /* Permanent orange border */
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  margin-bottom: 0.5rem;
 }
 
 .value-item:hover {
-  background: rgba(239, 117, 29, 0.04);
-  border-color: rgba(239, 117, 29, 0.15);
+  background: rgba(239, 117, 29, 0.12);
+  border-color: rgba(239, 117, 29, 0.5);
+  transform: translateX(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .value-item-icon {
@@ -69,13 +74,27 @@
 
 .delivery-card {
   width: 100%;
-  max-width: 380px;
-  padding: 2rem;
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(239, 117, 29, 0.3);
-  box-shadow: 0 0 50px rgba(239, 117, 29, 0.2), inset 0 0 20px rgba(239, 117, 29, 0.05);
+  max-width: 400px;
+  padding: 2.5rem;
+  border-radius: 32px;
+  background: rgba(239, 117, 29, 0.05);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(239, 117, 29, 0.4);
+  box-shadow: 
+    0 40px 80px rgba(0, 0, 0, 0.5),
+    inset 0 0 40px rgba(239, 117, 29, 0.1);
+  transform: rotateY(-15deg) rotateX(10deg);
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.delivery-card:hover {
+  transform: rotateY(0deg) rotateX(0deg) scale(1.05);
+}
+
+.delivery-card > * {
+  transform: translateZ(40px);
 }
 
 .delivery-card-header {

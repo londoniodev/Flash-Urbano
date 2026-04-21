@@ -18,20 +18,20 @@ export default function HeroSection() {
       <div className="hero-content">
         {/* Left column: Text */}
         <div className="hero-text-column">
-          <FadeIn delay={100} direction="up">
+          <FadeIn delay={300} direction="up">
             <div className="hero-badge glass-panel">
               <span className="badge-dot"></span> RED NACIONAL LOGÍSTICA
             </div>
           </FadeIn>
           
-          <FadeIn delay={250} direction="up">
+          <FadeIn delay={450} direction="up">
             <h1 className="hero-title outfit-font">
               ENTREGAS EN <br/>
               <span className="text-gradient">MENOS DE 2 HORAS</span>
             </h1>
           </FadeIn>
           
-          <FadeIn delay={400} direction="up">
+          <FadeIn delay={600} direction="up">
             <p className="hero-description">
               En <strong>FLASH URBANO</strong> revolucionamos la logística en Colombia. 
               Nuestra red de aliados permite entregas ultra rápidas entre ciudades 
@@ -39,9 +39,9 @@ export default function HeroSection() {
             </p>
           </FadeIn>
 
-          <FadeIn delay={550} direction="up">
+          <FadeIn delay={750} direction="up">
             <div className="hero-actions">
-              <a href="#contacto" className="btn-primary hero-btn">
+              <a href="https://wa.me/573187828932" target="_blank" rel="noreferrer" className="btn-primary hero-btn glow-orange">
                 ¡Cotiza ahora y acelera tus entregas!
                 <ArrowRight size={20} />
               </a>
@@ -50,7 +50,7 @@ export default function HeroSection() {
         </div>
 
         {/* Right column: Video */}
-        <FadeIn delay={300} direction="right" className="hero-character-column">
+        <FadeIn delay={500} direction="right" className="hero-character-column spatial-container">
           <div className="hero-video-container">
             <div className="video-overlay-mask"></div>
             <video 
@@ -66,16 +66,6 @@ export default function HeroSection() {
           </div>
         </FadeIn>
       </div>
-
-      {/* WhatsApp locations bar - inside hero */}
-      <FadeIn delay={700} direction="up" className="hero-locations-wrap">
-        <div className="hero-locations glass-panel" id="contacto">
-          <a href="https://wa.me/573187828932" target="_blank" rel="noreferrer" className="location-pill" style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}>
-            <WhatsAppIcon size={20} />
-            <span>CONTACTO <strong className="font-mono">3187828932</strong></span>
-          </a>
-        </div>
-      </FadeIn>
     </section>
   );
 }
