@@ -308,9 +308,12 @@
   color: #f9fafb;
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
-
+@keyframes float-blob {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33% { transform: translate(20%, -20%) rotate(120deg) scale(1.2); }
+  66% { transform: translate(-10%, 10%) rotate(240deg) scale(0.8); }
+  100% { transform: translate(0, 0) rotate(360deg) scale(1); }
 }
-
 /* ========== DOUBLE BEZEL ========== */
 .bezel-outer {
   background: rgba(255, 255, 255, 0.05);
