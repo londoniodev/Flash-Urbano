@@ -28,8 +28,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
   background-size: 60px 60px;
   z-index: 0;
   pointer-events: none;
@@ -88,7 +88,7 @@
   font-size: clamp(2rem, 5vw, 5rem);
   line-height: 1.1;
   font-weight: 900;
-  color: white;
+  color: #1a1a1a;
   margin-bottom: 1.5rem;
   letter-spacing: -0.02em;
 }
@@ -102,7 +102,7 @@
 
 .hero-description {
   font-size: clamp(0.95rem, 1.5vw, 1.15rem);
-  color: #9ca3af;
+  color: #4b5563;
   line-height: 1.7;
   margin-bottom: 2rem;
   max-width: 520px;
@@ -197,7 +197,7 @@
   position: absolute;
   inset: 0;
   z-index: 2;
-  background: radial-gradient(circle at center, transparent 30%, #121212 95%);
+  background: radial-gradient(circle at center, transparent 30%, #cfcfcf 95%);
   pointer-events: none;
 }
 
@@ -234,10 +234,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-full);
-  color: var(--text-secondary);
+  color: #4b5563;
   text-decoration: none;
   font-size: 0.8rem;
   transition: all 0.3s ease;
@@ -252,13 +252,13 @@
 .location-pill:hover {
   background: rgba(37, 211, 102, 0.08);
   border-color: rgba(37, 211, 102, 0.3);
-  color: white;
+  color: #1a1a1a;
   transform: translateY(-2px);
 }
 
 .location-pill strong {
   margin-left: 0.15rem;
-  color: white;
+  color: #1a1a1a;
 }
 
 /* ---- Responsive ---- */

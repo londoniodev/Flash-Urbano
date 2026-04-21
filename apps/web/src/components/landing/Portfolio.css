@@ -33,12 +33,12 @@
 .portfolio-card-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: white;
+  color: #1a1a1a;
   margin-bottom: 0.75rem;
 }
 
 .portfolio-card-desc {
-  color: var(--text-secondary);
+  color: #4b5563;
   line-height: 1.6;
   font-size: 1.05rem;
 }
