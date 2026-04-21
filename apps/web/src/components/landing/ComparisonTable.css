@@ -22,9 +22,9 @@
 
 .vs-badge {
   display: inline-block;
-  background: rgba(0, 0, 0, 0.05);
-  color: #4b5563;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0.5rem 1.5rem;
   border-radius: 100px;
   font-weight: 700;
@@ -52,16 +52,16 @@
 }
 
 .comp-column.traditional {
-  background: rgba(0, 0, 0, 0.01);
-  border: 1px solid rgba(0, 0, 0, 0.03);
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.03);
   filter: grayscale(100%) opacity(0.8);
   transform: scale(0.95);
 }
 
 .comp-column.flash {
-  background: linear-gradient(145deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.4) 100%);
+  background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
   border: 1px solid rgba(239, 117, 29, 0.3);
-  box-shadow: 0 0 40px rgba(239, 117, 29, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 40px rgba(239, 117, 29, 0.15), inset 0 0 20px rgba(239, 117, 29, 0.05);
   backdrop-filter: blur(16px);
   transform: scale(1.05);
   z-index: 2;
@@ -72,7 +72,7 @@
   font-weight: 800;
   text-align: center;
   margin-bottom: 2rem;
-  color: #1a1a1a;
+  color: white;
 }
 
 .flash .comp-col-header {
@@ -92,7 +92,7 @@
 }
 
 .flash .comp-cell {
-  color: #1a1a1a;
+  color: white;
   font-weight: 500;
 }
 
