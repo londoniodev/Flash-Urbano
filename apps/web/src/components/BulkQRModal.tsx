@@ -26,22 +26,41 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
       >
         <style>{`
           @media print {
-            /* Hide everything except our container */
-            body * { visibility: hidden !important; }
-            .print-bulk-container, .print-bulk-container * { visibility: visible !important; }
+            @page { 
+              margin: 0; 
+              size: auto;
+            }
+            html, body { 
+              margin: 0 !important; 
+              padding: 0 !important; 
+              background: white !important;
+              height: auto !important;
+              overflow: visible !important;
+            }
             
-            /* Root-level adjustments for multi-page */
-            html, body { height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; }
+            /* Hide the main app root */
+            #root { display: none !important; }
             
-            .print-bulk-container {
-              position: relative !important;
-              display: grid !important;
-              grid-template-columns: repeat(auto-fill, 50mm) !important;
-              gap: 2mm !important;
-              padding: 5mm !important;
+            /* The modal container needs to be visible and occupy space */
+            body > div[class*="fixed"] { 
+              display: block !important; 
+              position: static !important;
               background: white !important;
               width: 100% !important;
             }
+            
+            /* Hide modal headers and buttons */
+            .no-print, button, header, .flex-none { display: none !important; }
+
+            .print-bulk-container {
+              display: grid !important;
+              grid-template-columns: repeat(auto-fill, 50mm) !important;
+              gap: 2mm !important;
+              padding: 15mm !important;
+              width: 100% !important;
+              background: white !important;
+            }
+
             .bulk-label {
               width: 50mm !important;
               height: 50mm !important;
@@ -51,17 +70,29 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
               align-items: center !important;
               justify-content: center !important;
               padding: 2mm !important;
+              break-inside: avoid !important;
               page-break-inside: avoid !important;
             }
-            @page {
-              size: auto;
-              margin: 10mm;
+
+            .page-footer {
+              position: fixed !important;
+              bottom: 10mm !important;
+              right: 15mm !important;
+              font-size: 10px !important;
+              color: #888 !important;
+              display: block !important;
             }
+            .page-footer::after {
+              content: "Página " counter(page);
+            }
+          }
+          @media screen {
+            .print-bulk-container, .page-footer { display: none !important; }
           }
         `}</style>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-900/50 backdrop-blur">
+        <div className="flex-none flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-900/50 backdrop-blur">
           <div className="flex items-center gap-2">
             <Grid className="text-primary" size={20} />
             <div>
@@ -75,10 +106,10 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 bg-zinc-950">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="flex-1 overflow-y-auto p-6 bg-zinc-950 print:bg-white print:overflow-visible">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 print:hidden">
             {products.map((product) => (
-              <div key={product.id} className="bg-white p-3 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg border border-white/10 group hover:ring-2 hover:ring-primary transition-all">
+              <div key={product.id} className="bg-white p-3 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg border border-white/10">
                 <QRCodeSVG value={product.sku} size={80} level="M" />
                 <div className="text-center overflow-hidden w-full">
                   <p className="text-[10px] font-black text-black truncate uppercase">{product.name}</p>
@@ -87,10 +118,30 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
               </div>
             ))}
           </div>
+
+          {/* Hidden Print Container */}
+          <div className="print-bulk-container">
+            {products.map((product) => (
+              <div key={product.id} className="bulk-label">
+                 <QRCodeSVG value={product.sku} size={110} level="M" />
+                 <div className="text-center mt-1">
+                   <p className="text-[11px] font-black text-black leading-tight uppercase mb-0.5 line-clamp-2">
+                     {product.name}
+                   </p>
+                   <p className="text-[10px] font-mono font-bold text-zinc-700 leading-none">
+                     {product.sku}
+                   </p>
+                 </div>
+              </div>
+            ))}
+          </div>
         </div>
 
+        {/* Page counter for print */}
+        <div className="page-footer"></div>
+
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-zinc-800 bg-zinc-900/50 flex items-center justify-between">
+        <div className="flex-none px-6 py-4 border-t border-zinc-800 bg-zinc-900/50 flex items-center justify-between no-print">
           <div className="flex items-center gap-3 text-zinc-400">
             <Layout size={18} />
             <span className="text-sm">Diseño en mosaico (50x50mm)</span>
@@ -103,23 +154,6 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
               <Printer size={18} /> Imprimir Todos
             </Button>
           </div>
-        </div>
-
-        {/* Hidden Print Container */}
-        <div className="hidden print:grid print-bulk-container">
-          {products.map((product) => (
-            <div key={product.id} className="bulk-label">
-               <QRCodeSVG value={product.sku} size={110} level="M" />
-               <div className="text-center mt-1">
-                 <p className="text-[11px] font-black text-black leading-tight uppercase mb-0.5 line-clamp-2">
-                   {product.name}
-                 </p>
-                 <p className="text-[10px] font-mono font-bold text-zinc-700 leading-none">
-                   {product.sku}
-                 </p>
-               </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>
