@@ -19,50 +19,44 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
   const handlePrint = () => window.print();
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 no-print" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 no-print print:static print:bg-white print:p-0" onClick={onClose}>
       <div 
-        className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col print:static print:max-h-none print:w-full print:bg-white print:shadow-none print:border-none"
         onClick={(e) => e.stopPropagation()}
       >
         <style>{`
           @media print {
             @page { 
-              margin: 0; 
+              margin: 10mm; 
               size: auto;
             }
-            html, body { 
-              margin: 0 !important; 
-              padding: 0 !important; 
-              background: white !important;
-              height: auto !important;
-            }
-            
-            /* Hide the entire app by visibility to allow children to override */
-            #app { 
-              visibility: hidden !important; 
-              height: 0 !important; 
-              overflow: hidden !important; 
-            }
-            
-            /* Hide all modal elements except the print container */
-            .no-print, button, header, .flex-none, .bg-zinc-900, .bg-zinc-950 { 
+            /* Hide UI components */
+            .no-print, header, nav, aside, footer, button, .flex-none { 
               display: none !important; 
             }
-
-            .print-bulk-container, .print-bulk-container * {
+            
+            /* Reset all containers to allow multi-page flow */
+            #app, #app > div, .fixed, .flex, .flex-col {
+              display: block !important;
+              position: static !important;
+              height: auto !important;
+              max-height: none !important;
+              overflow: visible !important;
               visibility: visible !important;
+              background: white !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              border: none !important;
+              box-shadow: none !important;
             }
 
             .print-bulk-container {
               display: grid !important;
               grid-template-columns: repeat(auto-fill, 50mm) !important;
               gap: 2mm !important;
-              padding: 15mm !important;
               width: 100% !important;
               background: white !important;
-              position: absolute !important;
-              top: 0 !important;
-              left: 0 !important;
+              padding-top: 5mm !important;
             }
 
             .bulk-label {
@@ -76,17 +70,16 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
               padding: 2mm !important;
               break-inside: avoid !important;
               page-break-inside: avoid !important;
+              margin-bottom: 2mm !important;
             }
 
             .page-footer {
               position: fixed !important;
-              bottom: 10mm !important;
-              right: 15mm !important;
+              bottom: 0 !important;
+              right: 0 !important;
               font-size: 10px !important;
               color: #888 !important;
               display: block !important;
-              visibility: visible !important;
-              z-index: 99999 !important;
             }
             .page-footer::after {
               content: "Página " counter(page);
@@ -97,8 +90,8 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
           }
         `}</style>
 
-        {/* Header */}
-        <div className="flex-none flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-900/50 backdrop-blur">
+        {/* Header (Hidden in print) */}
+        <div className="flex-none flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-900/50 backdrop-blur no-print">
           <div className="flex items-center gap-2">
             <Grid className="text-primary" size={20} />
             <div>
@@ -112,8 +105,8 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 bg-zinc-950">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="flex-1 overflow-y-auto p-6 bg-zinc-950 print:bg-white print:p-0 print:overflow-visible">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 print:hidden">
             {products.map((product) => (
               <div key={product.id} className="bg-white p-3 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg border border-white/10">
                 <QRCodeSVG value={product.sku} size={80} level="M" />
@@ -146,7 +139,7 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
         {/* Page counter for print */}
         <div className="page-footer"></div>
 
-        {/* Footer */}
+        {/* Footer (Hidden in print) */}
         <div className="flex-none px-6 py-4 border-t border-zinc-800 bg-zinc-900/50 flex items-center justify-between no-print">
           <div className="flex items-center gap-3 text-zinc-400">
             <Layout size={18} />
