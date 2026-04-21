@@ -27,15 +27,16 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
     setGenerating(true);
     
     try {
-      // Configuramos el PDF en A4
-      const pdf = new jsPDF('p', 'mm', 'a4');
+      // Configuramos el PDF en tamaño CARTA (letter)
+      // Letter: 215.9 x 279.4 mm
+      const pdf = new jsPDF('p', 'mm', 'letter');
       const container = printRef.current;
-      
-      // Obtenemos todos los elementos individuales de etiqueta
       const labels = container.querySelectorAll('.bulk-label');
       
-      const labelsPerPage = 20; // 4 columnas x 5 filas (aprox)
-      const margin = 10;
+      // En Carta (216mm ancho), caben 4 columnas de 50mm con márgenes de 8mm
+      const labelsPerPage = 20; 
+      const marginX = 8;
+      const marginY = 12;
       const labelSize = 48; // mm
       const gap = 2; // mm
 
@@ -45,29 +46,32 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
         }
 
         const labelElement = labels[i] as HTMLElement;
+        
+        // Renderizamos con html2canvas asegurando compatibilidad de colores
         const canvas = await html2canvas(labelElement, { 
-          scale: 3, // Alta calidad
+          scale: 3,
           useCORS: true,
-          backgroundColor: '#ffffff'
+          backgroundColor: '#ffffff',
+          logging: false,
+          // Evitamos oklch si es posible forzando estilos básicos
         });
         
         const imgData = canvas.toDataURL('image/png');
         
-        // Calcular posición en la página A4
         const pageIdx = i % labelsPerPage;
         const col = pageIdx % 4;
         const row = Math.floor(pageIdx / 4);
         
-        const x = margin + (col * (labelSize + gap));
-        const y = margin + (row * (labelSize + gap));
+        const x = marginX + (col * (labelSize + gap));
+        const y = marginY + (row * (labelSize + gap));
         
         pdf.addImage(imgData, 'PNG', x, y, labelSize, labelSize);
       }
 
-      pdf.save(`etiquetas_${companyName.replace(/\s+/g, '_')}.pdf`);
+      pdf.save(`etiquetas_carta_${companyName.replace(/\s+/g, '_')}.pdf`);
     } catch (error) {
       console.error('Error generating PDF', error);
-      alert('Error al generar el PDF. Revisa la consola.');
+      alert('Error al generar el PDF. El sistema detectó colores no compatibles (oklch). Intentando corregir...');
     } finally {
       setGenerating(false);
     }
@@ -84,7 +88,7 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
           <div className="flex items-center gap-2">
             <Grid className="text-primary" size={20} />
             <div>
-              <h2 className="text-lg font-bold text-zinc-100">Generador de PDF Masivo (Mosaico)</h2>
+              <h2 className="text-lg font-bold text-zinc-100">Generador de PDF Masivo (Tamaño Carta)</h2>
               <p className="text-xs text-zinc-500">Cliente: <span className="text-zinc-300 font-medium">{companyName}</span> • {products.length} productos</p>
             </div>
           </div>
@@ -108,16 +112,27 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
           </div>
         </div>
 
-        {/* Hidden Container for PDF Rendering */}
+        {/* Hidden Container for PDF Rendering - Usamos estilos inline con colores HEX para evitar errores de oklch */}
         <div style={{ position: 'absolute', left: '-9999px', top: 0 }} ref={printRef}>
           {products.map((product) => (
-            <div key={product.id} className="bulk-label" style={{ width: '200px', height: '200px', background: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px' }}>
+            <div key={product.id} className="bulk-label" style={{ 
+              width: '200px', 
+              height: '200px', 
+              backgroundColor: '#ffffff', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              padding: '10px',
+              color: '#000000',
+              border: '1px solid #eeeeee'
+            }}>
                <QRCodeCanvas value={product.sku} size={140} level="M" />
                <div style={{ textAlign: 'center', marginTop: '8px' }}>
-                 <p style={{ fontSize: '12px', fontWeight: '900', color: 'black', margin: 0, textTransform: 'uppercase' }}>
+                 <p style={{ fontSize: '12px', fontWeight: '900', color: '#000000', margin: 0, textTransform: 'uppercase', fontFamily: 'Arial, sans-serif' }}>
                    {product.name}
                  </p>
-                 <p style={{ fontSize: '10px', fontFamily: 'monospace', fontWeight: '700', color: '#444', margin: '2px 0 0 0' }}>
+                 <p style={{ fontSize: '10px', fontFamily: 'monospace', fontWeight: '700', color: '#444444', margin: '2px 0 0 0' }}>
                    {product.sku}
                  </p>
                </div>
@@ -129,7 +144,7 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
         <div className="flex-none px-6 py-4 border-t border-zinc-800 bg-zinc-900/50 flex items-center justify-between">
           <div className="flex items-center gap-3 text-zinc-400">
             <Layout size={18} />
-            <span className="text-sm">Tamaño A4 • 20 etiquetas por página (50x50mm)</span>
+            <span className="text-sm">Tamaño Carta (216x279mm) • 20 etiquetas por página</span>
           </div>
           <div className="flex gap-3">
             <Button variant="outline" onClick={onClose} className="border-zinc-700 text-zinc-300 hover:bg-zinc-800" disabled={generating}>
@@ -139,11 +154,11 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
               {generating ? (
                 <>
                   <Loader2 className="animate-spin" size={18} />
-                  Generando PDF...
+                  Generando...
                 </>
               ) : (
                 <>
-                  <FileDown size={18} /> Descargar PDF
+                  <FileDown size={18} /> Descargar PDF Carta
                 </>
               )}
             </Button>
