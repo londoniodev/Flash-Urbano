@@ -19,9 +19,9 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
   const handlePrint = () => window.print();
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 no-print print:static print:h-auto print:overflow-visible" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 no-print" onClick={onClose}>
       <div 
-        className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col print:bg-white print:border-none print:shadow-none print:max-h-none print:overflow-visible"
+        className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <style>{`
@@ -35,22 +35,23 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
               padding: 0 !important; 
               background: white !important;
               height: auto !important;
-              overflow: visible !important;
             }
             
-            /* Hide the main app root */
-            #root { display: none !important; }
-            
-            /* The modal container needs to be visible and occupy space */
-            body > div[class*="fixed"] { 
-              display: block !important; 
-              position: static !important;
-              background: white !important;
-              width: 100% !important;
+            /* Hide the entire app by visibility to allow children to override */
+            #app { 
+              visibility: hidden !important; 
+              height: 0 !important; 
+              overflow: hidden !important; 
             }
             
-            /* Hide modal headers and buttons */
-            .no-print, button, header, .flex-none { display: none !important; }
+            /* Hide all modal elements except the print container */
+            .no-print, button, header, .flex-none, .bg-zinc-900, .bg-zinc-950 { 
+              display: none !important; 
+            }
+
+            .print-bulk-container, .print-bulk-container * {
+              visibility: visible !important;
+            }
 
             .print-bulk-container {
               display: grid !important;
@@ -59,6 +60,9 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
               padding: 15mm !important;
               width: 100% !important;
               background: white !important;
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
             }
 
             .bulk-label {
@@ -81,6 +85,8 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
               font-size: 10px !important;
               color: #888 !important;
               display: block !important;
+              visibility: visible !important;
+              z-index: 99999 !important;
             }
             .page-footer::after {
               content: "Página " counter(page);
@@ -106,8 +112,8 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 bg-zinc-950 print:bg-white print:overflow-visible">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 print:hidden">
+        <div className="flex-1 overflow-y-auto p-6 bg-zinc-950">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {products.map((product) => (
               <div key={product.id} className="bg-white p-3 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg border border-white/10">
                 <QRCodeSVG value={product.sku} size={80} level="M" />
