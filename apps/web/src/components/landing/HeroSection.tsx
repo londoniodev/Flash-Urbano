@@ -1,4 +1,3 @@
-import { ArrowRight } from 'lucide-react';
 import { FadeIn } from './FadeIn';
 import './HeroSection.css';
 
@@ -43,7 +42,7 @@ export default function HeroSection() {
             <div className="hero-actions">
               <a href="https://wa.me/573187828932" target="_blank" rel="noreferrer" className="btn-primary hero-btn glow-orange">
                 ¡Cotiza ahora y acelera tus entregas!
-                <ArrowRight size={20} />
+                <WhatsAppIcon size={20} />
               </a>
             </div>
           </FadeIn>
