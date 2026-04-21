@@ -11,7 +11,8 @@ export default function LandingPage() {
   return (
     <div className="landing-layout relative">
       {/* FONDO ANIMADO Y PATRON DRY */}
-      <div className="fixed inset-0 z-[0] bg-grid-pattern opacity-30 mix-blend-overlay pointer-events-none"></div>
+      <div className="fixed inset-0 z-[0] bg-grid-pattern opacity-60 mix-blend-overlay pointer-events-none"></div>
+      <div className="fixed inset-0 z-[1] pointer-events-none opacity-[0.03] mix-blend-soft-light bg-noise"></div>
       <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
         <div className="blob-shape blob-1"></div>
         <div className="blob-shape blob-2"></div>
