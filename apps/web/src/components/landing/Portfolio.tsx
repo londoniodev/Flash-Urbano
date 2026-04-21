@@ -35,12 +35,16 @@ export default function Portfolio() {
 
         <div className="portfolio-grid">
           {portfolios.map((item, i) => (
-            <FadeIn key={i} delay={i * 150} direction="up" className="portfolio-card glass-panel">
-              <div className="portfolio-icon-wrap">
-                {item.icon}
+            <FadeIn key={i} delay={i * 150} direction="up" className="portfolio-card">
+              <div className="bezel-orange-outer">
+                <div className="bezel-orange-inner">
+                  <div className="portfolio-icon-wrap">
+                    {item.icon}
+                  </div>
+                  <h3 className="portfolio-card-title outfit-font">{item.title}</h3>
+                  <p className="portfolio-card-desc">{item.desc}</p>
+                </div>
               </div>
-              <h3 className="portfolio-card-title outfit-font">{item.title}</h3>
-              <p className="portfolio-card-desc">{item.desc}</p>
             </FadeIn>
           ))}
         </div>

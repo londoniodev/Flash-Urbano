@@ -21,13 +21,13 @@ export default function LandingPage() {
       <nav className="landing-nav">
         <div className="nav-container">
           <div className="nav-logo">
+            <img src="/logo.avif" alt="Flash Urbano" className="nav-logo-img" style={{ height: '32px', borderRadius: '4px' }} />
             <span>Flash Urbano</span>
           </div>
           <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <Link to="/login" className="btn-portal">
               Portal B2B
             </Link>
-            <img src="/logo.avif" alt="Sello Flash Urbano" className="nav-logo-img" style={{ height: '40px', borderRadius: '50%' }} />
           </div>
         </div>
       </nav>

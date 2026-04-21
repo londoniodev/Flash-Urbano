@@ -6,24 +6,12 @@
 }
 
 .portfolio-card {
-  padding: 3rem 2rem;
   text-align: center;
-  background: rgba(239, 117, 29, 0.08); /* Permanent orange tint */
-  border: 1px solid rgba(239, 117, 29, 0.3); /* Permanent orange border */
-  border-radius: 32px; /* Rounded corners */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .portfolio-card:hover {
   transform: translateY(-12px) scale(1.02);
-  border-color: rgba(239, 117, 29, 0.6);
-  box-shadow: 
-    0 30px 60px rgba(0, 0, 0, 0.4), 
-    0 0 30px rgba(239, 117, 29, 0.3);
-  background: rgba(239, 117, 29, 0.12);
 }
 
 .portfolio-icon-wrap {

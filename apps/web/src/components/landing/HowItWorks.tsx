@@ -51,12 +51,14 @@ export default function HowItWorks() {
                     </div>
                   )}
                 </div>
-                <div className="step-body glass-panel">
-                  <div className="step-icon-wrap">{step.icon}</div>
-                  <h3 className="step-title outfit-font">{step.title}</h3>
-                  <p className="step-desc">{step.description}</p>
-                  <div className="step-time-badge">
-                    <span>{step.time}</span>
+                <div className="bezel-outer">
+                  <div className="bezel-inner">
+                    <div className="step-icon-wrap">{step.icon}</div>
+                    <h3 className="step-title outfit-font">{step.title}</h3>
+                    <p className="step-desc">{step.description}</p>
+                    <div className="step-time-badge">
+                      <span>{step.time}</span>
+                    </div>
                   </div>
                 </div>
               </div>

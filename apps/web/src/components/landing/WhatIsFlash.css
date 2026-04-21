@@ -12,19 +12,17 @@
 }
 
 .feature-card-inner {
-  padding: 3.5rem 2.5rem;
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: rgba(239, 117, 29, 0.08); /* Permanently orange tint */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(239, 117, 29, 0.3); /* Permanently orange border */
-  border-radius: 32px; /* Rounded corners */
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
+  border-radius: 32px;
   transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
   transform-style: preserve-3d;
-  animation: breathing 6s infinite ease-in-out;
 }
 
 .feature-card:nth-child(1) .feature-card-inner { animation-delay: 0s; }
@@ -63,15 +61,15 @@
 .feature-number {
   font-size: 4rem;
   font-weight: 900;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(239, 117, 29, 0.2);
+  color: white; /* White numbers as requested */
+  opacity: 0.15;
   line-height: 1;
   margin-bottom: 1.5rem;
   letter-spacing: -0.04em;
 }
 
 .feature-card-inner:hover .feature-number {
-  -webkit-text-stroke: 1px rgba(239, 117, 29, 0.5);
+  opacity: 0.3;
 }
 
 .feature-icon {

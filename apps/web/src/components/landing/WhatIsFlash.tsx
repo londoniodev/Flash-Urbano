@@ -36,12 +36,14 @@ export default function WhatIsFlash() {
         <div className="what-is-grid">
           {features.map((feature, i) => (
             <FadeIn key={i} delay={i * 200} direction="up" className="feature-card">
-              <div className="feature-card-inner">
-                <span className="feature-number outfit-font">{feature.number}</span>
-                <div className="feature-icon">{feature.icon}</div>
-                <h3 className="feature-title outfit-font">{feature.title}</h3>
-                <p className="feature-text">{feature.text}</p>
-                <div className="feature-line"></div>
+              <div className="bezel-orange-outer">
+                <div className="bezel-orange-inner feature-card-inner">
+                  <span className="feature-number outfit-font">{feature.number}</span>
+                  <div className="feature-icon">{feature.icon}</div>
+                  <h3 className="feature-title outfit-font">{feature.title}</h3>
+                  <p className="feature-text">{feature.text}</p>
+                  <div className="feature-line"></div>
+                </div>
               </div>
             </FadeIn>
           ))}

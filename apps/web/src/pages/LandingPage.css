@@ -57,22 +57,24 @@
 }
 
 .btn-portal {
-  background: transparent;
-  color: #e5e7eb;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 0.6rem 1.5rem;
-  border-radius: var(--radius-full);
+  background: var(--accent);
+  color: white;
+  border: 1px solid var(--accent);
+  padding: 0.5rem 1.25rem;
+  border-radius: 100px; /* Pill form */
   text-decoration: none;
-  font-weight: 600;
-  font-size: 0.875rem;
-  transition: all 0.3s ease;
+  font-weight: 700;
+  font-size: 0.8rem;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(239, 117, 29, 0.3);
+  letter-spacing: 0.02em;
 }
 
 .btn-portal:hover {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-  box-shadow: var(--shadow-glow);
+  background: #ff8c3a;
+  border-color: #ff8c3a;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 117, 29, 0.4);
 }
 
 /* ========== SECTIONS ========== */
@@ -144,7 +146,7 @@
   color: white;
   border: none;
   padding: 1rem 2rem;
-  border-radius: var(--radius-full);
+  border-radius: 100px; /* Pill form */
   font-weight: 700;
   font-size: 1rem;
   text-decoration: none;
@@ -307,9 +309,41 @@
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-@keyframes float-blob {
-  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  33% { transform: translate(20%, -20%) rotate(120deg) scale(1.2); }
-  66% { transform: translate(-10%, 10%) rotate(240deg) scale(0.8); }
-  100% { transform: translate(0, 0) rotate(360deg) scale(1); }
+}
+
+/* ========== DOUBLE BEZEL ========== */
+.bezel-outer {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.5rem;
+  border-radius: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  height: 100%;
+}
+
+.bezel-inner {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 32px;
+  height: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+  padding: 2.5rem 2rem;
+}
+
+.bezel-orange-outer {
+  background: rgba(239, 117, 29, 0.1);
+  border: 1px solid rgba(239, 117, 29, 0.2);
+  padding: 0.5rem;
+  border-radius: 40px;
+  box-shadow: 0 10px 40px rgba(239, 117, 29, 0.1);
+  height: 100%;
+}
+
+.bezel-orange-inner {
+  background: rgba(239, 117, 29, 0.05);
+  border-radius: 32px;
+  height: 100%;
+  border: 1px solid rgba(239, 117, 29, 0.3);
+  box-shadow: inset 0 0 30px rgba(239, 117, 29, 0.05);
+  padding: 3.5rem 2.5rem;
 }
