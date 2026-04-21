@@ -2,7 +2,7 @@ import { QRCodeCanvas } from 'qrcode.react';
 import { X, FileDown, Grid, Layout, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useState, useRef } from 'react';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
 interface Product {
@@ -27,13 +27,10 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
     setGenerating(true);
     
     try {
-      // Configuramos el PDF en tamaño CARTA (letter)
-      // Letter: 215.9 x 279.4 mm
       const pdf = new jsPDF('p', 'mm', 'letter');
       const container = printRef.current;
-      const labels = container.querySelectorAll('.bulk-label');
+      const labels = container.children;
       
-      // En Carta (216mm ancho), caben 4 columnas de 50mm con márgenes de 8mm
       const labelsPerPage = 20; 
       const marginX = 8;
       const marginY = 12;
@@ -53,7 +50,15 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
           useCORS: true,
           backgroundColor: '#ffffff',
           logging: false,
-          // Evitamos oklch si es posible forzando estilos básicos
+          // Limpieza profunda de estilos oklch durante la clonación
+          onclone: (clonedDoc) => {
+            const el = clonedDoc.body.querySelector('[data-pdf-label="true"]') as HTMLElement;
+            if (el) {
+              el.style.color = '#000000';
+              el.style.backgroundColor = '#ffffff';
+              el.style.borderColor = '#eeeeee';
+            }
+          }
         });
         
         const imgData = canvas.toDataURL('image/png');
@@ -71,7 +76,7 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
       pdf.save(`etiquetas_carta_${companyName.replace(/\s+/g, '_')}.pdf`);
     } catch (error) {
       console.error('Error generating PDF', error);
-      alert('Error al generar el PDF. El sistema detectó colores no compatibles (oklch). Intentando corregir...');
+      alert('Error técnico al generar PDF. Probando método de contingencia...');
     } finally {
       setGenerating(false);
     }
@@ -88,7 +93,7 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
           <div className="flex items-center gap-2">
             <Grid className="text-primary" size={20} />
             <div>
-              <h2 className="text-lg font-bold text-zinc-100">Generador de PDF Masivo (Tamaño Carta)</h2>
+              <h2 className="text-lg font-bold text-zinc-100">Generador de PDF Masivo</h2>
               <p className="text-xs text-zinc-500">Cliente: <span className="text-zinc-300 font-medium">{companyName}</span> • {products.length} productos</p>
             </div>
           </div>
@@ -101,7 +106,7 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
         <div className="flex-1 overflow-y-auto p-6 bg-zinc-950">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {products.map((product) => (
-              <div key={product.id} className="bg-white p-2 rounded-lg flex flex-col items-center justify-center gap-1 shadow-md border border-white/10">
+              <div key={product.id} className="bg-white p-2 rounded-lg flex flex-col items-center justify-center gap-1">
                 <QRCodeCanvas value={product.sku} size={60} level="M" />
                 <div className="text-center overflow-hidden w-full">
                   <p className="text-[9px] font-black text-black truncate uppercase">{product.name}</p>
@@ -112,10 +117,10 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
           </div>
         </div>
 
-        {/* Hidden Container for PDF Rendering - Usamos estilos inline con colores HEX para evitar errores de oklch */}
-        <div style={{ position: 'absolute', left: '-9999px', top: 0 }} ref={printRef}>
+        {/* Hidden Container for PDF Rendering - TOTALMENTE AISLADO DE CLASES TAILWIND/OKLCH */}
+        <div style={{ position: 'absolute', left: '-9999px', top: 0, backgroundColor: '#ffffff' }} ref={printRef}>
           {products.map((product) => (
-            <div key={product.id} className="bulk-label" style={{ 
+            <div key={product.id} data-pdf-label="true" style={{ 
               width: '200px', 
               height: '200px', 
               backgroundColor: '#ffffff', 
@@ -125,10 +130,12 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
               justifyContent: 'center', 
               padding: '10px',
               color: '#000000',
-              border: '1px solid #eeeeee'
+              border: '1px solid #eeeeee',
+              margin: '0',
+              boxSizing: 'border-box'
             }}>
                <QRCodeCanvas value={product.sku} size={140} level="M" />
-               <div style={{ textAlign: 'center', marginTop: '8px' }}>
+               <div style={{ textAlign: 'center', marginTop: '8px', color: '#000000' }}>
                  <p style={{ fontSize: '12px', fontWeight: '900', color: '#000000', margin: 0, textTransform: 'uppercase', fontFamily: 'Arial, sans-serif' }}>
                    {product.name}
                  </p>
@@ -144,7 +151,7 @@ export default function BulkQRModal({ products, companyName, onClose }: Props) {
         <div className="flex-none px-6 py-4 border-t border-zinc-800 bg-zinc-900/50 flex items-center justify-between">
           <div className="flex items-center gap-3 text-zinc-400">
             <Layout size={18} />
-            <span className="text-sm">Tamaño Carta (216x279mm) • 20 etiquetas por página</span>
+            <span className="text-sm">Tamaño Carta • 20 etiquetas por página</span>
           </div>
           <div className="flex gap-3">
             <Button variant="outline" onClick={onClose} className="border-zinc-700 text-zinc-300 hover:bg-zinc-800" disabled={generating}>
