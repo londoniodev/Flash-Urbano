@@ -91,6 +91,7 @@
   color: white;
   margin-bottom: 1.5rem;
   letter-spacing: -0.02em;
+  text-shadow: 0 0 20px rgba(239, 117, 29, 0.2);
 }
 
 .text-gradient {
@@ -102,7 +103,7 @@
 
 .hero-description {
   font-size: clamp(0.95rem, 1.5vw, 1.15rem);
-  color: #4b5563;
+  color: #d1d5db;
   line-height: 1.7;
   margin-bottom: 2rem;
   max-width: 520px;
@@ -128,7 +129,7 @@
 
 .hero-btn:hover {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 25px 50px -12px rgba(239, 117, 29, 0.4);
+  box-shadow: 0 0 40px rgba(239, 117, 29, 0.6);
 }
 
 /* ---- Character column ---- */

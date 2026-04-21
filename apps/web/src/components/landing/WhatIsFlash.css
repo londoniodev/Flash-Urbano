@@ -25,7 +25,10 @@
 }
 
 .feature-card-inner:hover {
-  background: linear-gradient(180deg, rgba(239, 117, 29, 0.06) 0%, transparent 100%);
+  background: rgba(239, 117, 29, 0.08);
+  backdrop-filter: blur(10px);
+  border-color: rgba(239, 117, 29, 0.3);
+  box-shadow: 0 10px 40px rgba(239, 117, 29, 0.1);
 }
 
 .feature-number {
@@ -77,7 +80,7 @@
 }
 
 .feature-text {
-  color: var(--text-secondary);
+  color: #d1d5db;
   line-height: 1.7;
   font-size: 1rem;
   flex: 1;

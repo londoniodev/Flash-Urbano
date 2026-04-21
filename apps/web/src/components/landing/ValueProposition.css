@@ -7,7 +7,7 @@
 }
 
 .value-prop-subtitle {
-  color: var(--text-secondary);
+  color: #d1d5db;
   font-size: 1.1rem;
   line-height: 1.7;
   margin-bottom: 2.5rem;
@@ -56,7 +56,7 @@
 }
 
 .value-item-desc {
-  color: var(--text-secondary);
+  color: #d1d5db;
   font-size: 0.95rem;
   line-height: 1.6;
 }
@@ -72,9 +72,10 @@
   max-width: 380px;
   padding: 2rem;
   border-radius: var(--radius-lg);
-  background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 30px rgba(239, 117, 29, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(239, 117, 29, 0.3);
+  box-shadow: 0 0 50px rgba(239, 117, 29, 0.2), inset 0 0 20px rgba(239, 117, 29, 0.05);
 }
 
 .delivery-card-header {
@@ -144,7 +145,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: #d1d5db;
 }
 
 .timeline-step.completed .timeline-info,
@@ -177,7 +178,7 @@
 
 .eta-label {
   font-size: 0.85rem;
-  color: var(--text-secondary);
+  color: #d1d5db;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
