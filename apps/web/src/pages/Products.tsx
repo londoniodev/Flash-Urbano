@@ -9,6 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import ProductPassportModal from '../components/ProductPassportModal';
 import ProductQRModal from '../components/ProductQRModal';
+import BulkQRModal from '../components/BulkQRModal';
 
 interface Product {
   id: string;
@@ -41,6 +42,8 @@ export default function Products() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [passportProductId, setPassportProductId] = useState<string | null>(null);
   const [qrProductId, setQrProductId] = useState<string | null>(null);
+  const [showBulkQR, setShowBulkQR] = useState(false);
+  const [filterCompanyId, setFilterCompanyId] = useState<string>('all');
 
   // Form state
   const [sku, setSku] = useState('');
@@ -219,6 +222,10 @@ export default function Products() {
     }
   };
 
+  const filteredProducts = products.filter(p => 
+    filterCompanyId === 'all' || p.companyId === filterCompanyId
+  );
+
   return (
     <div className="flex flex-col min-h-screen w-full bg-zinc-950 p-6 text-zinc-100">
 
@@ -263,6 +270,35 @@ export default function Products() {
           )}
         </div>
       </header>
+
+      {/* FILTROS Y ACCIONES MASIVAS */}
+      <div className="flex flex-col md:flex-row gap-4 mb-6 items-end justify-between bg-zinc-900/30 p-4 rounded-xl border border-zinc-800">
+        <div className="flex flex-col gap-2 w-full md:w-64">
+          <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider px-1">Filtrar por Cliente</label>
+          <select
+            className="bg-zinc-950 border border-zinc-800 rounded-lg py-2 px-3 text-sm text-zinc-100 focus:border-primary outline-none"
+            value={filterCompanyId}
+            onChange={(e) => setFilterCompanyId(e.target.value)}
+          >
+            <option value="all">Todos los clientes</option>
+            {companies.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowBulkQR(true)}
+            disabled={filteredProducts.length === 0}
+            className="gap-2 border-primary/20 text-primary hover:bg-primary/10"
+          >
+            <QrCode size={16} />
+            Imprimir QRs Mosaico ({filteredProducts.length})
+          </Button>
+        </div>
+      </div>
 
       {/* FORMULARIO */}
       {showForm && (
@@ -418,7 +454,7 @@ export default function Products() {
                   No hay productos registrados. Crea tu primer SKU.
                 </TableCell>
               </TableRow>
-            ) : products.map((p: any) => (
+            ) : filteredProducts.map((p: any) => (
               <TableRow key={p.id} className="border-zinc-800/50 hover:bg-zinc-800/50 transition-colors cursor-pointer" onClick={() => setPassportProductId(p.id)}>
                 <TableCell className="font-mono text-sm font-medium text-primary">
                   {p.sku}
@@ -465,6 +501,14 @@ export default function Products() {
 
       <ProductPassportModal productId={passportProductId} onClose={() => setPassportProductId(null)} />
       <ProductQRModal productId={qrProductId} onClose={() => setQrProductId(null)} />
+      
+      {showBulkQR && (
+        <BulkQRModal 
+          products={filteredProducts} 
+          companyName={filterCompanyId === 'all' ? 'Todos' : companies.find(c => c.id === filterCompanyId)?.name || ''}
+          onClose={() => setShowBulkQR(false)} 
+        />
+      )}
     </div>
   );
 }

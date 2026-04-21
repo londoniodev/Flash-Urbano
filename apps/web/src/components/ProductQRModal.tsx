@@ -43,23 +43,34 @@ export default function ProductQRModal({ productId, onClose }: Props) {
         {/* Print-only styles */}
         <style>{`
           @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; margin: 0; padding: 0; }
+            /* Hide everything by default */
+            body * {
+              visibility: hidden !important;
+            }
+            /* Show only the print label and its children */
+            .print-label, .print-label * {
+              visibility: visible !important;
+            }
             .print-label {
+              position: fixed !important;
+              left: 0 !important;
+              top: 0 !important;
               width: 50mm !important;
               height: 50mm !important;
-              padding: 3mm !important;
-              margin: 0 auto !important;
-              background: white !important;
-              border: none !important;
-              box-shadow: none !important;
+              padding: 0 !important;
+              margin: 0 !important;
               display: flex !important;
-              flex-direction: column !important;
               align-items: center !important;
               justify-content: center !important;
-              page-break-after: always;
+              background: white !important;
             }
-            .print-label * { color: black !important; }
+            @page {
+              size: 50mm 50mm;
+              margin: 0;
+            }
+          }
+          @media screen {
+            .print-label { display: none !important; }
           }
         `}</style>
 
@@ -99,7 +110,7 @@ export default function ProductQRModal({ productId, onClose }: Props) {
             </div>
             
             {/* Contenido oculto para impresión real */}
-            <div className="hidden print:flex print-label">
+            <div className="print-label">
               <LabelContent product={product} />
             </div>
           </>
