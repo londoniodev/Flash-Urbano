@@ -13,7 +13,8 @@ export class InventoryMovementDto {
   movementType: 'INGRESO' | 'SALIDA' | 'AJUSTE' | 'TRASLADO';
 
   @IsInt()
-  @Min(1)
+  @ValidateIf(o => o.movementType !== 'AJUSTE')
+  @Min(1, { message: 'La cantidad debe ser mayor a 0 para ingresos, salidas y traslados' })
   quantity: number;
 
   @IsOptional()

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowRightLeft, Plus, Package, PackageMinus, RefreshCw, Sliders } from 'lucide-react';
+import { ArrowRightLeft, Plus, Package, PackageMinus, RefreshCw, Sliders, Info } from 'lucide-react';
 import { api } from '../lib/axios';
 import { useAuth } from '../context/AuthProvider';
 import { Button } from '../components/ui/button';
@@ -215,13 +215,25 @@ export default function Operations() {
                 <label className="text-sm text-zinc-400">Cantidad</label>
                 <input
                   type="number"
-                  min={1}
+                  min={movementType === 'AJUSTE' ? undefined : 1}
                   className="bg-zinc-950 border border-zinc-800 rounded-md py-2 px-3 text-sm text-zinc-100 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                   value={quantity}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuantity(parseInt(e.target.value) || 1)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuantity(parseInt(e.target.value) || 0)}
                   required
                 />
               </div>
+
+              {/* Leyenda de Ajuste */}
+              {movementType === 'AJUSTE' && (
+                <div className="flex items-start gap-3 p-3 bg-blue-950/20 border border-blue-900/30 rounded-lg text-xs text-blue-200">
+                  <Info size={16} className="text-blue-400 shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-1">
+                    <p className="font-bold">¿Cómo ajustar el inventario?</p>
+                    <p>Usa valores <b>positivos</b> para sumar al stock (ej: 10) y valores <b>negativos</b> para restarlo (ej: -5).</p>
+                    <p className="opacity-70 text-[10px] italic">Ejemplo: Si hay 10 en sistema pero contaste 8, ingresa -2.</p>
+                  </div>
+                </div>
+              )}
 
               {/* Sede Origen (SALIDA, TRASLADO) */}
               {(movementType === 'SALIDA' || movementType === 'TRASLADO') && (

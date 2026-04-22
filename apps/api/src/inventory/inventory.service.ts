@@ -1,6 +1,6 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { eq, and, desc, sql } from 'drizzle-orm';
-import { inventoryStock, inventoryMovements, products, hubs, companies } from '../database/schema';
+import { inventoryStock, inventoryMovements, products, hubs, companies, users } from '../database/schema';
 import { InventoryMovementDto } from './dto/inventory.dto';
 
 @Injectable()
@@ -104,6 +104,28 @@ export class InventoryService {
 
   async registerMovement(dto: InventoryMovementDto, operatorId: string) {
     const productId = await this.resolveProductId(dto);
+
+    // Validar restricciones de sede para Operarios
+    const [user] = await this.db.select({ role: users.role, hubId: users.hubId })
+      .from(users)
+      .where(eq(users.id, operatorId))
+      .limit(1);
+
+    if (user?.role === 'OPERATOR') {
+      const userHubId = user.hubId;
+      if (dto.movementType === 'INGRESO' && dto.toHubId !== userHubId) {
+        throw new ForbiddenException('Solo puedes registrar ingresos en tu sede asignada');
+      }
+      if (dto.movementType === 'SALIDA' && dto.fromHubId !== userHubId) {
+        throw new ForbiddenException('Solo puedes registrar salidas desde tu sede asignada');
+      }
+      if (dto.movementType === 'AJUSTE' && dto.toHubId !== userHubId) {
+        throw new ForbiddenException('Solo puedes registrar ajustes en tu sede asignada');
+      }
+      if (dto.movementType === 'TRASLADO' && dto.fromHubId !== userHubId) {
+        throw new ForbiddenException('Solo puedes originar traslados desde tu sede asignada');
+      }
+    }
 
     return await this.db.transaction(async (tx: any) => {
       // Registrar el movimiento
