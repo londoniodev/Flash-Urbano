@@ -1,5 +1,5 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Activity, PackageSearch, PackagePlus, ArrowRightLeft, LogOut, Zap, MapPin } from 'lucide-react';
+import { Activity, PackageSearch, PackagePlus, ArrowRightLeft, LogOut, Zap, MapPin, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthProvider';
 
 interface DashboardLayoutProps {
@@ -25,6 +25,7 @@ const adminNav = [
   { path: '/inventory', label: 'Inventario', icon: PackageSearch },
   { path: '/products', label: 'Productos', icon: PackagePlus },
   { path: '/hubs', label: 'Sedes', icon: MapPin },
+  { path: '/users', label: 'Usuarios', icon: Users },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {

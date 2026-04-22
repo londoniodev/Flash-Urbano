@@ -17,7 +17,12 @@ export class CreateUserDto {
   lastName: string;
 
   @IsEnum(['ADMIN', 'OPERATOR', 'CLIENT'], { message: 'Rol inválido' })
-  role: 'ADMIN' | 'OPERATOR' | 'CLIENT';
+  @IsOptional()
+  role?: 'ADMIN' | 'OPERATOR' | 'CLIENT';
+
+  @IsOptional()
+  @IsString()
+  companyName?: string;
 
   @IsOptional()
   @IsUUID()

@@ -9,6 +9,7 @@ import Operations from './pages/Operations';
 import Hubs from './pages/Hubs';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardLayout from './components/DashboardLayout';
+import Users from './pages/Users';
 
 function App() {
   return (
@@ -77,7 +78,16 @@ function App() {
           } 
         />
 
-
+        <Route 
+          path="/users" 
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <DashboardLayout>
+                <Users />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } 
+        />
         {/* Catch-all: redirigir al landing */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

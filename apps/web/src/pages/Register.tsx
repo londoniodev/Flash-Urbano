@@ -16,6 +16,7 @@ export default function Register() {
     lastName: '',
     email: '',
     password: '',
+    companyName: '',
   });
   
   const [error, setError] = useState('');
@@ -98,6 +99,18 @@ export default function Register() {
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="companyName" className="text-zinc-300">Nombre de tu E-commerce / Empresa</Label>
+              <Input 
+                id="companyName" 
+                required
+                placeholder="Ej. Mi Tienda Online"
+                className="bg-zinc-900/50 border-zinc-700 text-white focus-visible:ring-primary"
+                value={formData.companyName}
+                onChange={(e) => setFormData({...formData, companyName: e.target.value})}
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="password" className="text-zinc-300">Contraseña</Label>
               <Input 

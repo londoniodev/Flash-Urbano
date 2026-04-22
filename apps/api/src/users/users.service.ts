@@ -1,7 +1,7 @@
 import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import * as bcrypt from 'bcrypt';
-import { users } from '../database/schema';
+import { users, companies } from '../database/schema';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 
 @Injectable()
@@ -94,8 +94,20 @@ export class UsersService {
 
     // Force role: ADMIN if first user, else CLIENT
     const roleToAssign = isFirstUser ? 'ADMIN' : 'CLIENT';
+    
+    let companyId = undefined;
+    
+    // Si es CLIENT, crear la empresa primero
+    if (roleToAssign === 'CLIENT' && dto.companyName) {
+      const [newCompany] = await this.db.insert(companies).values({
+        name: dto.companyName,
+        nit: `TEMP-${Date.now()}`, // NIT temporal, el cliente lo actualizará luego
+        contactEmail: dto.email,
+      }).returning({ id: companies.id });
+      companyId = newCompany.id;
+    }
 
-    const safeDto = { ...dto, role: roleToAssign as any, companyId: undefined, hubId: undefined };
+    const safeDto = { ...dto, role: roleToAssign as any, companyId, hubId: undefined };
     return this.create(safeDto);
   }
 
