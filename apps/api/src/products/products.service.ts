@@ -129,6 +129,8 @@ export class ProductsService {
   }
 
   async create(dto: CreateProductDto, userId?: string) {
+    if (!dto.companyId) throw new BadRequestException('ID de compañía es requerido');
+
     return await this.db.transaction(async (tx: any) => {
       const existing = await tx.select().from(products).where(
         and(eq(products.companyId, dto.companyId), eq(products.sku, dto.sku))
@@ -171,6 +173,8 @@ export class ProductsService {
     return await this.db.transaction(async (tx: any) => {
       const createdProducts = [];
       for (const dto of dtos) {
+        if (!dto.companyId) throw new BadRequestException('ID de compañía es requerido en carga masiva');
+        
         const existing = await tx.select().from(products).where(
           and(eq(products.companyId, dto.companyId), eq(products.sku, dto.sku))
         ).limit(1);
