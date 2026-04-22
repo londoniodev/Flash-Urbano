@@ -8,6 +8,13 @@
       "when": 1776307668980,
       "tag": "0000_melodic_baron_zemo",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776876952000,
+      "tag": "0001_add_ajuste_enum",
+      "breakpoints": true
     }
   ]
 }
