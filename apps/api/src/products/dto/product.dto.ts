@@ -2,7 +2,8 @@ import { IsString, IsOptional, IsUUID } from 'class-validator';
 
 export class CreateProductDto {
   @IsUUID()
-  companyId: string;
+  @IsOptional()
+  companyId?: string;
 
   @IsString()
   sku: string;

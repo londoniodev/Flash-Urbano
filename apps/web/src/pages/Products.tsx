@@ -99,8 +99,10 @@ export default function Products() {
     fetchHubs();
     if (isOperator) {
       fetchCompanies();
+    } else if (isClient && user?.companyId) {
+      setCompanyId(user.companyId);
     }
-  }, [isOperator]);
+  }, [isOperator, isClient, user]);
 
   const resetForm = () => {
     setSku('');
