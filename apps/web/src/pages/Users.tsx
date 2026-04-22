@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Users as UsersIcon, Plus, UserCheck, MapPin, Trash2, Mail } from 'lucide-react';
+import { Users as UsersIcon, Plus, UserCheck, Trash2, Mail } from 'lucide-react';
 import { api } from '../lib/axios';
 import { Button } from '../components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
