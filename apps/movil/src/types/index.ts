@@ -5,6 +5,12 @@ export enum MovementType {
   TRASLADO = 'TRASLADO',
 }
 
+export interface Hub {
+  id: string;
+  name: string;
+  city: string;
+}
+
 export interface KardexEntry {
   movement_id: string;
   product_sku: string;

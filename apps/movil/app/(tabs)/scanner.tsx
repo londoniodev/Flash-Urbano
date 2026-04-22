@@ -16,6 +16,8 @@ import { COLORS, FONT_SIZE, SPACING, RADIUS } from '../../src/constants/theme';
 import { recordMovement } from '../../src/services/KardexService';
 import { API_BASE_URL } from '../../src/constants/config';
 import ProductPassport from '../../src/components/ProductPassport';
+import FastMovementModal from '../../src/components/FastMovementModal';
+import { Hub } from '../../src/types';
 
 export default function ScannerScreen() {
   const device = useCameraDevice('back');
@@ -36,11 +38,28 @@ export default function ScannerScreen() {
   const [passportLoading, setPassportLoading] = useState(false);
   const [pendingSku, setPendingSku] = useState<string | null>(null);
 
-  // Estado para Modal de Cantidad
-  const [showQuantityModal, setShowQuantityModal] = useState(false);
-  const [quantityInput, setQuantityInput] = useState<string>('1');
+  // Estado para Modal de Acción Rápida
+  const [showFastModal, setShowFastModal] = useState(false);
+  const [hubs, setHubs] = useState<Hub[]>([]);
+  const [operatorProfile, setOperatorProfile] = useState<any>(null);
 
   const colors = COLORS.dark;
+
+  useEffect(() => {
+    // Cargar sedes para traslados
+    fetch(`${API_BASE_URL}/hubs`)
+      .then(res => res.json())
+      .then(data => setHubs(data))
+      .catch(err => console.error('Error fetching hubs', err));
+    
+    // Cargar perfil del operario para saber su hubId
+    if (user?.id) {
+      fetch(`${API_BASE_URL}/users/${user.id}`)
+        .then(res => res.json())
+        .then(data => setOperatorProfile(data))
+        .catch(err => console.error('Error fetching profile', err));
+    }
+  }, [user]);
 
   const fetchPassport = async (sku: string) => {
     setPassportLoading(true);
@@ -79,46 +98,40 @@ export default function ScannerScreen() {
       if (accepted) {
         setIsActive(false);
         setPendingSku(code.value);
-        setShowPassport(true);
-        fetchPassport(code.value);
+        // Cambiamos el flujo: Mostrar acción rápida directamente
+        setShowFastModal(true);
+        fetchPassport(code.value); // Seguimos cargando datos en segundo plano por si acaso
       }
     },
   });
 
-  const handleRegisterMovement = () => {
-    // Desde el passport, abrir modal de cantidad
-    setShowPassport(false);
-    setQuantityInput('1');
-    setShowQuantityModal(true);
-  };
-
-  const handleSaveMovement = () => {
+  const handleConfirmFastMovement = (type: MovementType, qty: number, toHubId?: string) => {
     if (!pendingSku || !user?.id) return;
-    const qty = parseInt(quantityInput, 10);
-    if (isNaN(qty) || qty <= 0) return;
+    
+    const userHubId = operatorProfile?.hubId;
 
-    recordMovement(pendingSku, movementType, qty, user.id, undefined, undefined);
+    recordMovement(
+      pendingSku, 
+      type, 
+      qty, 
+      user.id, 
+      (type === MovementType.SALIDA || type === MovementType.TRASLADO) ? userHubId : undefined,
+      (type === MovementType.INGRESO || type === MovementType.AJUSTE || type === MovementType.TRASLADO) ? (type === MovementType.TRASLADO ? toHubId : userHubId) : undefined
+    );
 
     sessionCount.current += 1;
     setDisplayCode(pendingSku);
     setDisplayCount(sessionCount.current);
     refreshPending();
 
-    setShowQuantityModal(false);
+    setShowFastModal(false);
     setPendingSku(null);
     setPassportData(null);
     setTimeout(() => setIsActive(true), 500);
   };
 
-  const handleClosePassport = () => {
-    setShowPassport(false);
-    setPendingSku(null);
-    setPassportData(null);
-    setTimeout(() => setIsActive(true), 500);
-  };
-
-  const handleCancelQuantity = () => {
-    setShowQuantityModal(false);
+  const handleCloseFastModal = () => {
+    setShowFastModal(false);
     setPendingSku(null);
     setPassportData(null);
     setTimeout(() => setIsActive(true), 500);
@@ -211,38 +224,25 @@ export default function ScannerScreen() {
         )}
       </View>
 
-      {/* Modal Passport (Hoja de Vida) */}
+      {/* Modal Acción Rápida (Optimizado) */}
+      <FastMovementModal
+        visible={showFastModal}
+        product={passportData?.product || (pendingSku ? { name: 'Cargando...', sku: pendingSku } : null)}
+        hubs={hubs}
+        defaultType={movementType}
+        onConfirm={handleConfirmFastMovement}
+        onClose={handleCloseFastModal}
+      />
+
+      {/* Modal Passport (Ahora secundario o para consulta) */}
       <Modal visible={showPassport} transparent animationType="slide">
         <View style={styles.passportOverlay}>
           <ProductPassport
             data={passportData}
             loading={passportLoading}
-            onRegisterMovement={handleRegisterMovement}
+            onRegisterMovement={() => { setShowPassport(false); setShowFastModal(true); }}
             onClose={handleClosePassport}
           />
-        </View>
-      </Modal>
-
-      {/* Modal Cantidad */}
-      <Modal visible={showQuantityModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Ingresar Cantidad</Text>
-            <Text style={styles.modalSku}>SKU: {pendingSku}</Text>
-            <Text style={styles.modalType}>Operación: {movementType}</Text>
-            <TextInput
-              style={styles.input}
-              value={quantityInput}
-              onChangeText={setQuantityInput}
-              keyboardType="numeric"
-              autoFocus
-              selectTextOnFocus
-            />
-            <View style={styles.modalButtons}>
-              <Button title="Cancelar" variant="secondary" onPress={handleCancelQuantity} style={styles.modalBtn} />
-              <Button title="Guardar" variant="primary" onPress={handleSaveMovement} style={styles.modalBtn} />
-            </View>
-          </View>
         </View>
       </Modal>
     </View>
