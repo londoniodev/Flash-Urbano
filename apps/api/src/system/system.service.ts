@@ -35,8 +35,9 @@ export class SystemService {
       }
 
       return latestBuild.artifacts.buildUrl;
-    } catch (error) {
-      this.logger.error('Error en getLatestApkUrl:', error.message);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error('Error en getLatestApkUrl:', message);
       throw error;
     }
   }
