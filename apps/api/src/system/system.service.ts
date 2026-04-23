@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 export class SystemService {
   private readonly logger = new Logger(SystemService.name);
   private readonly projectId = 'e2b32a33-6db9-4a9f-855d-84aac2538aaa';
-  private readonly expoToken = '4nUFZRP9gF77VnR8bEFQy9ALIn4kxp4nJAU5jz9l';
+  private readonly expoToken = '_NoJ3fjRXWzppGb2IbtvYrVFMdtWTp5I9P62fQff';
 
   async getLatestApkUrl(): Promise<string> {
     try {
