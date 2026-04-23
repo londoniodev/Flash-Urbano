@@ -21,13 +21,20 @@ export class SystemService {
         }
       );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        this.logger.error('Error al consultar la API de Expo', JSON.stringify(errorData));
-        throw new Error('No se pudo obtener la información de Expo');
+      const responseText = await response.text();
+      let data: any;
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        this.logger.error('La respuesta de Expo no es un JSON válido:', responseText);
+        throw new Error(`Error de formato en Expo (Status ${response.status})`);
       }
 
-      const data: any = await response.json();
+      if (!response.ok) {
+        this.logger.error('Error al consultar la API de Expo', JSON.stringify(data));
+        throw new Error('No se pudo obtener la información de Expo');
+      }
       const latestBuild = data.data?.[0];
 
       if (!latestBuild || !latestBuild.artifacts?.buildUrl) {
