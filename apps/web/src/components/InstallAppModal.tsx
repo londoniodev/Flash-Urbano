@@ -9,7 +9,8 @@ interface InstallAppModalProps {
 export default function InstallAppModal({ isOpen, onClose }: InstallAppModalProps) {
   if (!isOpen) return null;
 
-  const downloadUrl = import.meta.env.VITE_DOWNLOAD_URL || 'https://lahoitrbgahvzgozgmow.supabase.co/functions/v1/download-apk';
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://flash-urbano-api.onrender.com';
+  const downloadUrl = `${apiUrl}/system/download-apk`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>

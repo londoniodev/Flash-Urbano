@@ -9,6 +9,7 @@ import { HubsModule } from './hubs/hubs.module';
 import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { SystemModule } from './system/system.module';
 import { HealthController } from './health.controller';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
@@ -23,6 +24,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
     UsersModule,
     ProductsModule,
     InventoryModule,
+    SystemModule,
   ],
   controllers: [HealthController],
   providers: [
