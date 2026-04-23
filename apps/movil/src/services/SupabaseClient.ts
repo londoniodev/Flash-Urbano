@@ -1,4 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../constants/config';
-
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Supabase neutralizado para evitar crashes.
+// La app ahora usa la API de NestJS para todo.
+export const supabase = null as any;
