@@ -3,9 +3,10 @@ import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'r
 import { router } from 'expo-router';
 import { COLORS, FONT_SIZE, SPACING } from '../../src/constants/theme';
 import { Input, Button } from '../../src/components/Alvarosky';
-import { supabase } from '../../src/services/SupabaseClient';
+import { useAuth } from '../../src/context/AuthContext';
 
 export default function LoginScreen() {
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,17 +19,13 @@ export default function LoginScreen() {
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    setLoading(false);
-
-    if (error) {
-      Alert.alert('Error de Autenticación', error.message);
-    } else {
+    try {
+      await signIn(email, password);
       router.replace('/(tabs)/scanner');
+    } catch (error: any) {
+      Alert.alert('Error de Autenticación', error.message || 'Credenciales incorrectas');
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -1,38 +1,44 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '../services/SupabaseClient';
+import { AuthService } from '../services/AuthService';
 
 interface AuthContextType {
-  session: Session | null;
-  user: User | null;
+  user: any | null;
   isLoading: boolean;
+  signIn: (email: string, pass: string) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
-  session: null,
   user: null,
   isLoading: true,
+  signIn: async () => {},
+  signOut: async () => {},
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    // Cargar sesión al iniciar la app
+    AuthService.getUserData().then((data) => {
+      setUser(data);
       setIsLoading(false);
     });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
   }, []);
 
+  const signIn = async (email: string, pass: string) => {
+    const data = await AuthService.login(email, pass);
+    setUser(data.user);
+  };
+
+  const signOut = async () => {
+    await AuthService.logout();
+    setUser(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ session, user: session?.user ?? null, isLoading }}>
+    <AuthContext.Provider value={{ user, isLoading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
