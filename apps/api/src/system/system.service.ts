@@ -11,8 +11,11 @@ export class SystemService {
     try {
       this.logger.log('Buscando el último build exitoso en Expo...');
       
+      const accountName = 'renny-12';
+      const projectSlug = 'flash-urbano';
+      
       const response = await fetch(
-        `https://api.expo.dev/v2/projects/${this.projectId}/builds?platform=android&status=finished&limit=1`,
+        `https://api.expo.dev/v2/accounts/${accountName}/projects/${projectSlug}/builds?platform=android&status=finished&limit=1`,
         {
           headers: {
             'Authorization': `Bearer ${this.expoToken}`,
