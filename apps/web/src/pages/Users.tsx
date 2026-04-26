@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Users as UsersIcon, Plus, UserCheck, Trash2, Mail, Ban, AlertOctagon } from 'lucide-react';
+import { Users as UsersIcon, Plus, UserCheck, Trash2, Mail, Ban } from 'lucide-react';
 import { api } from '../lib/axios';
 import { Button } from '../components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
@@ -119,21 +119,6 @@ export default function Users() {
     }
   };
 
-  const handleResetData = async () => {
-    if (!confirm(`🚨 PELIGRO: ¿Estás completamente seguro de querer ELIMINAR TODOS LOS DATOS OPERATIVOS (Kardex, Stock y Productos)? ¡Esta acción es irreversible y vaciará el sistema, conservando solo los usuarios!`)) return;
-    if (!confirm(`⚠️ ÚLTIMA ADVERTENCIA: Confirma que deseas BORRAR TODO el historial y productos.`)) return;
-    
-    try {
-      setLoading(true);
-      await api.post('/system/reset-data');
-      alert('Datos operativos eliminados correctamente.');
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Error al limpiar los datos');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="flex flex-col min-h-screen w-full bg-zinc-950 p-6 text-zinc-100">
       <header className="flex items-center justify-between pb-6 mb-6 border-b border-zinc-800">
@@ -141,16 +126,10 @@ export default function Users() {
           <UsersIcon size={24} className="text-primary" />
           Gestión de Usuarios y Operarios
         </h1>
-        <div className="flex gap-3">
-          <Button onClick={handleResetData} variant="destructive" className="gap-2 bg-red-600 hover:bg-red-700">
-            <AlertOctagon size={16} />
-            Resetear Datos Operativos
-          </Button>
-          <Button onClick={() => { resetForm(); setShowForm(!showForm); }} className="gap-2">
-            <Plus size={16} />
-            {showForm ? 'Cerrar Formulario' : 'Nuevo Operario'}
-          </Button>
-        </div>
+        <Button onClick={() => { resetForm(); setShowForm(!showForm); }} className="gap-2">
+          <Plus size={16} />
+          {showForm ? 'Cerrar Formulario' : 'Nuevo Operario'}
+        </Button>
       </header>
 
       {showForm && (

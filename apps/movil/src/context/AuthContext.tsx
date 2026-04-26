@@ -21,10 +21,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Cargar sesión al iniciar la app
-    AuthService.getUserData().then((data) => {
-      setUser(data);
-      setIsLoading(false);
-    });
+    AuthService.getUserData()
+      .then((data) => {
+        setUser(data);
+      })
+      .catch((error) => {
+        console.error('Error cargando la sesión:', error);
+        setUser(null);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   const signIn = async (email: string, pass: string) => {

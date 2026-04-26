@@ -137,6 +137,10 @@ export default function ScannerScreen() {
     setTimeout(() => setIsActive(true), 500);
   };
 
+  const handleClosePassport = () => {
+    setShowPassport(false);
+  };
+
   useEffect(() => {
     if (!hasPermission) {
       requestPermission();

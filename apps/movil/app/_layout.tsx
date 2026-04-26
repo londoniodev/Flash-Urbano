@@ -17,12 +17,13 @@ function RootLayoutNav() {
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === 'auth';
+    const isRoot = !segments[0];
 
     if (!user && !inAuthGroup) {
-      // Si no hay usuario y no estamos en auth, al login
+      // Si no hay usuario y no estamos en auth, forzar login
       router.replace('/auth/login');
-    } else if (user && inAuthGroup) {
-      // Si hay usuario y estamos en auth, al home
+    } else if (user && (inAuthGroup || isRoot)) {
+      // Si hay usuario y está en auth o en la raíz, enviarlo al home
       router.replace('/(tabs)/scanner');
     }
   }, [user, isLoading, segments]);
