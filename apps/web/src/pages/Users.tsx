@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Users as UsersIcon, Plus, UserCheck, Trash2, Mail } from 'lucide-react';
+import { Users as UsersIcon, Plus, UserCheck, Trash2, Mail, Ban, AlertOctagon } from 'lucide-react';
 import { api } from '../lib/axios';
 import { Button } from '../components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
@@ -99,16 +99,38 @@ export default function Users() {
   };
 
   const handleToggleActive = async (user: User) => {
-    if (!confirm(`¿Estás seguro de ${user.isActive ? 'desactivar' : 'activar'} a este usuario?`)) return;
+    if (!confirm(`¿Estás seguro de ${user.isActive ? 'deshabilitar' : 'activar'} a este usuario?`)) return;
     try {
-      if (user.isActive) {
-        await api.delete(`/users/${user.id}`);
-      } else {
-        await api.patch(`/users/${user.id}`, { isActive: true });
-      }
+      await api.patch(`/users/${user.id}`, { isActive: !user.isActive });
       await fetchData();
     } catch (err) {
       console.error('Error toggling status', err);
+    }
+  };
+
+  const handleDeleteUser = async (user: User) => {
+    if (!confirm(`⚠️ ATENCIÓN: ¿Estás seguro de ELIMINAR PERMANENTEMENTE al usuario ${user.firstName}? Esta acción no se puede deshacer.`)) return;
+    try {
+      await api.delete(`/users/${user.id}`);
+      await fetchData();
+    } catch (err) {
+      console.error('Error deleting user', err);
+      alert('Error al eliminar el usuario. Intenta nuevamente.');
+    }
+  };
+
+  const handleResetData = async () => {
+    if (!confirm(`🚨 PELIGRO: ¿Estás completamente seguro de querer ELIMINAR TODOS LOS DATOS OPERATIVOS (Kardex, Stock y Productos)? ¡Esta acción es irreversible y vaciará el sistema, conservando solo los usuarios!`)) return;
+    if (!confirm(`⚠️ ÚLTIMA ADVERTENCIA: Confirma que deseas BORRAR TODO el historial y productos.`)) return;
+    
+    try {
+      setLoading(true);
+      await api.post('/system/reset-data');
+      alert('Datos operativos eliminados correctamente.');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error al limpiar los datos');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -119,10 +141,16 @@ export default function Users() {
           <UsersIcon size={24} className="text-primary" />
           Gestión de Usuarios y Operarios
         </h1>
-        <Button onClick={() => { resetForm(); setShowForm(!showForm); }} className="gap-2">
-          <Plus size={16} />
-          {showForm ? 'Cerrar Formulario' : 'Nuevo Operario'}
-        </Button>
+        <div className="flex gap-3">
+          <Button onClick={handleResetData} variant="destructive" className="gap-2 bg-red-600 hover:bg-red-700">
+            <AlertOctagon size={16} />
+            Resetear Datos Operativos
+          </Button>
+          <Button onClick={() => { resetForm(); setShowForm(!showForm); }} className="gap-2">
+            <Plus size={16} />
+            {showForm ? 'Cerrar Formulario' : 'Nuevo Operario'}
+          </Button>
+        </div>
       </header>
 
       {showForm && (
@@ -251,14 +279,26 @@ export default function Users() {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => handleToggleActive(u)}
-                    className={u.isActive ? 'border-red-900/50 text-red-400 hover:bg-red-950' : 'border-emerald-900/50 text-emerald-400 hover:bg-emerald-950'}
-                  >
-                    {u.isActive ? <Trash2 size={14} /> : <UserCheck size={14} />}
-                  </Button>
+                  <div className="flex gap-2 justify-end">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      title={u.isActive ? "Deshabilitar" : "Activar"}
+                      onClick={() => handleToggleActive(u)}
+                      className={u.isActive ? 'border-amber-900/50 text-amber-500 hover:bg-amber-950' : 'border-emerald-900/50 text-emerald-400 hover:bg-emerald-950'}
+                    >
+                      {u.isActive ? <Ban size={14} /> : <UserCheck size={14} />}
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      title="Eliminar Permanente"
+                      onClick={() => handleDeleteUser(u)}
+                      className="border-red-900/50 text-red-400 hover:bg-red-950"
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
