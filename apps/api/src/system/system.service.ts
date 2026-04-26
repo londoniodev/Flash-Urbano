@@ -1,11 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { inventoryMovements, inventoryStock, products } from '../database/schema';
 
 @Injectable()
 export class SystemService {
   private readonly logger = new Logger(SystemService.name);
 
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    @Inject('DATABASE') private db: any,
+  ) {}
 
   /**
    * Obtiene el link de descarga del último build exitoso de Android desde Expo.
@@ -54,6 +58,31 @@ export class SystemService {
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Error desconocido';
       this.logger.error(`Fallo al obtener APK de Expo: ${msg}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Elimina todos los datos de Kardex y Productos, manteniendo los usuarios.
+   */
+  async clearOperationalData(): Promise<{ message: string }> {
+    try {
+      this.logger.warn('Iniciando limpieza total de datos operativos...');
+
+      await this.db.transaction(async (tx: any) => {
+        // El orden importa si no hay cascade, pero con cascade en schema.ts 
+        // borrar products debería limpiar el resto. 
+        // Por seguridad y claridad, lo hacemos explícito.
+        await tx.delete(inventoryMovements);
+        await tx.delete(inventoryStock);
+        await tx.delete(products);
+      });
+
+      this.logger.log('Limpieza de datos operativos completada con éxito.');
+      return { message: 'Kardex y Productos eliminados correctamente. Usuarios preservados.' };
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Error desconocido';
+      this.logger.error(`Fallo al limpiar datos operativos: ${msg}`);
       throw error;
     }
   }

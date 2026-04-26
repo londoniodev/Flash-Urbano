@@ -33,8 +33,8 @@ export const users = pgTable('users', {
   firstName: varchar('first_name', { length: 100 }).notNull(),
   lastName: varchar('last_name', { length: 100 }).notNull(),
   role: userRoleEnum('role').notNull().default('OPERATOR'),
-  companyId: uuid('company_id').references(() => companies.id),  // null para ADMIN/OPERATOR
-  hubId: uuid('hub_id').references(() => hubs.id),               // Sede asignada (para operarios)
+  companyId: uuid('company_id').references(() => companies.id, { onDelete: 'cascade' }),  // null para ADMIN/OPERATOR
+  hubId: uuid('hub_id').references(() => hubs.id, { onDelete: 'cascade' }),               // Sede asignada (para operarios)
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -42,7 +42,7 @@ export const users = pgTable('users', {
 // ─── Tabla: Productos (SKUs del E-commerce) ──────────────
 export const products = pgTable('products', {
   id: uuid('id').defaultRandom().primaryKey(),
-  companyId: uuid('company_id').notNull().references(() => companies.id),
+  companyId: uuid('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
   sku: varchar('sku', { length: 100 }).notNull(),                  // Código SKU único del cliente
   name: varchar('name', { length: 255 }).notNull(),
   category: varchar('category', { length: 100 }),                  // Ej: "Camisetas", "Zapatos"
@@ -57,8 +57,8 @@ export const products = pgTable('products', {
 // ─── Tabla: Stock de Inventario por Sede ─────────────────
 export const inventoryStock = pgTable('inventory_stock', {
   id: uuid('id').defaultRandom().primaryKey(),
-  productId: uuid('product_id').notNull().references(() => products.id),
-  hubId: uuid('hub_id').notNull().references(() => hubs.id),
+  productId: uuid('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  hubId: uuid('hub_id').notNull().references(() => hubs.id, { onDelete: 'cascade' }),
   quantity: integer('quantity').notNull().default(0),              // Cantidad física actual
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -66,12 +66,12 @@ export const inventoryStock = pgTable('inventory_stock', {
 // ─── Tabla: Movimientos de Inventario (Kardex) ───────────
 export const inventoryMovements = pgTable('inventory_movements', {
   id: uuid('id').defaultRandom().primaryKey(),
-  productId: uuid('product_id').notNull().references(() => products.id),
+  productId: uuid('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
   movementType: movementTypeEnum('movement_type').notNull(),
   quantity: integer('quantity').notNull(),                         // Cantidad que se movió (+/-)
-  fromHubId: uuid('from_hub_id').references(() => hubs.id),        // null si es INGRESO nuevo
-  toHubId: uuid('to_hub_id').references(() => hubs.id),            // null si es SALIDA/Baja
-  operatorId: uuid('operator_id').notNull().references(() => users.id),
+  fromHubId: uuid('from_hub_id').references(() => hubs.id, { onDelete: 'cascade' }),        // null si es INGRESO nuevo
+  toHubId: uuid('to_hub_id').references(() => hubs.id, { onDelete: 'cascade' }),            // null si es SALIDA/Baja
+  operatorId: uuid('operator_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   notes: text('notes'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });

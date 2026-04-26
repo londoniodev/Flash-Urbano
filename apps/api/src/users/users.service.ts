@@ -133,7 +133,7 @@ export class UsersService {
 
   async remove(id: string) {
     await this.findOne(id);
-    await this.db.update(users).set({ isActive: false }).where(eq(users.id, id));
-    return { message: 'Usuario desactivado' };
+    await this.db.delete(users).where(eq(users.id, id));
+    return { message: 'Usuario eliminado permanentemente' };
   }
 }

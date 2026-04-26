@@ -1,7 +1,8 @@
-import { Controller, Get, Res, HttpStatus, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Res, HttpStatus, Logger, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { SystemService } from './system.service';
-import { Public } from '../auth/decorators';
+import { Public, Roles } from '../auth/decorators';
+import { RolesGuard } from '../auth/guards';
 
 @Controller('system')
 export class SystemController {
@@ -23,5 +24,12 @@ export class SystemController {
         error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
+  }
+
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
+  @Post('reset-data')
+  async resetData() {
+    return this.systemService.clearOperationalData();
   }
 }
