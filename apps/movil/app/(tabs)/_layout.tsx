@@ -1,8 +1,9 @@
 import React from 'react';
-import { Tabs } from 'expo-router';
+import { Tabs, Redirect } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS, FONT_SIZE } from '../../src/constants/theme';
 import { useSync } from '../../src/hooks/useSync';
+import { useAuth } from '../../src/context/AuthContext';
 
 function TabIcon({ label, focused }: { label: string; focused: boolean }) {
   const colors = COLORS.dark;
@@ -20,8 +21,15 @@ function TabIcon({ label, focused }: { label: string; focused: boolean }) {
 }
 
 export default function TabsLayout() {
+  const { user, isLoading } = useAuth();
   const { pendingCount } = useSync();
   const colors = COLORS.dark;
+
+  if (isLoading) return null;
+
+  if (!user) {
+    return <Redirect href="/auth/login" />;
+  }
 
   return (
     <Tabs

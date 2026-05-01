@@ -7,8 +7,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { runMigrations } from '../src/db/migrations';
 import { COLORS } from '../src/constants/theme';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
-import { useRouter, useSegments, useRootNavigationState } from 'expo-router';
-
 // Exporting ErrorBoundary enables Expo Router's built-in error screen
 // which will catch unhandled React crashes instead of showing a grey screen.
 export { ErrorBoundary } from 'expo-router';
@@ -18,28 +16,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 });
 
 function RootLayoutNav() {
-  const { user, isLoading } = useAuth();
-  const segments = useSegments();
-  const router = useRouter();
-
-  const rootNavigationState = useRootNavigationState();
-  const isNavigationReady = rootNavigationState?.key != null;
-
-  useEffect(() => {
-    // Si la navegación no está lista o seguimos cargando, no hacer nada
-    if (!isNavigationReady || isLoading) return;
-
-    const inAuthGroup = segments[0] === 'auth';
-    const isRoot = !segments[0];
-
-    if (!user && !inAuthGroup) {
-      // Si no hay usuario y no estamos en auth, forzar login
-      router.replace('/auth/login');
-    } else if (user && (inAuthGroup || isRoot)) {
-      // Si hay usuario y está en auth o en la raíz, enviarlo al home
-      router.replace('/(tabs)/scanner');
-    }
-  }, [user, isLoading, segments, isNavigationReady]);
+  const { isLoading } = useAuth();
 
   if (isLoading) {
     return (
