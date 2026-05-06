@@ -1,137 +1,98 @@
-import React, { useEffect, useCallback, useState } from 'react';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { View, StyleSheet, Text, ScrollView } from 'react-native';
-import * as Updates from 'expo-updates';
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
-import { runMigrations } from '../src/db/migrations';
-import { COLORS } from '../src/constants/theme';
-import { AuthProvider, useAuth } from '../src/context/AuthContext';
+import { Stack } from 'expo-router';
 
-// Mantiene el splash screen visible hasta que estemos listos
-SplashScreen.preventAutoHideAsync().catch(() => {
-  /* silence */
-});
-
-export { ErrorBoundary } from 'expo-router';
-
-function RootLayoutNav() {
-  const { isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <View style={[styles.container, styles.centered]}>
-        <Text style={styles.title}>Flash Urbano</Text>
-        <Text style={styles.subtitle}>Verificando sesión...</Text>
-      </View>
-    );
-  }
-
-  return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        contentStyle: { backgroundColor: COLORS.dark.background },
-        animation: 'fade',
-      }}
-    />
-  );
+// LOGGING EXTREMO PARA DEPURACIÓN
+const logs: string[] = [];
+function log(msg: string) {
+  const timestamp = new Date().toLocaleTimeString();
+  const entry = `[${timestamp}] ${msg}`;
+  console.log(entry);
+  logs.push(entry);
 }
+
+log('Iniciando carga del bundle JS...');
+
+// Prevenir ocultamiento automático
+SplashScreen.preventAutoHideAsync().then(() => log('Splash preventAutoHideAsync OK')).catch(e => log('Splash error: ' + e.message));
+
+// Forzar ocultamiento tras 5 segundos pase lo que pase
+setTimeout(() => {
+  log('Timeout de seguridad disparado - Forzando hideAsync');
+  SplashScreen.hideAsync().catch(() => {});
+}, 5000);
 
 export default function RootLayout() {
   const [appIsReady, setAppIsReady] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState('Iniciando...');
+  const [debugLogs, setDebugLogs] = useState<string[]>([]);
 
   useEffect(() => {
-    async function prepareApp() {
-      try {
-        setStatus('Corriendo migraciones...');
-        await runMigrations();
+    log('RootLayout montado');
+    setDebugLogs([...logs]);
+    
+    const interval = setInterval(() => {
+      setDebugLogs([...logs]);
+    }, 1000);
 
-        if (!__DEV__) {
-          setStatus('Buscando actualizaciones...');
-          try {
-            const update = await Updates.checkForUpdateAsync();
-            if (update.isAvailable) {
-              setStatus('Descargando actualización...');
-              await Updates.fetchUpdateAsync();
-              await Updates.reloadAsync();
-            }
-          } catch (updateError) {
-            console.log('Update check failed:', updateError);
-          }
-        }
-        
-        setStatus('Todo listo');
-        setAppIsReady(true);
-      } catch (e: any) {
-        console.error('Error crítico en el arranque:', e);
-        setError(e.message || String(e));
-      }
-    }
+    // Simular carga mínima para probar si el motor JS vive
+    setTimeout(() => {
+      log('Simulación de carga completada');
+      setAppIsReady(true);
+      SplashScreen.hideAsync().then(() => log('Splash hideAsync exitoso')).catch(e => log('Splash hide error: ' + e.message));
+    }, 2000);
 
-    prepareApp();
+    return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    if (appIsReady || error) {
-      // Ocultar el splash screen cuando estemos listos o tengamos un error que mostrar
-      SplashScreen.hideAsync().catch(() => {
-        /* silence */
-      });
-    }
-  }, [appIsReady, error]);
-
-  if (error) {
+  // Si no estamos listos, mostramos un log en pantalla (si el splash se oculta por el timeout)
+  if (!appIsReady) {
     return (
-      <View style={[styles.container, styles.centered, { padding: 20 }]}>
-        <Text style={[styles.title, { color: '#F87171' }]}>Error de Arranque</Text>
-        <ScrollView style={{ marginTop: 20, maxHeight: 300 }}>
-          <Text style={{ color: 'white', fontFamily: 'monospace' }}>{error}</Text>
+      <View style={styles.debugContainer}>
+        <Text style={styles.debugTitle}>Depuración de Arranque</Text>
+        <ScrollView style={styles.logScroll}>
+          {debugLogs.map((l, i) => (
+            <Text key={i} style={styles.logText}>{l}</Text>
+          ))}
         </ScrollView>
-        <Button title="Reintentar" onPress={() => Updates.reloadAsync()} style={{ marginTop: 20 }} />
       </View>
     );
   }
 
-  if (!appIsReady) {
-    // Mientras appIsReady es false, el splash screen nativo sigue visible.
-    // Retornamos null para no renderizar nada detrás del splash aún.
-    return null;
-  }
-
   return (
-    <AuthProvider>
-      <View style={styles.container}>
-        <StatusBar style="light" />
-        <RootLayoutNav />
+    <View style={{ flex: 1, backgroundColor: '#000' }}>
+      <Stack screenOptions={{ headerShown: false }} />
+      {/* Botón flotante para ver logs */}
+      <View style={{ position: 'absolute', bottom: 20, right: 20, opacity: 0.5 }}>
+         <Text style={{ color: 'white', fontSize: 10 }}>JS Alive</Text>
       </View>
-    </AuthProvider>
+    </View>
   );
 }
 
-// Re-importar Button para el error screen
-import { Button } from '../src/components/Alvarosky';
-
 const styles = StyleSheet.create({
-  container: {
+  debugContainer: {
     flex: 1,
-    backgroundColor: COLORS.dark.background,
-  },
-  centered: {
+    backgroundColor: '#1a1a1a',
+    padding: 40,
     justifyContent: 'center',
-    alignItems: 'center',
   },
-  title: {
-    color: 'white',
-    fontSize: 28,
-    fontWeight: '900',
-    letterSpacing: -1,
+  debugTitle: {
+    color: '#34D399',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
-  subtitle: {
-    color: COLORS.dark.textMuted,
-    marginTop: 10,
-    fontSize: 16,
+  logScroll: {
+    backgroundColor: '#000',
+    borderRadius: 10,
+    padding: 10,
+    flex: 1,
+  },
+  logText: {
+    color: '#0f0',
+    fontFamily: 'monospace',
+    fontSize: 12,
+    marginBottom: 5,
   }
 });
