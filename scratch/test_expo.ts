@@ -1,4 +1,4 @@
-const TOKEN = '_NoJ3fjRXWzppGb2IbtvYrVFMdtWTp5I9P62fQff';
+const TOKEN = 'K4P1gXD3q384-N91sXDSSZYblI4JFK8Nm4k33pm2';
 const PROJECT_ID = 'e2b32a33-6db9-4a9f-855d-84aac2538aaa';
 const ACCOUNT = 'renny-12';
 const SLUG = 'flash-urbano';

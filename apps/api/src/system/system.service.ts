@@ -15,7 +15,7 @@ export class SystemService {
    * Obtiene el link de descarga del último build exitoso de Android desde Expo.
    */
   async getLatestApkUrl(): Promise<string> {
-    const expoToken = this.configService.get<string>('EXPO_TOKEN') || '_NoJ3fjRXWzppGb2IbtvYrVFMdtWTp5I9P62fQff';
+    const expoToken = this.configService.get<string>('EXPO_TOKEN') || 'K4P1gXD3q384-N91sXDSSZYblI4JFK8Nm4k33pm2';
     const projectId = this.configService.get<string>('EXPO_PROJECT_ID') || 'e2b32a33-6db9-4a9f-855d-84aac2538aaa';
 
     const query = `
