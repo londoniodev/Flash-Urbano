@@ -3,14 +3,20 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import * as Updates from 'expo-updates';
+import * as SplashScreen from 'expo-splash-screen';
 import { runMigrations } from '../src/db/migrations';
 import { COLORS } from '../src/constants/theme';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
 
+// Mantiene el splash screen visible hasta que estemos listos
+SplashScreen.preventAutoHideAsync().catch(() => {
+  /* silence */
+});
+
 export { ErrorBoundary } from 'expo-router';
 
 function RootLayoutNav() {
-  const { isLoading, user } = useAuth();
+  const { isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -68,6 +74,15 @@ export default function RootLayout() {
     prepareApp();
   }, []);
 
+  useEffect(() => {
+    if (appIsReady || error) {
+      // Ocultar el splash screen cuando estemos listos o tengamos un error que mostrar
+      SplashScreen.hideAsync().catch(() => {
+        /* silence */
+      });
+    }
+  }, [appIsReady, error]);
+
   if (error) {
     return (
       <View style={[styles.container, styles.centered, { padding: 20 }]}>
@@ -75,18 +90,15 @@ export default function RootLayout() {
         <ScrollView style={{ marginTop: 20, maxHeight: 300 }}>
           <Text style={{ color: 'white', fontFamily: 'monospace' }}>{error}</Text>
         </ScrollView>
-        <Text style={{ color: 'gray', marginTop: 20 }}>Por favor reporta este error.</Text>
+        <Button title="Reintentar" onPress={() => Updates.reloadAsync()} style={{ marginTop: 20 }} />
       </View>
     );
   }
 
   if (!appIsReady) {
-    return (
-      <View style={[styles.container, styles.centered]}>
-        <Text style={styles.title}>Flash Urbano</Text>
-        <Text style={styles.subtitle}>{status}</Text>
-      </View>
-    );
+    // Mientras appIsReady es false, el splash screen nativo sigue visible.
+    // Retornamos null para no renderizar nada detrás del splash aún.
+    return null;
   }
 
   return (
@@ -98,6 +110,9 @@ export default function RootLayout() {
     </AuthProvider>
   );
 }
+
+// Re-importar Button para el error screen
+import { Button } from '../src/components/Alvarosky';
 
 const styles = StyleSheet.create({
   container: {
