@@ -1,23 +1,22 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import * as Updates from 'expo-updates';
 import { runMigrations } from '../src/db/migrations';
 import { COLORS } from '../src/constants/theme';
 import { AuthProvider, useAuth } from '../src/context/AuthContext';
-// Exporting ErrorBoundary enables Expo Router's built-in error screen
-// which will catch unhandled React crashes instead of showing a grey screen.
+
 export { ErrorBoundary } from 'expo-router';
 
 function RootLayoutNav() {
-  const { isLoading } = useAuth();
+  const { isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={{ color: 'white', fontSize: 24, fontWeight: 'bold' }}>Flash Urbano</Text>
-        <Text style={{ color: 'gray', marginTop: 10 }}>Verificando sesión...</Text>
+      <View style={[styles.container, styles.centered]}>
+        <Text style={styles.title}>Flash Urbano</Text>
+        <Text style={styles.subtitle}>Verificando sesión...</Text>
       </View>
     );
   }
@@ -35,38 +34,57 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   const [appIsReady, setAppIsReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState('Iniciando...');
 
   useEffect(() => {
     async function prepareApp() {
       try {
-        // 1. Correr migraciones de forma asíncrona
+        setStatus('Corriendo migraciones...');
         await runMigrations();
 
-        // 2. Forzar búsqueda de actualizaciones en background
         if (!__DEV__) {
-          Updates.checkForUpdateAsync().then(async (update) => {
+          setStatus('Buscando actualizaciones...');
+          try {
+            const update = await Updates.checkForUpdateAsync();
             if (update.isAvailable) {
+              setStatus('Descargando actualización...');
               await Updates.fetchUpdateAsync();
               await Updates.reloadAsync();
             }
-          }).catch((error) => console.log('Update check skipped:', error));
+          } catch (updateError) {
+            console.log('Update check failed:', updateError);
+          }
         }
-      } catch (e) {
-        console.warn('Error during app preparation:', e);
-      } finally {
-        // Indica que la aplicación ya cargó dependencias iniciales
+        
+        setStatus('Todo listo');
         setAppIsReady(true);
+      } catch (e: any) {
+        console.error('Error crítico en el arranque:', e);
+        setError(e.message || String(e));
       }
     }
 
     prepareApp();
   }, []);
 
+  if (error) {
+    return (
+      <View style={[styles.container, styles.centered, { padding: 20 }]}>
+        <Text style={[styles.title, { color: '#F87171' }]}>Error de Arranque</Text>
+        <ScrollView style={{ marginTop: 20, maxHeight: 300 }}>
+          <Text style={{ color: 'white', fontFamily: 'monospace' }}>{error}</Text>
+        </ScrollView>
+        <Text style={{ color: 'gray', marginTop: 20 }}>Por favor reporta este error.</Text>
+      </View>
+    );
+  }
+
   if (!appIsReady) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={{ color: 'white', fontSize: 24, fontWeight: 'bold' }}>Flash Urbano</Text>
-        <Text style={{ color: 'gray', marginTop: 10 }}>Cargando...</Text>
+      <View style={[styles.container, styles.centered]}>
+        <Text style={styles.title}>Flash Urbano</Text>
+        <Text style={styles.subtitle}>{status}</Text>
       </View>
     );
   }
@@ -86,4 +104,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.dark.background,
   },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    color: 'white',
+    fontSize: 28,
+    fontWeight: '900',
+    letterSpacing: -1,
+  },
+  subtitle: {
+    color: COLORS.dark.textMuted,
+    marginTop: 10,
+    fontSize: 16,
+  }
 });
