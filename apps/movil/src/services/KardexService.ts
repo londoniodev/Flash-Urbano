@@ -76,11 +76,16 @@ export function incrementSyncAttempts(movementIds: string[]): void {
 }
 
 export function getPendingCount(): number {
-  const db = getDatabase();
-  const result = db.getFirstSync<{ count: number }>(
-    `SELECT COUNT(*) as count FROM kardex_entries WHERE synced = 0`
-  );
-  return result?.count ?? 0;
+  try {
+    const db = getDatabase();
+    const result = db.getFirstSync<{ count: number }>(
+      `SELECT COUNT(*) as count FROM kardex_entries WHERE synced = 0`
+    );
+    return result?.count ?? 0;
+  } catch {
+    // DB not initialized yet, return 0
+    return 0;
+  }
 }
 
 export function getHistory(limit: number, offset: number): KardexEntry[] {
