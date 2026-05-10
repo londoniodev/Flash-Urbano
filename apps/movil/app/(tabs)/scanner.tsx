@@ -199,22 +199,6 @@ export default function ScannerScreen() {
             {pendingCount > 0 && <Badge count={pendingCount} variant="warning" />}
           </View>
         </View>
-
-        <View style={styles.typeSelector}>
-          {[MovementType.INGRESO, MovementType.SALIDA].map((type) => (
-            <Button
-              key={type}
-              title={type}
-              variant={movementType === type ? 'primary' : 'secondary'}
-              onPress={() => setMovementType(type)}
-              style={[
-                styles.typeButton,
-                movementType === type && styles.typeButtonActive,
-              ]}
-              textStyle={movementType === type ? styles.typeTextActive : styles.typeTextInactive}
-            />
-          ))}
-        </View>
       </View>
 
       {/* Camera */}
@@ -305,13 +289,6 @@ const styles = StyleSheet.create({
   statusPill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 4, borderRadius: RADIUS.full },
   dot: { width: 6, height: 6, borderRadius: 3 },
   statusText: { fontSize: FONT_SIZE.xs, fontWeight: '600' },
-
-  // Type selector
-  typeSelector: { flexDirection: 'row', gap: SPACING.sm },
-  typeButton: { flex: 1, minHeight: 44, paddingVertical: SPACING.sm, borderRadius: RADIUS.md },
-  typeButtonActive: { backgroundColor: colors.primary },
-  typeTextActive: { fontWeight: '700', color: '#FFFFFF' },
-  typeTextInactive: { fontWeight: '600' },
   
   // Camera
   cameraContainer: { flex: 1, overflow: 'hidden', marginHorizontal: SPACING.md, borderRadius: RADIUS.lg },
