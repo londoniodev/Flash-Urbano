@@ -39,25 +39,41 @@ function RootLayoutNav() {
 export default function RootLayout() {
   const [appIsReady, setAppIsReady] = useState(false);
 
+  // Timeout de seguridad: ocultar splash después de 5 segundos pase lo que pase
+  useEffect(() => {
+    const safetyTimeout = setTimeout(() => {
+      console.log('[RootLayout] Safety timeout: forcing splash hide');
+      SplashScreen.hideAsync().catch(() => {});
+      setAppIsReady(true);
+    }, 5000);
+
+    return () => clearTimeout(safetyTimeout);
+  }, []);
+
   useEffect(() => {
     async function prepareApp() {
       try {
+        console.log('[RootLayout] Starting app preparation...');
+        
         await runMigrations();
+        console.log('[RootLayout] Migrations completed');
 
         if (!__DEV__) {
           try {
             const update = await Updates.checkForUpdateAsync();
+            console.log('[RootLayout] Update check:', update.isAvailable);
             if (update.isAvailable) {
               await Updates.fetchUpdateAsync();
               await Updates.reloadAsync();
             }
           } catch (e) {
-            console.log('Update check skipped:', e);
+            console.log('[RootLayout] Update check skipped:', e);
           }
         }
       } catch (e) {
-        console.warn('Error during app preparation:', e);
+        console.warn('[RootLayout] Error during app preparation:', e);
       } finally {
+        console.log('[RootLayout] App preparation finished, setting ready');
         setAppIsReady(true);
       }
     }
@@ -67,7 +83,10 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (appIsReady) {
-      SplashScreen.hideAsync().catch(() => {});
+      console.log('[RootLayout] App is ready, hiding splash screen');
+      SplashScreen.hideAsync().catch((err) => {
+        console.warn('[RootLayout] Failed to hide splash:', err);
+      });
     }
   }, [appIsReady]);
 
