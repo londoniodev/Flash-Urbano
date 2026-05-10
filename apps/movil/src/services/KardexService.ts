@@ -1,7 +1,14 @@
-import 'react-native-get-random-values';
-import { v4 as uuidv4 } from 'uuid';
 import { getDatabase } from '../db/connection';
 import { KardexEntry, MovementType } from '../types';
+
+// Pure JS UUID generator to avoid native module dependency for OTA updates
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 export function recordMovement(
   productSku: string, 
@@ -13,7 +20,7 @@ export function recordMovement(
 ): KardexEntry {
   const db = getDatabase();
   const entry: KardexEntry = {
-    movement_id: uuidv4(),
+    movement_id: generateUUID(),
     product_sku: productSku,
     movement_type: movementType,
     quantity,
