@@ -1,42 +1,59 @@
+// Flash Urbano Brand Colors — extracted from logo
+// Primary Orange: #F47216 (rayo/bolt)
+// Dark background with warm undertones to complement orange
+
 export const COLORS = {
   light: {
-    background: '#FAFAFA',
+    background: '#F5F5F0',
     surface: '#FFFFFF',
-    primary: '#10B981',
-    primaryMuted: '#D1FAE5',
-    danger: '#EF4444',
+    surfaceElevated: '#FFFFFF',
+    primary: '#F47216',
+    primaryLight: '#FFF0E0',
+    primaryMuted: '#FDDCB5',
+    accent: '#E8650C',
+    danger: '#DC2626',
     dangerMuted: '#FEE2E2',
-    warning: '#F59E0B',
+    success: '#16A34A',
+    successMuted: '#DCFCE7',
+    warning: '#D97706',
     warningMuted: '#FEF3C7',
-    text: '#0A0A0A',
-    textMuted: '#6B7280',
-    textInverse: '#FAFAFA',
-    border: '#E5E7EB',
+    text: '#1A1A1A',
+    textMuted: '#71717A',
+    textInverse: '#FFFFFF',
+    border: '#E4E4E7',
+    borderLight: '#F4F4F5',
     overlay: 'rgba(0,0,0,0.5)',
   },
   dark: {
-    background: '#0A0A0A',
-    surface: '#141414',
-    primary: '#34D399',
-    primaryMuted: '#064E3B',
-    danger: '#F87171',
-    dangerMuted: '#7F1D1D',
-    warning: '#FBBF24',
-    warningMuted: '#78350F',
+    background: '#0C0C0E',
+    surface: '#18181B',
+    surfaceElevated: '#1E1E22',
+    primary: '#F47216',
+    primaryLight: '#2A1A08',
+    primaryMuted: '#3D2510',
+    accent: '#FF8A3D',
+    danger: '#EF4444',
+    dangerMuted: '#451A1A',
+    success: '#22C55E',
+    successMuted: '#14331F',
+    warning: '#F59E0B',
+    warningMuted: '#3D2B08',
     text: '#FAFAFA',
-    textMuted: '#9CA3AF',
-    textInverse: '#0A0A0A',
-    border: '#1F1F1F',
-    overlay: 'rgba(0,0,0,0.7)',
+    textMuted: '#A1A1AA',
+    textInverse: '#0C0C0E',
+    border: '#27272A',
+    borderLight: '#1E1E22',
+    overlay: 'rgba(0,0,0,0.75)',
   },
 } as const;
 
 export const FONT_SIZE = {
-  xs: 12,
-  sm: 14,
-  md: 16,
-  lg: 18,
-  xl: 24,
+  xs: 11,
+  sm: 13,
+  md: 15,
+  lg: 17,
+  xl: 22,
+  xxl: 28,
   display: 48,
 } as const;
 
@@ -50,9 +67,10 @@ export const SPACING = {
 } as const;
 
 export const RADIUS = {
-  sm: 6,
+  sm: 8,
   md: 12,
   lg: 16,
+  xl: 20,
   full: 9999,
 } as const;
 

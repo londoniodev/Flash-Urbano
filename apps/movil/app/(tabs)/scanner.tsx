@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, StyleSheet, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Modal, Image } from 'react-native';
 import {
   Camera,
   useCameraDevice,
@@ -168,16 +168,34 @@ export default function ScannerScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerRow}>
-          <Text style={[styles.title, { color: colors.text }]}>WMS Scanner</Text>
+          <View style={styles.headerLeft}>
+            <Image
+              source={require('../../assets/icon.png')}
+              style={styles.headerLogo}
+              resizeMode="contain"
+            />
+            <Text style={styles.headerTitle}>Flash Urbano</Text>
+          </View>
           <View style={styles.indicators}>
             <View
               style={[
-                styles.dot,
-                { backgroundColor: network.isConnected ? colors.primary : colors.danger },
+                styles.statusPill,
+                { backgroundColor: network.isConnected ? colors.success + '20' : colors.danger + '20' },
               ]}
-            />
+            >
+              <View
+                style={[
+                  styles.dot,
+                  { backgroundColor: network.isConnected ? colors.success : colors.danger },
+                ]}
+              />
+              <Text style={[styles.statusText, { color: network.isConnected ? colors.success : colors.danger }]}>
+                {network.isConnected ? 'En línea' : 'Offline'}
+              </Text>
+            </View>
             {pendingCount > 0 && <Badge count={pendingCount} variant="warning" />}
           </View>
         </View>
@@ -189,12 +207,17 @@ export default function ScannerScreen() {
               title={type}
               variant={movementType === type ? 'primary' : 'secondary'}
               onPress={() => setMovementType(type)}
-              style={styles.typeButton}
+              style={[
+                styles.typeButton,
+                movementType === type && styles.typeButtonActive,
+              ]}
+              textStyle={movementType === type ? styles.typeTextActive : styles.typeTextInactive}
             />
           ))}
         </View>
       </View>
 
+      {/* Camera */}
       <View style={styles.cameraContainer}>
         <Camera
           style={StyleSheet.absoluteFill}
@@ -203,26 +226,38 @@ export default function ScannerScreen() {
           codeScanner={codeScanner}
         />
         <View style={styles.scanOverlay}>
-          <View style={styles.scanFrame} />
+          {/* Corner markers instead of full border */}
+          <View style={styles.scanFrame}>
+            <View style={[styles.corner, styles.cornerTL]} />
+            <View style={[styles.corner, styles.cornerTR]} />
+            <View style={[styles.corner, styles.cornerBL]} />
+            <View style={[styles.corner, styles.cornerBR]} />
+            <View style={styles.scanLine} />
+          </View>
         </View>
       </View>
 
+      {/* Footer */}
       <View style={styles.footer}>
         {displayCode ? (
           <Card style={styles.resultCard}>
-            <Text style={[styles.resultLabel, { color: colors.textMuted }]}>
-              Último escaneo
-            </Text>
-            <Text style={[styles.resultCode, { color: colors.primary }]} numberOfLines={1} ellipsizeMode="middle">
+            <View style={styles.resultHeader}>
+              <Text style={styles.resultLabel}>Último escaneo</Text>
+              <Text style={styles.sessionBadge}>#{displayCount}</Text>
+            </View>
+            <Text style={styles.resultCode} numberOfLines={1} ellipsizeMode="middle">
               {displayCode}
             </Text>
             <View style={styles.resultMeta}>
-              <Text style={[styles.resultType, { color: colors.text }]}>{movementType}</Text>
-              <Text style={[styles.sessionCounter, { color: colors.textMuted }]}>Sesión: {displayCount}</Text>
+              <View style={[styles.typeBadge, { backgroundColor: movementType === MovementType.INGRESO ? colors.success + '20' : colors.danger + '20' }]}>
+                <Text style={[styles.typeText, { color: movementType === MovementType.INGRESO ? colors.success : colors.danger }]}>
+                  {movementType}
+                </Text>
+              </View>
             </View>
           </Card>
         ) : (
-          <Text style={[styles.hint, { color: colors.textMuted }]}>
+          <Text style={styles.hint}>
             Apunta la cámara al código QR del producto
           </Text>
         )}
@@ -253,35 +288,54 @@ export default function ScannerScreen() {
   );
 }
 
+const colors = COLORS.dark;
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.dark.background },
+  container: { flex: 1, backgroundColor: colors.background },
   centered: { justifyContent: 'center', alignItems: 'center', padding: SPACING.lg },
   message: { fontSize: FONT_SIZE.lg, marginBottom: SPACING.md, textAlign: 'center' },
+  
+  // Header
   header: { paddingTop: SPACING.xxl, paddingHorizontal: SPACING.md, paddingBottom: SPACING.sm },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.sm },
-  title: { fontSize: FONT_SIZE.xl, fontWeight: '800', letterSpacing: -0.5 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.md },
+  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
+  headerLogo: { width: 28, height: 28 },
+  headerTitle: { fontSize: FONT_SIZE.lg, fontWeight: '800', color: colors.text, letterSpacing: -0.3 },
   indicators: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
-  dot: { width: 10, height: 10, borderRadius: 5 },
+  statusPill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 4, borderRadius: RADIUS.full },
+  dot: { width: 6, height: 6, borderRadius: 3 },
+  statusText: { fontSize: FONT_SIZE.xs, fontWeight: '600' },
+
+  // Type selector
   typeSelector: { flexDirection: 'row', gap: SPACING.sm },
-  typeButton: { flex: 1, minHeight: 44, paddingVertical: SPACING.sm },
+  typeButton: { flex: 1, minHeight: 44, paddingVertical: SPACING.sm, borderRadius: RADIUS.md },
+  typeButtonActive: { backgroundColor: colors.primary },
+  typeTextActive: { fontWeight: '700', color: '#FFFFFF' },
+  typeTextInactive: { fontWeight: '600' },
+  
+  // Camera
   cameraContainer: { flex: 1, overflow: 'hidden', marginHorizontal: SPACING.md, borderRadius: RADIUS.lg },
   scanOverlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' },
-  scanFrame: { width: 250, height: 100, borderWidth: 2, borderColor: COLORS.dark.primary, borderRadius: RADIUS.md, backgroundColor: 'transparent' },
-  footer: { padding: SPACING.md, minHeight: 120, justifyContent: 'center' },
+  scanFrame: { width: 240, height: 240, position: 'relative' },
+  scanLine: { position: 'absolute', top: '50%', left: 20, right: 20, height: 2, backgroundColor: colors.primary, borderRadius: 1, opacity: 0.8 },
+  
+  // Corner markers
+  corner: { position: 'absolute', width: 28, height: 28, borderColor: colors.primary },
+  cornerTL: { top: 0, left: 0, borderTopWidth: 3, borderLeftWidth: 3, borderTopLeftRadius: 8 },
+  cornerTR: { top: 0, right: 0, borderTopWidth: 3, borderRightWidth: 3, borderTopRightRadius: 8 },
+  cornerBL: { bottom: 0, left: 0, borderBottomWidth: 3, borderLeftWidth: 3, borderBottomLeftRadius: 8 },
+  cornerBR: { bottom: 0, right: 0, borderBottomWidth: 3, borderRightWidth: 3, borderBottomRightRadius: 8 },
+
+  // Footer
+  footer: { padding: SPACING.md, minHeight: 110, justifyContent: 'center' },
   resultCard: { padding: SPACING.md },
-  resultLabel: { fontSize: FONT_SIZE.xs, marginBottom: SPACING.xs, textTransform: 'uppercase', letterSpacing: 1 },
-  resultCode: { fontSize: FONT_SIZE.md, fontWeight: '600', fontFamily: 'monospace', marginBottom: SPACING.sm },
+  resultHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.xs },
+  resultLabel: { fontSize: FONT_SIZE.xs, color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, fontWeight: '600' },
+  sessionBadge: { fontSize: FONT_SIZE.xs, color: colors.primary, fontWeight: '700', fontFamily: 'monospace' },
+  resultCode: { fontSize: FONT_SIZE.md, fontWeight: '600', fontFamily: 'monospace', color: colors.text, marginBottom: SPACING.sm },
   resultMeta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  resultType: { fontSize: FONT_SIZE.sm, fontWeight: '600' },
-  sessionCounter: { fontSize: FONT_SIZE.sm },
-  hint: { textAlign: 'center', fontSize: FONT_SIZE.md },
-  passportOverlay: { flex: 1, backgroundColor: COLORS.dark.background, paddingTop: SPACING.xxl },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center', padding: SPACING.lg },
-  modalContent: { backgroundColor: COLORS.dark.surface, padding: SPACING.lg, borderRadius: RADIUS.lg, width: '100%', alignItems: 'center' },
-  modalTitle: { fontSize: FONT_SIZE.lg, fontWeight: 'bold', color: COLORS.dark.text, marginBottom: SPACING.xs },
-  modalSku: { fontSize: FONT_SIZE.md, fontFamily: 'monospace', color: COLORS.dark.primary, marginBottom: SPACING.xs },
-  modalType: { fontSize: FONT_SIZE.sm, color: COLORS.dark.textMuted, marginBottom: SPACING.md },
-  input: { width: '100%', height: 60, backgroundColor: COLORS.dark.background, color: COLORS.dark.text, fontSize: 32, textAlign: 'center', borderRadius: RADIUS.md, borderWidth: 1, borderColor: COLORS.dark.border, marginBottom: SPACING.lg },
-  modalButtons: { flexDirection: 'row', gap: SPACING.md, width: '100%' },
-  modalBtn: { flex: 1 },
+  typeBadge: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: RADIUS.full },
+  typeText: { fontSize: FONT_SIZE.xs, fontWeight: '700', letterSpacing: 0.5 },
+  hint: { textAlign: 'center', fontSize: FONT_SIZE.md, color: colors.textMuted },
+  passportOverlay: { flex: 1, backgroundColor: colors.background, paddingTop: SPACING.xxl },
 });

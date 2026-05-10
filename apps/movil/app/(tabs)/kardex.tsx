@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, RefreshControl } from 'react-native';
+import { View, Text, FlatList, StyleSheet, RefreshControl, Image } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { getHistory, getTotalCount } from '../../src/services/KardexService';
 import { KardexEntry, MovementType } from '../../src/types';
 import { Card } from '../../src/components/Alvarosky';
-import { COLORS, FONT_SIZE, SPACING } from '../../src/constants/theme';
+import { COLORS, FONT_SIZE, SPACING, RADIUS } from '../../src/constants/theme';
 
 const PAGE_SIZE = 30;
 
@@ -77,7 +77,14 @@ export default function KardexScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Kardex</Text>
+        <View style={styles.headerLeft}>
+          <Image
+            source={require('../../assets/icon.png')}
+            style={styles.headerLogo}
+            resizeMode="contain"
+          />
+          <Text style={[styles.title, { color: colors.text }]}>Kardex</Text>
+        </View>
         <Text style={[styles.count, { color: colors.textMuted }]}>{total} registros</Text>
       </View>
 
@@ -116,14 +123,25 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.sm,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'baseline',
+    alignItems: 'center',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+  },
+  headerLogo: {
+    width: 24,
+    height: 24,
   },
   title: {
     fontSize: FONT_SIZE.xl,
     fontWeight: '800',
+    letterSpacing: -0.3,
   },
   count: {
     fontSize: FONT_SIZE.sm,
+    fontWeight: '600',
   },
   list: {
     padding: SPACING.md,

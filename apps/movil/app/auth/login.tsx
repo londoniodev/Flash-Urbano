@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, Alert, Image, Dimensions } from 'react-native';
 import { router, Redirect } from 'expo-router';
-import { COLORS, FONT_SIZE, SPACING } from '../../src/constants/theme';
+import { COLORS, FONT_SIZE, SPACING, RADIUS } from '../../src/constants/theme';
 import { Input, Button } from '../../src/components/Alvarosky';
 import { useAuth } from '../../src/context/AuthContext';
+
+const { width } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const { user, isLoading, signIn } = useAuth();
@@ -18,7 +20,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Por favor ingresa credenciales válidas.');
+      Alert.alert('Campos requeridos', 'Por favor ingresa tu correo y contraseña.');
       return;
     }
 
@@ -39,17 +41,26 @@ export default function LoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={styles.content}>
-        <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>Flash Urbano</Text>
-          <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-            Identificación de Operario
-          </Text>
+        {/* Logo */}
+        <View style={styles.logoContainer}>
+          <Image
+            source={require('../../assets/icon.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
         </View>
 
+        {/* Title */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Flash Urbano</Text>
+          <Text style={styles.subtitle}>Sistema de Gestión de Inventario</Text>
+        </View>
+
+        {/* Form */}
         <View style={styles.form}>
           <Input 
             label="Correo Electrónico" 
-            placeholder="operario@bodega.com"
+            placeholder="operario@flashurbano.com"
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
@@ -63,12 +74,17 @@ export default function LoginScreen() {
             onChangeText={setPassword}
           />
           <Button 
-            title="Ingresar" 
+            title="Iniciar Sesión" 
             onPress={handleLogin} 
             loading={loading}
             style={styles.btn}
           />
         </View>
+
+        {/* Footer */}
+        <Text style={styles.footer}>
+          Operación segura · v1.0.0
+        </Text>
       </View>
     </KeyboardAvoidingView>
   );
@@ -84,22 +100,41 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: SPACING.lg,
   },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: SPACING.lg,
+  },
+  logo: {
+    width: width * 0.3,
+    height: width * 0.3,
+  },
   header: {
     marginBottom: SPACING.xl,
     alignItems: 'center',
   },
   title: {
-    fontSize: FONT_SIZE.xl,
-    fontWeight: '800',
+    fontSize: FONT_SIZE.xxl,
+    fontWeight: '900',
+    color: COLORS.dark.text,
+    letterSpacing: -0.5,
     marginBottom: SPACING.xs,
   },
   subtitle: {
-    fontSize: FONT_SIZE.md,
+    fontSize: FONT_SIZE.sm,
+    color: COLORS.dark.textMuted,
+    letterSpacing: 0.5,
   },
   form: {
     width: '100%',
   },
   btn: {
     marginTop: SPACING.md,
-  }
+  },
+  footer: {
+    textAlign: 'center',
+    color: COLORS.dark.textMuted,
+    fontSize: FONT_SIZE.xs,
+    marginTop: SPACING.xl,
+    letterSpacing: 0.5,
+  },
 });
