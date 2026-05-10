@@ -6,6 +6,7 @@ import {
   useCameraPermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
+import { useIsFocused } from '@react-navigation/native';
 import { useScanner } from '../../src/hooks/useScanner';
 import { useSync } from '../../src/hooks/useSync';
 import { useNetworkStatus } from '../../src/hooks/useNetworkStatus';
@@ -30,7 +31,8 @@ export default function ScannerScreen() {
   const [movementType, setMovementType] = useState<MovementType>(MovementType.INGRESO);
   const [displayCode, setDisplayCode] = useState<string | null>(null);
   const [displayCount, setDisplayCount] = useState(0);
-  const [isActive, setIsActive] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const isFocused = useIsFocused();
 
   // Estado para Passport (Hoja de Vida)
   const [showPassport, setShowPassport] = useState(false);
@@ -90,13 +92,13 @@ export default function ScannerScreen() {
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13', 'ean-8', 'code-128', 'code-39'],
     onCodeScanned: (codes) => {
-      if (!isActive) return;
+      if (isProcessing || !isFocused) return;
       const code = codes[0];
       if (!code?.value || !user?.id) return;
 
       const accepted = handleScan(code.value);
       if (accepted) {
-        setIsActive(false);
+        setIsProcessing(true);
         setPendingSku(code.value);
         // Cambiamos el flujo: Mostrar acción rápida directamente
         setShowFastModal(true);
@@ -127,14 +129,16 @@ export default function ScannerScreen() {
     setShowFastModal(false);
     setPendingSku(null);
     setPassportData(null);
-    setTimeout(() => setIsActive(true), 500);
+    
+    // Slight delay before allowing new scans to prevent accidental double-scans
+    setTimeout(() => setIsProcessing(false), 800);
   };
 
   const handleCloseFastModal = () => {
     setShowFastModal(false);
     setPendingSku(null);
     setPassportData(null);
-    setTimeout(() => setIsActive(true), 500);
+    setTimeout(() => setIsProcessing(false), 500);
   };
 
   const handleClosePassport = () => {
@@ -206,7 +210,7 @@ export default function ScannerScreen() {
         <Camera
           style={StyleSheet.absoluteFill}
           device={device}
-          isActive={isActive}
+          isActive={isFocused}
           codeScanner={codeScanner}
         />
         <View style={styles.scanOverlay}>
