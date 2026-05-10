@@ -24,7 +24,14 @@ export class AuthService {
       body: JSON.stringify({ email, password }),
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    let data: any;
+
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error(`El servidor no responde correctamente. Intenta de nuevo en unos segundos.`);
+    }
 
     if (!response.ok) {
       throw new Error(data.message || 'Error al iniciar sesión');

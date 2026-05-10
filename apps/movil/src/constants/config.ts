@@ -1,4 +1,4 @@
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://flash-urbano-api.onrender.com';
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://api.flashurbano.com.co';
 
 export const SYNC_BATCH_SIZE = 50;
 export const SYNC_RETRY_MAX = 5;
