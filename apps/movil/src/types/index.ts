@@ -14,6 +14,7 @@ export interface Hub {
 export interface KardexEntry {
   movement_id: string;
   product_sku: string;
+  product_name?: string;
   movement_type: MovementType;
   quantity: number;
   operator_id: string;

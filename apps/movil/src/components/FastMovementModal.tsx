@@ -48,8 +48,8 @@ export default function FastMovementModal({ visible, product, onConfirm, onClose
         <View style={styles.content}>
           <View style={styles.handle} />
           
-          <Text style={[styles.sku, { color: colors.primary }]}>{product.sku}</Text>
           <Text style={[styles.name, { color: colors.text }]}>{product.name}</Text>
+          <Text style={[styles.sku, { color: colors.primary, opacity: 0.8 }]}>{product.sku}</Text>
 
           <View style={styles.divider} />
 
@@ -57,10 +57,10 @@ export default function FastMovementModal({ visible, product, onConfirm, onClose
           <Text style={[styles.label, { color: colors.textMuted }]}>TIPO DE MOVIMIENTO</Text>
           <View style={styles.typeGrid}>
             {[
-              { id: MovementType.INGRESO, label: 'INGRESO', color: colors.primary },
+              { id: MovementType.INGRESO, label: 'INGRESO', color: colors.success },
               { id: MovementType.SALIDA, label: 'SALIDA', color: colors.danger },
-              { id: MovementType.TRASLADO, label: 'TRASLADO', color: '#f59e0b' },
-              { id: MovementType.AJUSTE, label: 'AJUSTE', color: '#3b82f6' },
+              { id: MovementType.TRASLADO, label: 'TRASLADO', color: colors.warning },
+              { id: MovementType.AJUSTE, label: 'AJUSTE', color: colors.info },
             ].map((item) => (
               <TouchableOpacity
                 key={item.id}
@@ -146,8 +146,8 @@ const styles = StyleSheet.create({
     alignItems: 'center' 
   },
   handle: { width: 40, height: 4, backgroundColor: COLORS.dark.border, borderRadius: 2, marginBottom: SPACING.md },
-  sku: { fontSize: 12, fontFamily: 'monospace', fontWeight: 'bold', marginBottom: 2 },
-  name: { fontSize: 18, fontWeight: '700', textAlign: 'center', marginBottom: SPACING.md },
+  sku: { fontSize: 13, fontFamily: 'monospace', fontWeight: 'bold', marginBottom: SPACING.md },
+  name: { fontSize: 22, fontWeight: '800', textAlign: 'center', marginBottom: 2 },
   divider: { height: 1, width: '100%', backgroundColor: COLORS.dark.border, marginBottom: SPACING.md },
   label: { fontSize: 10, fontWeight: '800', letterSpacing: 1, marginBottom: SPACING.sm },
   typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm, justifyContent: 'center' },

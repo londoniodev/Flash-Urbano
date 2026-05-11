@@ -2,7 +2,6 @@ import React from 'react';
 import { Tabs, Redirect } from 'expo-router';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { COLORS, FONT_SIZE, SPACING, RADIUS } from '../../src/constants/theme';
-import { useSync } from '../../src/hooks/useSync';
 import { useAuth } from '../../src/context/AuthContext';
 
 // Simple icon components using View + shapes (no emoji)
@@ -33,9 +32,11 @@ function SyncIcon({ focused, color }: { focused: boolean; color: string }) {
   );
 }
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 export default function TabsLayout() {
   const { user, isLoading } = useAuth();
-  const { pendingCount } = useSync();
+  const insets = useSafeAreaInsets();
   const colors = COLORS.dark;
 
   if (isLoading) return null;
@@ -52,8 +53,9 @@ export default function TabsLayout() {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           borderTopWidth: StyleSheet.hairlineWidth,
-          height: 68,
-          paddingBottom: 10,
+          // Eliminamos el height fijo y usamos insets para el padding
+          height: 60 + (insets.bottom > 0 ? insets.bottom - 10 : 10),
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 10,
           paddingTop: 10,
           elevation: 0,
           shadowOpacity: 0,
@@ -84,19 +86,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="sync"
         options={{
-          title: 'Sync',
-          tabBarIcon: ({ focused, color }) => <SyncIcon focused={focused} color={color} />,
-          tabBarBadge: pendingCount > 0 ? pendingCount : undefined,
-          tabBarBadgeStyle: {
-            backgroundColor: colors.danger,
-            color: '#FFF',
-            fontSize: 10,
-            fontWeight: '700',
-            minWidth: 18,
-            height: 18,
-            lineHeight: 18,
-            borderRadius: 9,
-          },
+          href: null, // Ocultar de la barra de navegación
         }}
       />
     </Tabs>

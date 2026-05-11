@@ -6,7 +6,7 @@ import {
   useCameraPermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
-import { useIsFocused } from '@react-navigation/native';
+import { useFocusEffect } from 'expo-router';
 import { useScanner } from '../../src/hooks/useScanner';
 import { useSync } from '../../src/hooks/useSync';
 import { useNetworkStatus } from '../../src/hooks/useNetworkStatus';
@@ -32,13 +32,21 @@ export default function ScannerScreen() {
   const [displayCode, setDisplayCode] = useState<string | null>(null);
   const [displayCount, setDisplayCount] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
-  const isFocused = useIsFocused();
+  const [isFocused, setIsFocused] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => setIsFocused(false);
+    }, [])
+  );
 
   // Estado para Passport (Hoja de Vida)
   const [showPassport, setShowPassport] = useState(false);
   const [passportData, setPassportData] = useState<any>(null);
   const [passportLoading, setPassportLoading] = useState(false);
   const [pendingSku, setPendingSku] = useState<string | null>(null);
+  const [scannedProduct, setScannedProduct] = useState<{ name: string; sku: string } | null>(null);
 
   // Estado para Modal de Acción Rápida
   const [showFastModal, setShowFastModal] = useState(false);
@@ -47,6 +55,13 @@ export default function ScannerScreen() {
 
   const colors = COLORS.dark;
 
+  const getTypeColor = (type: MovementType) => {
+    if (type === MovementType.INGRESO) return colors.success;   // Verde
+    if (type === MovementType.SALIDA) return colors.danger;     // Rojo
+    if (type === MovementType.TRASLADO) return colors.warning;  // Amarillo
+    if (type === MovementType.AJUSTE) return colors.info;       // Azul
+    return colors.textMuted;
+  };
   useEffect(() => {
     // Cargar sedes para traslados
     fetch(`${API_BASE_URL}/hubs`)
@@ -66,15 +81,19 @@ export default function ScannerScreen() {
   const fetchPassport = async (sku: string) => {
     setPassportLoading(true);
     try {
-      // Primero buscamos el producto por SKU, luego pedimos su passport
-      const token = user?.id; // TODO: get actual auth token
+      // Paso 1: Buscar producto por SKU — obtenemos el nombre inmediatamente
       const findRes = await fetch(`${API_BASE_URL}/products/sku/_/${sku}`);
       if (!findRes.ok) {
-        // Producto no registrado aún — mostrar SKU sin datos
+        // Producto no registrado — no tenemos nombre
+        setScannedProduct({ name: sku, sku });
         setPassportData(null);
         return;
       }
       const product = await findRes.json();
+      // Actualizar nombre del producto INMEDIATAMENTE para el modal
+      setScannedProduct({ name: product.name || sku, sku });
+      
+      // Paso 2: Obtener passport completo (puede demorar más)
       const passRes = await fetch(`${API_BASE_URL}/products/${product.id}/passport`);
       if (passRes.ok) {
         setPassportData(await passRes.json());
@@ -83,6 +102,7 @@ export default function ScannerScreen() {
       }
     } catch (e) {
       console.error('Error fetching passport', e);
+      setScannedProduct({ name: sku, sku });
       setPassportData(null);
     } finally {
       setPassportLoading(false);
@@ -100,34 +120,44 @@ export default function ScannerScreen() {
       if (accepted) {
         setIsProcessing(true);
         setPendingSku(code.value);
-        // Cambiamos el flujo: Mostrar acción rápida directamente
+        setScannedProduct(null); // Reset para mostrar "Cargando..."
         setShowFastModal(true);
-        fetchPassport(code.value); // Seguimos cargando datos en segundo plano por si acaso
+        fetchPassport(code.value);
       }
     },
   });
+
+  const [displayName, setDisplayName] = useState<string | null>(null);
+
+  const [lastMovementType, setLastMovementType] = useState<MovementType>(MovementType.INGRESO);
 
   const handleConfirmFastMovement = (type: MovementType, qty: number, toHubId?: string) => {
     if (!pendingSku || !user?.id) return;
     
     const userHubId = operatorProfile?.hubId;
+    // Prioridad: scannedProduct (llega rápido) > passportData > SKU crudo
+    const productName = scannedProduct?.name || passportData?.product?.name || pendingSku;
 
     recordMovement(
       pendingSku, 
       type, 
       qty, 
       user.id, 
+      productName,
       (type === MovementType.SALIDA || type === MovementType.TRASLADO) ? userHubId : undefined,
       (type === MovementType.INGRESO || type === MovementType.AJUSTE || type === MovementType.TRASLADO) ? (type === MovementType.TRASLADO ? toHubId : userHubId) : undefined
     );
 
     sessionCount.current += 1;
     setDisplayCode(pendingSku);
+    setDisplayName(productName);
+    setLastMovementType(type);
     setDisplayCount(sessionCount.current);
     refreshPending();
 
     setShowFastModal(false);
     setPendingSku(null);
+    setScannedProduct(null);
     setPassportData(null);
     
     // Slight delay before allowing new scans to prevent accidental double-scans
@@ -233,13 +263,16 @@ export default function ScannerScreen() {
               <Text style={styles.resultLabel}>Último escaneo</Text>
               <Text style={styles.sessionBadge}>#{displayCount}</Text>
             </View>
-            <Text style={styles.resultCode} numberOfLines={1} ellipsizeMode="middle">
+            <Text style={styles.resultName} numberOfLines={1}>
+              {displayName}
+            </Text>
+            <Text style={styles.resultCode} numberOfLines={1}>
               {displayCode}
             </Text>
             <View style={styles.resultMeta}>
-              <View style={[styles.typeBadge, { backgroundColor: movementType === MovementType.INGRESO ? colors.success + '20' : colors.danger + '20' }]}>
-                <Text style={[styles.typeText, { color: movementType === MovementType.INGRESO ? colors.success : colors.danger }]}>
-                  {movementType}
+              <View style={[styles.typeBadge, { backgroundColor: getTypeColor(lastMovementType) + '20' }]}>
+                <Text style={[styles.typeText, { color: getTypeColor(lastMovementType) }]}>
+                  {lastMovementType}
                 </Text>
               </View>
             </View>
@@ -254,7 +287,7 @@ export default function ScannerScreen() {
       {/* Modal Acción Rápida (Optimizado) */}
       <FastMovementModal
         visible={showFastModal}
-        product={passportData?.product || (pendingSku ? { name: 'Cargando...', sku: pendingSku } : null)}
+        product={scannedProduct || (pendingSku ? { name: 'Cargando...', sku: pendingSku } : null)}
         hubs={hubs}
         defaultType={movementType}
         onConfirm={handleConfirmFastMovement}
@@ -313,7 +346,8 @@ const styles = StyleSheet.create({
   resultHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.xs },
   resultLabel: { fontSize: FONT_SIZE.xs, color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, fontWeight: '600' },
   sessionBadge: { fontSize: FONT_SIZE.xs, color: colors.primary, fontWeight: '700', fontFamily: 'monospace' },
-  resultCode: { fontSize: FONT_SIZE.md, fontWeight: '600', fontFamily: 'monospace', color: colors.text, marginBottom: SPACING.sm },
+  resultName: { fontSize: FONT_SIZE.lg, fontWeight: '700', color: colors.text, marginBottom: 2 },
+  resultCode: { fontSize: FONT_SIZE.xs, fontWeight: '600', fontFamily: 'monospace', color: colors.primary, marginBottom: SPACING.sm, opacity: 0.9 },
   resultMeta: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   typeBadge: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: RADIUS.full },
   typeText: { fontSize: FONT_SIZE.xs, fontWeight: '700', letterSpacing: 0.5 },

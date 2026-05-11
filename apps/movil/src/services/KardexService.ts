@@ -10,11 +10,14 @@ function generateUUID() {
   });
 }
 
+import { syncService } from './SyncService';
+
 export function recordMovement(
   productSku: string, 
   movementType: MovementType, 
   quantity: number,
   operatorId: string,
+  productName?: string,
   fromHubId?: string,
   toHubId?: string
 ): KardexEntry {
@@ -22,6 +25,7 @@ export function recordMovement(
   const entry: KardexEntry = {
     movement_id: generateUUID(),
     product_sku: productSku,
+    product_name: productName,
     movement_type: movementType,
     quantity,
     operator_id: operatorId,
@@ -34,11 +38,12 @@ export function recordMovement(
   };
 
   db.runSync(
-    `INSERT INTO kardex_entries (movement_id, product_sku, quantity, operator_id, movement_type, from_hub_id, to_hub_id, device_timestamp, synced, sync_attempts, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO kardex_entries (movement_id, product_sku, product_name, quantity, operator_id, movement_type, from_hub_id, to_hub_id, device_timestamp, synced, sync_attempts, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       entry.movement_id,
       entry.product_sku,
+      entry.product_name || null,
       entry.quantity,
       entry.operator_id,
       entry.movement_type,
@@ -50,6 +55,11 @@ export function recordMovement(
       entry.created_at,
     ]
   );
+
+  // Sincronización automática en segundo plano
+  syncService.syncPending().catch(err => {
+    console.warn('Error en sincronización automática:', err);
+  });
 
   return entry;
 }

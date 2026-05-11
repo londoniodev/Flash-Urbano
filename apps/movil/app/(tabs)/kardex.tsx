@@ -34,10 +34,11 @@ export default function KardexScreen() {
   }, [loadData]);
 
   const typeColor = (type: string) => {
-    if (type === MovementType.INGRESO) return colors.primary;
-    if (type === MovementType.SALIDA) return colors.danger;
-    if (type === MovementType.TRASLADO) return colors.warning;
-    return '#8b8b8b'; // AJUSTE
+    if (type === MovementType.INGRESO) return colors.success;   // Verde
+    if (type === MovementType.SALIDA) return colors.danger;     // Rojo
+    if (type === MovementType.TRASLADO) return colors.warning;  // Amarillo
+    if (type === MovementType.AJUSTE) return colors.info;       // Azul
+    return colors.textMuted;
   };
 
   const renderItem = useCallback(
@@ -48,7 +49,7 @@ export default function KardexScreen() {
             {item.movement_type}
           </Text>
           <View style={styles.itemHeaderRight}>
-            <Text style={[styles.quantity, { color: item.movement_type === 'SALIDA' ? colors.danger : colors.primary }]}>
+            <Text style={[styles.quantity, { color: typeColor(item.movement_type) }]}>
               {item.movement_type === 'SALIDA' ? '-' : '+'}{item.quantity}
             </Text>
             <View
@@ -59,12 +60,11 @@ export default function KardexScreen() {
             />
           </View>
         </View>
-        <Text
-          style={[styles.sku, { color: colors.text }]}
-          numberOfLines={1}
-          ellipsizeMode="middle"
-        >
-          SKU: {item.product_sku}
+        <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
+          {item.product_name || 'Producto sin nombre'}
+        </Text>
+        <Text style={[styles.sku, { color: colors.primary, opacity: 0.8 }]}>
+          {item.product_sku}
         </Text>
         <Text style={[styles.time, { color: colors.textMuted }]}>
           {new Date(item.device_timestamp).toLocaleString()}
@@ -177,10 +177,16 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
   },
+  name: {
+    fontSize: FONT_SIZE.md,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
   sku: {
-    fontSize: FONT_SIZE.sm,
+    fontSize: FONT_SIZE.xs,
     fontFamily: 'monospace',
-    marginBottom: SPACING.xs,
+    fontWeight: '600',
+    marginBottom: SPACING.sm,
   },
   time: {
     fontSize: FONT_SIZE.xs,

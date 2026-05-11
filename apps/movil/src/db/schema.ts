@@ -6,6 +6,7 @@ export const CREATE_KARDEX_TABLE = `
   CREATE TABLE IF NOT EXISTS kardex_entries (
     movement_id TEXT PRIMARY KEY NOT NULL,
     product_sku TEXT NOT NULL,
+    product_name TEXT,
     quantity INTEGER NOT NULL,
     operator_id TEXT NOT NULL,
     from_hub_id TEXT,
