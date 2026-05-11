@@ -9,6 +9,7 @@ import {
 import { useFocusEffect } from 'expo-router';
 import { useScanner } from '../../src/hooks/useScanner';
 import { useSync } from '../../src/hooks/useSync';
+
 import { useNetworkStatus } from '../../src/hooks/useNetworkStatus';
 import { useAuth } from '../../src/context/AuthContext';
 import { MovementType } from '../../src/types';
@@ -81,17 +82,19 @@ export default function ScannerScreen() {
   const fetchPassport = async (sku: string) => {
     setPassportLoading(true);
     try {
-      // Paso 1: Buscar producto por SKU — obtenemos el nombre inmediatamente
-      const findRes = await fetch(`${API_BASE_URL}/products/sku/_/${sku}`);
+      // Paso 1: Buscar producto por SKU — endpoint global sin companyId
+      const findRes = await fetch(`${API_BASE_URL}/products/lookup/${sku}`);
       if (!findRes.ok) {
-        // Producto no registrado — no tenemos nombre
-        setScannedProduct({ name: sku, sku });
+        // Producto no registrado — solo tenemos el SKU
+        setScannedProduct({ name: '', sku });
         setPassportData(null);
         return;
       }
       const product = await findRes.json();
       // Actualizar nombre del producto INMEDIATAMENTE para el modal
-      setScannedProduct({ name: product.name || sku, sku });
+      // Solo guardar el nombre si es diferente al SKU
+      const realName = (product.name && product.name !== sku) ? product.name : '';
+      setScannedProduct({ name: realName, sku });
       
       // Paso 2: Obtener passport completo (puede demorar más)
       const passRes = await fetch(`${API_BASE_URL}/products/${product.id}/passport`);
@@ -102,7 +105,7 @@ export default function ScannerScreen() {
       }
     } catch (e) {
       console.error('Error fetching passport', e);
-      setScannedProduct({ name: sku, sku });
+      setScannedProduct({ name: '', sku });
       setPassportData(null);
     } finally {
       setPassportLoading(false);
@@ -135,8 +138,9 @@ export default function ScannerScreen() {
     if (!pendingSku || !user?.id) return;
     
     const userHubId = operatorProfile?.hubId;
-    // Prioridad: scannedProduct (llega rápido) > passportData > SKU crudo
-    const productName = scannedProduct?.name || passportData?.product?.name || pendingSku;
+    // Prioridad: nombre real del API > SKU como fallback
+    const apiName = scannedProduct?.name || passportData?.product?.name || '';
+    const productName = (apiName && apiName !== pendingSku) ? apiName : '';
 
     recordMovement(
       pendingSku, 
@@ -230,7 +234,6 @@ export default function ScannerScreen() {
                 {network.isConnected ? 'En línea' : 'Offline'}
               </Text>
             </View>
-            {pendingCount > 0 && <Badge count={pendingCount} variant="warning" />}
           </View>
         </View>
       </View>
@@ -263,12 +266,20 @@ export default function ScannerScreen() {
               <Text style={styles.resultLabel}>Último escaneo</Text>
               <Text style={styles.sessionBadge}>#{displayCount}</Text>
             </View>
-            <Text style={styles.resultName} numberOfLines={1}>
-              {displayName}
-            </Text>
-            <Text style={styles.resultCode} numberOfLines={1}>
-              {displayCode}
-            </Text>
+            {displayName ? (
+              <>
+                <Text style={styles.resultName} numberOfLines={1}>
+                  {displayName}
+                </Text>
+                <Text style={styles.resultCode} numberOfLines={1}>
+                  {displayCode}
+                </Text>
+              </>
+            ) : (
+              <Text style={styles.resultName} numberOfLines={1}>
+                {displayCode}
+              </Text>
+            )}
             <View style={styles.resultMeta}>
               <View style={[styles.typeBadge, { backgroundColor: getTypeColor(lastMovementType) + '20' }]}>
                 <Text style={[styles.typeText, { color: getTypeColor(lastMovementType) }]}>

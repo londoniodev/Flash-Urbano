@@ -48,8 +48,14 @@ export default function FastMovementModal({ visible, product, onConfirm, onClose
         <View style={styles.content}>
           <View style={styles.handle} />
           
-          <Text style={[styles.name, { color: colors.text }]}>{product.name}</Text>
-          <Text style={[styles.sku, { color: colors.primary, opacity: 0.8 }]}>{product.sku}</Text>
+          {product.name ? (
+            <>
+              <Text style={[styles.name, { color: colors.text }]}>{product.name}</Text>
+              <Text style={[styles.sku, { color: colors.primary, opacity: 0.8 }]}>{product.sku}</Text>
+            </>
+          ) : (
+            <Text style={[styles.name, { color: colors.text }]}>{product.sku}</Text>
+          )}
 
           <View style={styles.divider} />
 

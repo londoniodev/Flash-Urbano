@@ -35,6 +35,11 @@ export class ProductsController {
     return this.productsService.findBySku(companyId, sku);
   }
 
+  @Get('lookup/:sku')
+  findBySkuGlobal(@Param('sku') sku: string) {
+    return this.productsService.findBySkuGlobal(sku);
+  }
+
   @Post()
   @Roles('ADMIN', 'OPERATOR', 'CLIENT')
   create(@Body() dto: CreateProductDto, @Request() req: any) {

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { View, Text, FlatList, StyleSheet, RefreshControl, Image } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { getHistory, getTotalCount } from '../../src/services/KardexService';
@@ -12,19 +12,33 @@ export default function KardexScreen() {
   const [entries, setEntries] = useState<KardexEntry[]>([]);
   const [total, setTotal] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+  const isLoadingRef = useRef(false);
   const colors = COLORS.dark;
 
   const loadData = useCallback((reset = false) => {
-    const offset = reset ? 0 : entries.length;
-    const data = getHistory(PAGE_SIZE, offset);
-    setEntries((prev) => (reset ? data : [...prev, ...data]));
-    setTotal(getTotalCount());
-  }, [entries.length]);
+    if (isLoadingRef.current) return;
+    isLoadingRef.current = true;
+    
+    try {
+      if (reset) {
+        const data = getHistory(PAGE_SIZE, 0);
+        setEntries(data);
+      } else {
+        setEntries(prev => {
+          const data = getHistory(PAGE_SIZE, prev.length);
+          return [...prev, ...data];
+        });
+      }
+      setTotal(getTotalCount());
+    } finally {
+      isLoadingRef.current = false;
+    }
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
       loadData(true);
-    }, [])
+    }, [loadData])
   );
 
   const onRefresh = useCallback(() => {
@@ -42,7 +56,9 @@ export default function KardexScreen() {
   };
 
   const renderItem = useCallback(
-    ({ item }: { item: KardexEntry }) => (
+    ({ item }: { item: KardexEntry }) => {
+      const hasRealName = item.product_name && item.product_name !== item.product_sku;
+      return (
       <Card style={styles.item}>
         <View style={styles.itemHeader}>
           <Text style={[styles.type, { color: typeColor(item.movement_type) }]}>
@@ -60,17 +76,25 @@ export default function KardexScreen() {
             />
           </View>
         </View>
-        <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
-          {item.product_name || 'Producto sin nombre'}
-        </Text>
-        <Text style={[styles.sku, { color: colors.primary, opacity: 0.8 }]}>
-          {item.product_sku}
-        </Text>
+        {hasRealName ? (
+          <>
+            <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
+              {item.product_name}
+            </Text>
+            <Text style={[styles.sku, { color: colors.primary, opacity: 0.8 }]}>
+              {item.product_sku}
+            </Text>
+          </>
+        ) : (
+          <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
+            {item.product_sku}
+          </Text>
+        )}
         <Text style={[styles.time, { color: colors.textMuted }]}>
           {new Date(item.device_timestamp).toLocaleString()}
         </Text>
       </Card>
-    ),
+    );},
     [colors]
   );
 
