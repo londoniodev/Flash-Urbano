@@ -4,11 +4,11 @@ FROM oven/bun:1 AS builder
 WORKDIR /app
 
 # Copiar archivos de configuración y dependencias
-COPY package.json bun.lock ./
+COPY package.json ./
 COPY apps/api/package.json ./apps/api/
 COPY packages/shared/package.json ./packages/shared/
 
-# Instalar dependencias
+# Instalar dependencias (bun genera su propio lockfile)
 RUN bun install
 
 # Copiar el código fuente necesario
@@ -25,7 +25,7 @@ FROM oven/bun:1-slim
 WORKDIR /app
 
 # Copiar TODO el node_modules generado (incluyendo enlaces monorepo)
-COPY --from=builder /app/package.json /app/bun.lock ./
+COPY --from=builder /app/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages/shared ./packages/shared
 COPY --from=builder /app/apps/api/package.json ./apps/api/
