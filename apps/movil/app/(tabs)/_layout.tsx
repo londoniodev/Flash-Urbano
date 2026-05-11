@@ -32,6 +32,17 @@ function SyncIcon({ focused, color }: { focused: boolean; color: string }) {
   );
 }
 
+function ProductsIcon({ focused, color }: { focused: boolean; color: string }) {
+  return (
+    <View style={iconStyles.productsBox}>
+      <View style={[iconStyles.productsCell, { backgroundColor: color }]} />
+      <View style={[iconStyles.productsCell, { backgroundColor: color, opacity: 0.6 }]} />
+      <View style={[iconStyles.productsCell, { backgroundColor: color, opacity: 0.4 }]} />
+      <View style={[iconStyles.productsCell, { backgroundColor: color, opacity: 0.8 }]} />
+    </View>
+  );
+}
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabsLayout() {
@@ -81,6 +92,13 @@ export default function TabsLayout() {
         options={{
           title: 'Kardex',
           tabBarIcon: ({ focused, color }) => <KardexIcon focused={focused} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="products"
+        options={{
+          title: 'Productos',
+          tabBarIcon: ({ focused, color }) => <ProductsIcon focused={focused} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -142,5 +160,18 @@ const iconStyles = StyleSheet.create({
     borderRadius: 2.5,
     top: 1,
     right: 5,
+  },
+  // Products icon: 2x2 grid
+  productsBox: {
+    width: 20,
+    height: 20,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 3,
+  },
+  productsCell: {
+    width: 8,
+    height: 8,
+    borderRadius: 2,
   },
 });
