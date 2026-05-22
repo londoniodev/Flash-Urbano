@@ -174,9 +174,7 @@ export default function Products() {
         MARCA: 'MarcaX',
         BARCODE: '1234567890123',
         DESCRIPCION: 'Breve descripción del producto',
-        IMAGE_URL: 'https://link-a-imagen.com/foto.jpg',
-        HUB_ID: hubs[0]?.id || 'uuid-de-sede',
-        STOCK_INICIAL: 10
+        IMAGE_URL: 'https://link-a-imagen.com/foto.jpg'
       }
     ];
     exportToExcel(template, 'plantilla_carga_productos', 'Productos');
@@ -195,7 +193,7 @@ export default function Products() {
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(worksheet) as any[];
 
-      // Mapear campos del Excel a CreateProductDto
+      // Mapear campos del Excel a CreateProductDto (sin stock inicial ni sede)
       const dtos = jsonData.map(row => ({
         sku: row.SKU?.toString(),
         name: row.NOMBRE?.toString(),
@@ -204,8 +202,6 @@ export default function Products() {
         barcode: row.BARCODE?.toString(),
         description: row.DESCRIPCION?.toString(),
         imageUrl: row.IMAGE_URL?.toString(),
-        hubId: row.HUB_ID?.toString() || hubId,
-        initialStock: Number(row.STOCK_INICIAL) || 0,
         companyId: companyId // Se asignará correctamente en el backend para clientes
       })).filter(p => p.sku && p.name);
 
